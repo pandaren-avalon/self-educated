@@ -1,0 +1,9 @@
+¡¾pringtf("");ÏÔÊ¾ÃüÁî¡¿
+
+#include <stdio.h>
+int main()
+{
+	printf("(¥Î¦Ø<¡£)¥Î))¡î.¡£");
+	system("pause");
+	return 0;
+}
