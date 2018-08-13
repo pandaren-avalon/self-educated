@@ -1,12 +1,16 @@
-【pringtf("");显示命令】
+【啊哈C语言自学】
 
-#include <stdio.h>
-int main()
-{
-	printf("(ノω<。)ノ))☆.。");
-	system("pause");
-	return 0;
+【第一章	第2节】
+【C语言框架】
+
+#include <stdio.h>		//头文件；函数库，stdio (standard input & output) 标准输入输出
+#include <stdlib.h>		//头文件；函数库，stdlib (standard library) 标准库
+int main()			//main主函数；int main()整数类型主函数，一个C程序只能有一个全局main函数
+{	
+	return 0;		//结束运行；返回值
 }
+
+
 
 #include <stdio.h>
 #include <windows.h>
