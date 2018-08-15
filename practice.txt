@@ -1,14 +1,251 @@
 【啊哈C语言自学】
 
-【第一章	第2节】
-【C语言框架】
+【第一章】
+【第1节】（略）
 
-#include <stdio.h>		//头文件；函数库，stdio (standard input & output) 标准输入输出
-#include <stdlib.h>		//头文件；函数库，stdlib (standard library) 标准库
-int main()			//main主函数；int main()整数类型主函数，一个C程序只能有一个全局main函数
+【第2节】（让计算机说话）
+
+【000——C语言基本框架】
+
+#include <stdio.h>//头文件；函数库，stdio (standard input & output) 标准输入输出
+#include <stdlib.h>//头文件；函数库，stdlib (standard library) 标准库
+int main()//main主函数；int main()整数类型主函数，一个C程序只能有一个全局main函数
 {	
-	return 0;		//结束运行；返回值
+	return 0;//结束运行；返回值
 }
+
+【001——hello world】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	printf("hello world");//pringf("")程序输出内容
+	Sleep(2000);//暂停2000毫秒
+	return 0;
+}
+
+【002——换行命令\n】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>//vs下调用Sleep函数需要的头文件
+int main()
+{
+	printf("hello\nworld");//换行符\n
+	Sleep(5000);
+	return 0;
+}
+
+【003——练习】
+
+练习1；让计算机显示如下：
+*
+**
+***
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	printf("*\n**\n***");
+	Sleep(2000);
+	return 0;
+}
+
+练习2；让计算机显示如下：
+  *  
+ * * 
+*   *
+ * * 
+  *  
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	printf("  *  \n * * \n*   *\n * * \n  *  ");
+	Sleep(2000);
+	return 0;
+}
+
+练习3；让计算机显示如下：
+
+               *
+             * 
+           *  
+*       *   
+  *   *    
+    *     
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	printf("       *\n      * \n     *  \n*   *   \n * *    \n  *     ");
+	Sleep(2000);
+	return 0;
+}
+
+练习4；让计算机显示中文“你好”：
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	printf("你好");
+	Sleep(2000);
+	return 0;
+}
+
+【第3节】（让显示的字带颜色）//系统默认黑底白字
+
+【004——让字带上颜色】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	printf("你好");
+	system("color 5");//5文字紫色;
+	Sleep(2000);
+	return 0;
+}
+
+【005——改变背景和文字颜色】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	system("color f2");//f5白底绿字;(16进制)
+	printf("你好");
+	Sleep(2000);
+	return 0;
+}
+
+【第4节】（数学运算）
+
+【006——加法计算1+2】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a,b,c;//int(integer)取整函数；设置a;b;c;
+	a=1;//赋值a为1；“=”号编程中为赋值符号;等于号表示为“==”
+	b=2;//赋值b为2；
+	c=a+b;//赋值c为a+b;
+	printf("%d",c);//输出结果；%d为输出实数，对应函数int;输出对象为c
+	Sleep(2000);
+	return 0;
+}
+
+【第五节】（变量：存储数据的小房子）
+[术语] [变量类型] [变量名称] [变量名称]
+代码 	int a,b; 
+
+【007——最后输出啥】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a;
+	a=1;
+	a=2;
+	printf("%d",a);//输出2；a=1被a=2覆盖运行；始终存放最后一次的值
+	Sleep(2000);
+	return 0;
+}
+
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a;
+	a=7;
+	a=a+1;
+	printf("%d",a);//输出8；先a=7;后运行a=a+1,+级别优先于=；先计算后赋值给a
+	Sleep(2000);
+	return 0;
+}
+
+
+【008——练习】
+
+练习1；计算1.2+2.3+3.4+4.5
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	float a,b,c,d,e;
+	a=1.2;
+	b=2.3;
+	c=3.4;
+	d=4.5;
+	e=a+b+c+d;
+	printf("%f",e);
+	Sleep(2000);
+	return 0;
+}
+
+练习2：计算1.1*100
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	float a;
+	a=1.1;
+	int b,c;
+	b=100;
+	c=a*b;
+	printf("%d",c);
+	Sleep(2000);
+	return 0;
+}
+
+练习3：计算10.1*(10*10)
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	float a;
+	a=10.1;
+	int b,c,d;
+	b=10;
+	c=b*b;
+	d=a*c;
+	printf("%d",d);
+	Sleep(2000);
+	return 0;
+}
+
+
+
+
+
+
+
+
+
 
 
 
