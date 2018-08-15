@@ -18,7 +18,7 @@ int main()//mainÖ÷º¯Êı£»int main()ÕûÊıÀàĞÍÖ÷º¯Êı£¬Ò»¸öC³ÌĞòÖ»ÄÜÓĞÒ»¸öÈ«¾Ömainº¯Ê
 
 #include <stdio.h>	
 #include <stdlib.h>	
-#include <windows.h>
+#include <windows.h>//vsÏÂµ÷ÓÃSleepº¯ÊıĞèÒªµÄÍ·ÎÄ¼ş
 int main()
 {
 	printf("hello world");//pringf("")³ÌĞòÊä³öÄÚÈİ
@@ -30,11 +30,11 @@ int main()
 
 #include <stdio.h>	
 #include <stdlib.h>	
-#include <windows.h>//vsÏÂµ÷ÓÃSleepº¯ÊıĞèÒªµÄÍ·ÎÄ¼ş
+#include <windows.h>
 int main()
 {
 	printf("hello\nworld");//»»ĞĞ·û\n
-	Sleep(5000);
+	Sleep(2000);
 	return 0;
 }
 
