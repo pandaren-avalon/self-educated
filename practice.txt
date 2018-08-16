@@ -149,7 +149,7 @@ int main()
 	return 0;
 }
 
-【第五节】（变量：存储数据的小房子）
+【第5节】（变量：存储数据的小房子）
 [术语] [变量类型] [变量名称] [变量名称]
 代码 	int a,b; 
 
@@ -238,7 +238,204 @@ int main()
 	return 0;
 }
 
+【第6节】（数据输出）
 
+【009——输出1+2=3这样的运算过程】
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a,b,c;
+	a=1;
+	b=2;
+	c=a+b;
+	printf("%d+%d=%d",a,b,c);//算术等式输出
+	Sleep(2000);
+	return 0;
+}
+
+【010——分别计算10-5和10+5并分2行显示】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a,b;
+	a=10;
+	b=5;
+	printf("%d\n",a-b);//只显示运算结果；换行；
+	printf("%d",a+b);//只显示运算结果
+	Sleep(2000);
+	return 0;
+}
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a,b;
+	a=10;
+	b=5;
+	printf("%d-%d=%d\n",a,b,a-b);//显示算术等式和结果；换行
+	printf("%d+%d=%d",a,b,a+b);//显示算术等式和结果；
+	Sleep(2000);
+	return 0;
+}
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a,b,c;
+	a=10;
+	b=5;
+	c=a-b;
+	printf("%d\n",c);
+	c=a+b;
+	printf("%d",c);
+	Sleep(2000);
+	return 0;
+}
+
+【011——输出指定两个数的和差积商例9与3】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a,b;
+	a=9;
+	b=3;
+	printf("%d+%d=%d\n",a,b,a+b);
+	printf("%d-%d=%d\n",a,b,a-b);
+	printf("%d*%d=%d\n",a,b,a*b);
+	printf("%d/%d=%d",a,b,a/b);
+	Sleep(2000);
+	return 0;
+}
+
+【第7节】（获取键盘输入数据scanf_s）
+
+【012——从键盘读入2个数字并求和】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a, b, c;	
+	scanf_s("%d %d", &a, &b);//给变量赋值，scanf_s读取键盘输入;&取址符
+	c = a + b;//a和b赋值前不可预算变量c,故此行在scanf_s读入ab值之后
+	printf("%d+%d=%d", a, b, c);
+	Sleep(2000);
+	return 0;
+}
+
+【013——带提示的加法计算器】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a, b, c;
+	printf("警告！这是一个会卖萌的加法计算器！(ノω<。)ノ))☆.。\n");
+	printf("--------------------------------------------------\n");
+	printf("请输入第1个加数(输入完毕按请按Enter键确认)\n");
+	scanf_s("%d", &a);
+	printf("请输入第2个加数(输入完毕按请按Enter键确认)\n");
+	scanf_s("%d", &b);
+	c = a + b;
+	printf("铛铛铛~本宝宝要开始计算啦(ノω<。)ノ))☆.。\n");
+	printf("计算结果为：%d+%d=%d\n", a, b, c);
+	printf("(★ ω ★)本宝宝是不是很腻害！");
+	Sleep(5000);
+	return 0;
+}
+
+
+【014——练习输入两个数；输出他们的和差积商】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include <windows.h>
+int main()
+{
+	int a, b, c;	
+	scanf_s("%d %d", &a, &b);
+	c = a + b;
+	printf("%d+%d=%d", a, b, c);
+	c = a - b;
+	printf("%d-%d=%d", a, b, c);
+	c = a * b;
+	printf("%d*%d=%d", a, b, c);
+	c = a / b;
+	printf("%d/%d=%d", a, b, c);//整数除法结果只留整数部分
+
+	Sleep(2000);
+	return 0;
+}
+
+【第8节】（几个最常用的数据类型）
+int	——占位符%d	(用来存放整数)
+float	——占位符%f	(用来存放浮点数)
+double	——占位符%lf	(用来存放极大和极小的浮点数)
+char	——占位符%c	(用来存放字符)
+
+【015——float与double区别】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+int main()
+{
+	float a;
+	a=3.1415926535897932;//	a=3.1415926535897932
+	printf("%.15f",a);//	输出结果a=3.141592741012573;".15"表示保留小数点后15位
+	getchar();//效果类似于system("pause");回车后执行后续代码
+	return 0;
+}
+
+#include <stdio.h>	
+#include <stdlib.h>	
+int main()
+{
+	double a;
+	a=3.1415926535897932;//	a=3.1415926535897932
+	printf("%.15lf",a);//输出结果a=3.141592653589793
+	getchar();
+	return 0;
+}
+
+【016——char】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+int main()
+{
+	char a;
+	scanf_s("%c",&a);//如果输入为多个字符只输出第一个字符
+	printf("你输入的符号为%c\n",a);
+	system("pause");
+	return 0;
+}
+
+【017——练习：输入一个字符；输出该字符后面一位】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+int main()
+{
+	char a;
+	scanf_s("%c",&a);
+	printf("你输入的符号后一位为%c\n",a+1);
+	system("pause");
+	return 0;
+}
 
 
 
