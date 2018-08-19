@@ -437,6 +437,86 @@ int main()
 	return 0;
 }
 
+【第9节】（计算其实很简单）
+
+【018——直接计算】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+int main()
+{
+	printf("%d",4+(6-3)*7);
+	getchar();
+	return 0;
+}
+
+【第10节】（交换数据）
+
+【019——交换变量初始值；例输入a=5、b=6；输出a=6、b=5；实现交换】
+
+Mission A：实现输入即输出：
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{
+	int a,b;
+	scanf_s("%d %d",&a,&b);//获取变量值a,b的输入；a=&a、b=&b
+	printf("%d %d",a,b);//输出获取的变量值；a=&a、b=&b
+	Sleep(5000);
+	return 0;
+}
+
+MissionB：尝试交换1：
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{
+	int a,b;
+	scanf_s("%d %d",&a,&b);//获取变量值a,b的输入；a=&a、b=&b
+	a=b;//a=&b
+	b=a;//b=a=&b
+	printf("%d %d",a,b);//输出变量值a=&b;b=&b；a被替换覆盖交换失败
+	Sleep(5000);
+	return 0;
+}
+
+MissionC：引入临时变量t：
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{
+	int a,b,t;
+	scanf_s("%d %d",&a,&b);//获取变量值a,b的输入；a=&a、b=&b
+	t=a;//t=&a
+	a=b;//a=&b
+	b=t;//b=t=&a
+	printf("%d %d",a,b);//输出变量值a=&b;b=t=&a；a交换成功
+	Sleep(5000);
+	return 0;
+}
+
+MissionE：不引入临时变量实现交换，尝试解析如何实现：
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{
+	int a,b;
+	scanf_s("%d %d",&a,&b);
+	a=b-a;//①
+	b=b-a;//②
+	a=b+a;//③
+	printf("%d %d",a,b);
+	Sleep(5000);
+	return 0;
+}
 
 
 
@@ -444,6 +524,56 @@ int main()
 
 
 
+
+解析：
+
+已经定义a,b;并获取输入值&a;&b;
+	a=b-a;//①
+	b=b-a;//②
+	a=b+a;//③
+最终输出时a的赋值①被③覆盖；类似于
+int a,b,c;
+a=0;
+b=1;
+a=2;
+则最后输出(a,b)为(2,1)一个道理；
+
+
+①a=b-a//a有赋值动作；	a=(&b-&a);
+
+②b=b-a//b有赋值动作；	b=&b-a;	&b-a中有不确定变量a；查询到
+	①中a=(&b-&a)
+	则&b-a=&b-(&b-&a)=&b-&b+&a=&a;最后【b=&a】
+
+③a=b+a//a有赋值动作；a={b+a}；{b+a}中有不确定变量b,a;查询到
+	②中b=&a；
+	①中a=(&b-&a)
+	则a={b+a}={&a+(&b-&a)}={&a+&b-&a}=&b;最后【a=&b】
+
+printf("")输出(a,b)=(&b,&a)，数据交换完成；
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <stdio.h>	
+#include <stdlib.h>	
+int main()
+{
+	int a,b;
+	scanf_s("%d %d",&a,&b);//获取变量值a,b的输入；5、6
+	printf("%d %d",a,b);//输出获取的变量值；5、6
+	getchar();
+	return 0;
+}
 
 
 #include <stdio.h>
