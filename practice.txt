@@ -1,6 +1,7 @@
 【啊哈C语言自学】
 
 【第一章】
+
 【第1节】（略）
 
 【第2节】（让计算机说话）
@@ -553,27 +554,292 @@ a=2;
 printf("")输出(a,b)=(&b,&a)，数据交换完成；
 
 
+【第11节】（让代码变得更美）
+“//”注释到本行末尾；“/*……*/”注释中间部分；tab键调整代码格式）
+
+【020——代码格式美化】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main() { int a, b, c; scanf_s("%d %d", &a, &b);  c = a + b; printf("%d", c); Sleep(2000); return 0; }
+
+以上代码可以编译执行无任何错误；但人看起来会比较吃力；
+优化代码排列可以更容易让人理解代码内容；
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a, b, c;
+	scanf_s("%d %d", &a, &b); 
+	c = a + b;
+	printf("%d", c); 
+	Sleep(2000); 
+	return 0; 
+}
+
+【021——注释；告诉编码器从//直到本行末尾内容是无用的；仅作为备注方便理解】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;
+	a=1;//将变量a赋初始值
+	printf("%d",a); 
+	Sleep(2000); 
+	return 0; 
+}
+
+【022——注释符另一用法：临时性删除，代码保留但不用不执行】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;
+	a=1;//将变量a赋初始值
+	//printf("%d",a); （本行不执行；如果需要恢复执行只需要去掉注释符“//”即可）
+	Sleep(2000); 
+	return 0; 
+}
+
+【023——多行注释“/*……*/”；从/*开始直到*/结束都不执行，可跨行注释】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;
+	a=1;
+	/*
+	a=2;
+	a=3;
+	a=4;
+	a=5;
+	*/
+	printf("%d",a); 
+	Sleep(2000); 
+	return 0; 
+}
+
+【024——代码简化】
+
+单个变量：
+	int a;
+	a=1;
+简化后：
+	int a=1;
+
+
+多个变量：
+	int a,b,c;
+	a=1;
+	b=2;
+	c=3;
+简化后：
+	int a=1,b=2,c=3;
+
+浮点型和字符型类似：
+	float a=1.2;
+	char a='X';//给字符赋初始值时，字符两边加单引号‘ ’
 
 
 
+【第二章】
+
+【第1节】（判断大小）
+
+【025——关系运算符】
+
+==	等于//计算机语言中=表示赋值；==才表示相等；
+>	大于
+<	小于
+>=	大于等于
+<=	小于等于
+！=	不等于
 
 
+【第2节】（判断正负）
 
+【026——如何判断一个整数为正数，如果是则显示yes】
 
+算法：
+	1、需要定义一个变量来存储这个数字；
+	2、需要让计算机读取这个数；
+	3、计算机运算来判断是否为正数；
+	4、输出判断结果。
+代码：
 
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;//定义一个变量整数a;
+	scanf_s("%d",&a);//读取输入的整数；
+	if(a>0)	printf("yes");//条件语句if()；括号内为关系表达式；
+	Sleep(2000); 
+	return 0; 
+}
+
+【027——练习；如果正数显示yes;负数或者0则显示no】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;
+	scanf_s("%d",&a);
+	if(a>0)	printf("yes");
+	if(a<=0)	printf("no");
+	Sleep(2000); 
+	return 0; 
+}
+
+【第3节】（判断奇偶）
+
+【028——如何判断一个整数为偶数，如果是则显示yes不是则显示no】
+
+算法：
+	1、需要定义一个变量来存储这个数字；
+	2、需要让计算机读取这个数；
+	3、计算机运算来判断是否为偶数；
+	4、输出判断结果。
+代码：
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;
+	scanf_s("%d",&a);
+	if(a%2==0)	printf("yes");//求余数符号"%"
+	if(a%2!=0)	printf("no");
+	Sleep(2000); 
+	return 0; 
+}
+
+【029——练习：如何判断一个数末尾是不是0】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;
+	scanf_s("%d",&a);
+	if(a%10==0)	printf("yes");
+	if(a%10!=0)	printf("no");
+	Sleep(2000); 
+	return 0; 
+}
+
+【第4节】（else语句：与if搭配；表示否则；除此以外）
+
+【028——if-else语句用法】
+
+if(条件)	语句；
+else	语句；
+
+条件为真的时候执行if后语句，条件为假的时候执行else后语句
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{ 
+	int a;
+	scanf_s("%d",&a);
+	if(a%2==0)	printf("yes");
+	else		printf("no");
+	Sleep(2000); 
+	return 0; 
+}
+
+【029——练习：判断一个正整数是否为个位数（即1~9）】
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{
+	int a;
+	scanf_s("%d", &a);
+	if (a>0&&a<10)	printf("yes");//&&逻辑与;并且;取交集;（用&也行，不懂位与符待研究）
+	else		printf("no");
+	Sleep(2000);
+	return 0;
+}
+
+#include <stdio.h>	
+#include <stdlib.h>	
+#include<windows.h>
+int main()
+{
+	int a;
+	scanf_s("%d", &a);
+	if (a > 0) 
+	{
+		if (a<10)	printf("yes");
+		else	printf("no");
+	}
+	else
+	{
+		printf("no");
+	}
+	Sleep(2000);
+	return 0;
+}
 
 
 
 #include <stdio.h>	
 #include <stdlib.h>	
+#include<windows.h>
 int main()
 {
-	int a,b;
-	scanf_s("%d %d",&a,&b);//获取变量值a,b的输入；5、6
-	printf("%d %d",a,b);//输出获取的变量值；5、6
-	getchar();
+	int a;
+	a > 0;
+	scanf_s("%d", &a);
+	if (a<10)	printf("yes");
+	else		printf("no");
+	Sleep(2000);
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #include <stdio.h>
