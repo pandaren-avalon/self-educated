@@ -18,7 +18,6 @@ int main()//mainÖ÷º¯Êı£»int main()ÕûÊıÀàĞÍÖ÷º¯Êı£¬Ò»¸öC³ÌĞòÖ»ÄÜÓĞÒ»¸öÈ«¾Ömainº¯Ê
 ¡¾001¡ª¡ªhello world¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>//vsÏÂµ÷ÓÃSleepº¯ÊıĞèÒªµÄÍ·ÎÄ¼ş
 int main()
 {
@@ -30,7 +29,6 @@ int main()
 ¡¾002¡ª¡ª»»ĞĞÃüÁî\n¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -47,7 +45,6 @@ int main()
 ***
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -64,7 +61,6 @@ int main()
   *  
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -83,7 +79,6 @@ int main()
     *     
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -95,7 +90,6 @@ int main()
 Á·Ï°4£»ÈÃ¼ÆËã»úÏÔÊ¾ÖĞÎÄ¡°ÄãºÃ¡±£º
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -109,7 +103,6 @@ int main()
 ¡¾004¡ª¡ªÈÃ×Ö´øÉÏÑÕÉ«¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -122,7 +115,6 @@ int main()
 ¡¾005¡ª¡ª¸Ä±ä±³¾°ºÍÎÄ×ÖÑÕÉ«¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -136,8 +128,7 @@ int main()
 
 ¡¾006¡ª¡ª¼Ó·¨¼ÆËã1+2¡¿
 
-#include <stdio.h>	
-#include <stdlib.h>	
+#include <stdio.h>
 #include <windows.h>
 int main()
 {
@@ -157,7 +148,6 @@ int main()
 ¡¾007¡ª¡ª×îºóÊä³öÉ¶¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -171,7 +161,6 @@ int main()
 
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -189,7 +178,6 @@ int main()
 Á·Ï°1£»¼ÆËã1.2+2.3+3.4+4.5
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -207,7 +195,6 @@ int main()
 Á·Ï°2£º¼ÆËã1.1*100
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -224,7 +211,6 @@ int main()
 Á·Ï°3£º¼ÆËã10.1*(10*10)
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -243,7 +229,6 @@ int main()
 
 ¡¾009¡ª¡ªÊä³ö1+2=3ÕâÑùµÄÔËËã¹ı³Ì¡¿
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -258,8 +243,7 @@ int main()
 
 ¡¾010¡ª¡ª·Ö±ğ¼ÆËã10-5ºÍ10+5²¢·Ö2ĞĞÏÔÊ¾¡¿
 
-#include <stdio.h>	
-#include <stdlib.h>	
+#include <stdio.h>
 #include <windows.h>
 int main()
 {
@@ -273,7 +257,6 @@ int main()
 }
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -287,7 +270,6 @@ int main()
 }
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -305,7 +287,6 @@ int main()
 ¡¾011¡ª¡ªÊä³öÖ¸¶¨Á½¸öÊıµÄºÍ²î»ıÉÌÀı9Óë3¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -325,7 +306,6 @@ int main()
 ¡¾012¡ª¡ª´Ó¼üÅÌ¶ÁÈë2¸öÊı×Ö²¢ÇóºÍ¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -340,7 +320,6 @@ int main()
 ¡¾013¡ª¡ª´øÌáÊ¾µÄ¼Ó·¨¼ÆËãÆ÷¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -363,7 +342,6 @@ int main()
 ¡¾014¡ª¡ªÁ·Ï°ÊäÈëÁ½¸öÊı£»Êä³öËûÃÇµÄºÍ²î»ıÉÌ¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include <windows.h>
 int main()
 {
@@ -391,7 +369,6 @@ char	¡ª¡ªÕ¼Î»·û%c	(ÓÃÀ´´æ·Å×Ö·û)
 ¡¾015¡ª¡ªfloatÓëdoubleÇø±ğ¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 int main()
 {
 	float a;
@@ -402,7 +379,6 @@ int main()
 }
 
 #include <stdio.h>	
-#include <stdlib.h>	
 int main()
 {
 	double a;
@@ -415,7 +391,6 @@ int main()
 ¡¾016¡ª¡ªchar¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 int main()
 {
 	char a;
@@ -428,7 +403,6 @@ int main()
 ¡¾017¡ª¡ªÁ·Ï°£ºÊäÈëÒ»¸ö×Ö·û£»Êä³ö¸Ã×Ö·ûºóÃæÒ»Î»¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 int main()
 {
 	char a;
@@ -443,7 +417,6 @@ int main()
 ¡¾018¡ª¡ªÖ±½Ó¼ÆËã¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 int main()
 {
 	printf("%d",4+(6-3)*7);
@@ -458,7 +431,6 @@ int main()
 Mission A£ºÊµÏÖÊäÈë¼´Êä³ö£º
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -472,7 +444,6 @@ int main()
 MissionB£º³¢ÊÔ½»»»1£º
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -488,7 +459,6 @@ int main()
 MissionC£ºÒıÈëÁÙÊ±±äÁ¿t£º
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -505,7 +475,6 @@ int main()
 MissionE£º²»ÒıÈëÁÙÊ±±äÁ¿ÊµÏÖ½»»»£¬³¢ÊÔ½âÎöÈçºÎÊµÏÖ£º
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -560,7 +529,6 @@ printf("")Êä³ö(a,b)=(&b,&a)£¬Êı¾İ½»»»Íê³É£»
 ¡¾020¡ª¡ª´úÂë¸ñÊ½ÃÀ»¯¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main() { int a, b, c; scanf_s("%d %d", &a, &b);  c = a + b; printf("%d", c); Sleep(2000); return 0; }
 
@@ -568,7 +536,6 @@ int main() { int a, b, c; scanf_s("%d %d", &a, &b);  c = a + b; printf("%d", c);
 ÓÅ»¯´úÂëÅÅÁĞ¿ÉÒÔ¸üÈİÒ×ÈÃÈËÀí½â´úÂëÄÚÈİ£»
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -583,7 +550,6 @@ int main()
 ¡¾021¡ª¡ª×¢ÊÍ£»¸æËß±àÂëÆ÷´Ó//Ö±µ½±¾ĞĞÄ©Î²ÄÚÈİÊÇÎŞÓÃµÄ£»½ö×÷Îª±¸×¢·½±ãÀí½â¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -597,7 +563,6 @@ int main()
 ¡¾022¡ª¡ª×¢ÊÍ·ûÁíÒ»ÓÃ·¨£ºÁÙÊ±ĞÔÉ¾³ı£¬´úÂë±£Áôµ«²»ÓÃ²»Ö´ĞĞ¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -611,7 +576,6 @@ int main()
 ¡¾023¡ª¡ª¶àĞĞ×¢ÊÍ¡°/*¡­¡­*/¡±£»´Ó/*¿ªÊ¼Ö±µ½*/½áÊø¶¼²»Ö´ĞĞ£¬¿É¿çĞĞ×¢ÊÍ¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -677,7 +641,6 @@ int main()
 ´úÂë£º
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -691,7 +654,6 @@ int main()
 ¡¾027¡ª¡ªÁ·Ï°£»Èç¹ûÕıÊıÏÔÊ¾yes;¸ºÊı»òÕß0ÔòÏÔÊ¾no¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -715,7 +677,6 @@ int main()
 ´úÂë£º
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -730,7 +691,6 @@ int main()
 ¡¾029¡ª¡ªÁ·Ï°£ºÈçºÎÅĞ¶ÏÒ»¸öÊıÄ©Î²ÊÇ²»ÊÇ0¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -752,7 +712,6 @@ else	Óï¾ä£»
 Ìõ¼şÎªÕæµÄÊ±ºòÖ´ĞĞifºóÓï¾ä£¬Ìõ¼şÎª¼ÙµÄÊ±ºòÖ´ĞĞelseºóÓï¾ä
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 { 
@@ -767,7 +726,6 @@ int main()
 ¡¾029¡ª¡ªÁ·Ï°£ºÅĞ¶ÏÒ»¸öÕıÕûÊıÊÇ·ñÎª¸öÎ»Êı£¨¼´1~9£©¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -780,21 +738,18 @@ int main()
 }
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
 	int a;
 	scanf_s("%d", &a);
 	if (a > 0) 
-	{
+		{
 		if (a<10)	printf("yes");
 		else	printf("no");
-	}
-	else
-	{
-		printf("no");
-	}
+		}
+	else	printf("no");
+	
 	Sleep(2000);
 	return 0;
 }
@@ -805,7 +760,6 @@ int main()
 ¡¾030¡ª¡ª±È½ÏÁ½¸öÊı´óĞ¡£¬²¢Êä³ö½Ï´óµÄÄÇ¸öÊı¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -821,7 +775,6 @@ int main()
 ¡¾031¡ª¡ªÁ·Ï°£ºÅĞ¶ÏÁ½¸öÕıÕûÊıbÎªaµÄÔ¼Êı£¬Êä³öÅĞ¶Ï¡¿
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -844,7 +797,6 @@ int main()
 	4¡¢Êä³ö×îºó±äÁ¿Öµd£»
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -865,7 +817,6 @@ int main()
 	3¡¢Èç¹ûc>=a²¢ÇÒc>=b£»	Êä³öc£»
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -883,7 +834,6 @@ int main()
 Á·Ï°1¡¢ÊäÈëÈı¸öÕûÊı£»Êä³ö×îĞ¡
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -901,7 +851,6 @@ int main()
 Á·Ï°2¡¢ÊäÈëËÄ¸öÕûÊı£»Êä³ö×î´ó
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -921,7 +870,6 @@ int main()
 Á·Ï°3¡¢ÅĞ¶ÏÒ»¸öÄê·İÊÇ·ñÈòÄê£»
 
 #include <stdio.h>	
-#include <stdlib.h>	
 #include<windows.h>
 int main()
 {
@@ -938,12 +886,70 @@ int main()
 
 ¡¾034¡ª¡ª½«Èı¸öÊı´Ó´óµ½Ğ¡ÅÅĞò¡¿
 
-Ëã·¨
-	1¡¢
+Ëã·¨Ò»£ºÇî¾ÙÊıÁĞ
 
+	1¡¢×îÖ±½ÓµÄÈı¸öÊıµÄÈÎÒâÅÅÁĞ×éºÏ£»
+		a¡İb¡İc£»
+		a¡İc¡İb£»
+		b¡İa¡İc£»
+		b¡İc¡İa£»
+		c¡İa¡İb£»
+		c¡İb¡İa£»
+	2¡¢×ª»»³É¼ÆËã»úÓïÑÔ¼´£º
+		Èç¹ûa>=b²¢ÇÒb>=c£»	ÔòÊä³öa b c
+		Èç¹ûa>=c²¢ÇÒc>=b£»	ÔòÊä³öa c b
+ 		Èç¹ûb>=a²¢ÇÒa>=c£»	ÔòÊä³öb a c
+		Èç¹ûb>=c²¢ÇÒc>=a£»	ÔòÊä³öb c a
+		Èç¹ûc>a=²¢ÇÒa>=b£»	ÔòÊä³öc a b
+		Èç¹ûc>=b²¢ÇÒb>=a£»	ÔòÊä³öc b a
 
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a,b,c;
+	scanf_s("%d %d %d", &a,&b,&c);
+	if (a>=b&&b>=c)	printf("%d %d %d",a,b,c);
+	if (a>=c&&c>=b)	printf("%d %d %d",a,c,b);
+	if (b>=a&&a>=c)	printf("%d %d %d",b,a,c);
+	if (b>=c&&c>=a)	printf("%d %d %d",b,c,a);
+	if (c>=a&&a>=b)	printf("%d %d %d",c,a,b);
+	if (c>=b&&b>=a)	printf("%d %d %d",c,b,a);	
+	Sleep(2000);
+	return 0;
+}
+		
 
+Ëã·¨2£º½»»»·¨
 
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a, b, c, t;
+	scanf_s("%d %d %d", &a, &b, &c);
+	if (a<b) { t = a, a = b, b = t; }//È·±£a>=b;
+	if (a<c) { t = a, a = c, c = t; }//È·±£a>=b²¢ÇÒa>=c;	
+	if (b<c) { t = b, b = c, c = t; }//È·±£a>=b²¢ÇÒa>=c²¢ÇÒb>=c;
+	printf("%d %d %d", a, b, c);//Êä³ö(a>=b>=c)
+	Sleep(2000);
+	return 0;
+}
+
+ 
+¡¾035¡ª¡ªÊä³öa£¬aÎªÆæÊıÔòÊä³öËüµÄºóÈıÎ»Êı£¬Å¼ÊıÔòÊä³öÇ°ÈıÎ»Êı¡¿
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a;
+	scanf_s("%d", &a);
+	if (a%2==0)	printf("%d %d %d",a-1,a-2,a-3);
+	else 		printf("%d %d %d",a+1,a+2,a+3);
+	Sleep(2000);
+	return 0;
+}
 
 
 
