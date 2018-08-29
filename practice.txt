@@ -951,6 +951,125 @@ int main()
 	return 0;
 }
 
+【036——练习：任意四个数按从小到大排列】
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a,b,c,d,t;
+	scanf_s("%d %d %d %d", &a,&b,&c,&d);
+	if (a>b) { t = a, a = b, b = t; }
+	if (a>c) { t = a, a = c,  c = t; }
+	if (a>d) { t = a, a = d, d = t; }
+	if (b>c) { t = b, b = c, c = t; }
+	if (b>d) { t = b, b = d, d = t; }
+	if (c>d) { t = c, c = d, d = t; }	
+	printf("%d %d %d %d", a, b, c, d);
+	Sleep(2000);
+	return 0;
+}
+
+【第8节】（运算符总结）
++	加
+-	减
+*	乘
+/	除
+>	大于
+<	小于
+==	等于
+>=	大于等于
+<=	小于等于
+!=	不等于
+&&	与
+||	或
+!	非
+
+
+【第9节】（真假表达式）
+
+【037——关系表达式】
+
+if(1>2)	printf("yes");//若表达式为真，输出yes(1>2不成立)
+else	printf("no");//表达式不成立，输出no（输出no）
+
+那么观察下面三例：
+
+if(1)	printf("yes");
+else	printf("no");
+
+if(-5)	printf("yes");
+else	printf("no");
+
+if(0)	printf("yes");
+else	printf("no");
+
+测试后发现计算机只认为0是假的，其余都为真
+
+第10节】（嵌套）
+
+【038——if-else复合语句//嵌套】
+
+例：三个数里面输出最大一位；
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a,b,c;
+	scanf_s("%d %d %d", &a,&b,&c);
+	if (a>=b&&a>=c)	printf("%d",a);
+	if (b>=a&&b>=c)	printf("%d",b);
+	if (c>=a&&c>=b)	printf("%d",c);
+	Sleep(2000);
+	return 0;
+}
+
+改成嵌套语句：
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a,b,c;
+	scanf_s("%d %d %d", &a,&b,&c);
+	if (a>=b)				//a>=b
+	{
+		if(a>=c)	{printf("%d",a);}	//a>=b&&a>=c
+		else	{printf("%d",c);}	//c>a&&a>=b
+	}
+	else				//b>a
+	{
+		if(b>=c)	{printf("%d",b);}	//b>a&&b>=c
+		else	{printf("%d",c);}	//c>b&&b>a
+	}
+	
+	Sleep(2000);
+	return 0;
+}
+
+简化后
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a,b,c;
+	scanf_s("%d %d %d", &a,&b,&c);
+	if (a>=b)
+		if(a>=c)	{printf("%d",a);}
+		else	{printf("%d",c);}
+	else
+		if(b>=c)	{printf("%d",b);}
+		else	{printf("%d",c);}	
+	Sleep(2000);
+	return 0;
+}
+
+
+
+
+
 
 
 
