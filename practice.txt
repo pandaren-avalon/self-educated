@@ -1067,6 +1067,197 @@ int main()
 }
 
 
+【第11节】（if-else语法总结）
+
+if(表达式)	{语句}
+else	{语句}
+
+当表达式成立的时候，执行if后面{}中的内容；
+表达式不成立的时候，执行else后面{}中的内容；
+当{}内的语句只有一条的时候{}可以省略；
+
+
+【第三章】
+
+【第1节】（循环）
+
+【039——输出无限次数"hi"】
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	system("color 0a");//黑底蓝字
+	while(1)	printf(" hi");	
+	Sleep(2000);
+	return 0;
+}
+
+【第2节】（固定次数循环）
+
+【040——输出固定次数"hi"】
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a=0;
+	system("color 0a");
+	while(a<100)	{printf(" hi");a=a+1;}	
+	Sleep(2000);
+	return 0;
+}
+
+【041——输出1~100】
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	int a=1;
+	system("color 0a");
+	while(a<=100)	{printf(" %d",a);a=a+1;}	
+	Sleep(2000);
+	return 0;
+}
+
+【042——练习输出1~100~1】
+
+#include <stdio.h>	
+int main()
+{
+	int a = 1, b = 200;
+	system("color 0a");
+	while (a < 100) { printf(" %d", a); a = a + 1; }
+	while (b > 100) { printf(" %d", a); a = a - 1; b = b - 1; }
+	getchar();
+	return 0;
+}
+
+【第3节】（if与while）
+
+【042——输出1~100除去3的倍数以外的数】
+
+#include <stdio.h>	
+int main()
+{
+	int a = 1;
+	system("color 0a");
+	while (a <=100)
+	{
+		if (a % 3 != 0)	//"%";mod，取模，获取余数，左右两边必须为整数
+		printf(" %d", a);
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+
+【043——输出1~100内含有3的倍数，但没有5的倍数的数】
+
+#include <stdio.h>	
+int main()
+{
+	int a = 1;
+	system("color 0a");
+	while (a <=100)
+	{
+		if (a % 3 == 0 && a%5!=0)
+		printf(" %d", a);
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+
+【044——击鼓传花，逢7的倍数或末位数为7的数】
+
+#include <stdio.h>	
+int main()
+{
+	int a = 1;
+	system("color 0a");
+	while (a <=100)
+	{
+		if (a%10==7||a%7==0)
+		printf(" *")；
+		else	printf(" %d", a);
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+
+
+【第4节】（求和）
+
+【045——求和1+2+3】
+
+mission A:
+
+#include <stdio.h>	
+int main()
+{
+	int a;
+	a = 1+2+3;
+	printf("%d,a");
+	getchar();
+	return 0;
+}
+
+
+mission B:
+
+#include <stdio.h>	
+int main()
+{
+	int a;
+	a =0;
+	a=a+1;
+	a=a+2;
+	a=a+3;
+	printf("%d,a");
+	getchar();
+	return 0;
+}
+
+mission C:
+
+#include <stdio.h>	
+int main()
+{
+	int a,b;
+	a=0;
+	b=1;
+	while(i<=3)
+	{
+		a=a+b;
+		b=b+1;
+	}
+	printf("%d,a");}
+	
+	getchar();
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
