@@ -1411,6 +1411,92 @@ int main()
 }
 
 
+【第6节】（嵌套循环）
+
+【052——尝试输出图形】
+
+	*****
+	*****
+	*****
+
+mission A:
+
+#include <stdio.h>	
+int main()
+{
+	printf("*****\n*****\n*****");//直接输出；无法批量操作
+	getchar();
+	return 0;
+}
+
+mission B:
+
+#include <stdio.h>	
+int main()
+{
+	int a=1;
+	while (a <= 15)//while循环变量a输出*
+	{
+		printf("*");
+		if (a % 5 == 0)	printf("\n");//if实现换行
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+
+mission C:
+
+#include <stdio.h>	
+int main()
+{
+	int a = 1, b;//若b在此处赋值，a=1循环后，a=2;b=6后续无法继续执行b的嵌套循环
+	while (a <= 3)
+	{		
+		b = 1;//将b=1在此赋值的意义：初始化b；
+		while (b <= 5)//嵌套循环b
+		{
+			printf("*");
+			b = b + 1;
+		}
+		printf("\n");
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+
+
+【053——尝试输出图形】
+
+*
+**
+***
+****
+*****
+
+
+#include <stdio.h>	
+int main()
+{
+	int a = 1, b;
+	while (a <= 5)
+	{
+		b = 1;
+		while (b <= a)
+		{
+			printf("*");
+			b = b + 1;
+		}
+		printf("\n");
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+
+
+
 
 
 
