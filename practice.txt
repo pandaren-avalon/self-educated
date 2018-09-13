@@ -1524,7 +1524,7 @@ int main()
 	return 0;
 }
 
-【054——练习：尝试输出图形】
+【055——练习：尝试输出图形】
 
  1
  2   3
@@ -1631,7 +1631,7 @@ int main()
 
 【第7节】（奔跑的字母）
 
-【054——移动显示字母H】
+【056——移动显示字母H】
 
 #include <stdio.h>
 #include <windows.h>		
@@ -1639,7 +1639,7 @@ int main()
 {
 	int a, b;
 	a = 0;
-	while (a <= 2)
+	while (a <= 2)//步数
 	{
 		system("cls");
 		b = 1;
@@ -1649,14 +1649,240 @@ int main()
 			b = b + 1;
 		}
 		printf("H");
-		Sleep(500);
+		Sleep(100);
 		a = a + 1;
 	}
 	getchar();
 	return 0;
 }
 
+【第8节】（嵌套循环次数）
 
+【057——数下列代码循环了几次】
+
+mission A:
+
+#include <stdio.h>
+int main()
+{
+	int a, b;
+	a = 1;
+	while (a <= 2)
+	{
+		b = 1;
+		while (b <= 3)
+		{
+			printf(" ok");
+			b = b + 1;
+		}
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+//3*2=6
+
+mission B:
+
+#include <stdio.h>
+int main()
+{
+	int a, b;
+	a = 1;
+	while (a <= 4)
+	{
+		b = 1;
+		while (b <= 2)
+		{
+			printf(" ok");
+			b = b + 1;
+		}
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+//2*4=8
+
+mission C:
+
+#include <stdio.h>
+int main()
+{
+	int a, b,c;
+	a = 1;
+	while (a <= 2)
+	{
+		b = 1;
+		while (b <= 4)
+		{
+			c=1;
+			while(c<=3)
+			{
+			printf(" ok");
+			c=c+1;	
+			}
+			b = b + 1;
+		}
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+//3*4*2=24
+
+mission D:
+
+#include <stdio.h>
+int main()
+{
+	int a, b;
+	a = 1;
+	while (a <=10)
+	{
+		b = 1;
+		while (b <= a)
+		{
+			printf(" ok");
+			b++;	
+		}
+		a++;
+	}
+	getchar();
+	return 0;
+}
+//1+2+3+4+5+6+7+8+9+10=55
+
+
+【第9节】（奔跑的小人）
+
+【058——让下面小人从左往右移动显示】
+
+  O  
+<H>
+ I  I
+
+#include <stdio.h>
+int main()
+{
+	printf(" O\n");
+	printf("<H>\n");
+	printf(" I  I\n");	
+	getchar();
+	return 0;
+}
+
+//由056奔跑的字母代码中将printf(" O\n");	printf("<H>\n");printf(" I  I\n");分别代入printf("H");
+
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int a, b;
+	a = 0;
+	while (a <=100)//范围限制在一行调试栏里面，换行后原形状被破坏
+	{
+		system("cls");
+
+		b = 1;
+		while (b <= a)
+		{
+			printf(" ");
+			b = b + 1;
+		}
+		printf(" O\n");
+
+		b = 1;
+		while (b <= a)
+		{
+			printf(" ");
+			b = b + 1;
+		}
+		printf("<H>\n");
+
+		b = 1;
+		while (b <= a)
+		{
+			printf(" ");
+			b = b + 1;
+		}
+		printf("I I\n");
+		Sleep(100);
+		a = a + 1;
+	}
+	getchar();
+	return 0;
+}
+
+【057——练习：让图像从右往左移动显示】
+
+mission A：先尝试一个字母H从右往左移动显示；
+
+#include <stdio.h>
+#include <windows.h>		
+int main()
+{
+	int a, b;
+	a = 4;//步数；
+	while (a >= 0)
+	{
+		system("cls");
+		b = a - 1;
+		while (b <= a && b >= 0)
+		{
+			printf(" ");
+			b--;
+		}
+		printf("H");
+		Sleep(100);
+		a--;
+	}
+	getchar();
+	return 0;
+}
+
+//将代码printf(" O\n");	printf("<H>\n");printf(" I  I\n");代入printf("H");
+
+#include <stdio.h>
+#include <windows.h>		
+int main()
+{
+	int a, b;
+	a = 100;//范围不超出调试界面一行宽度；
+	while (a >= 0)
+	{
+		system("cls");
+
+		b = a - 1;
+		while (b <= a && b >= 0)
+		{
+			printf(" ");
+			b--;
+		}
+		printf(" O\n");
+
+		b = a - 1;
+		while (b <= a && b >= 0)
+		{
+			printf(" ");
+			b--;
+		}
+		printf("<H>\n");
+
+		b = a - 1;
+		while (b <= a && b >= 0)
+		{
+			printf(" ");
+			b--;
+		}
+		printf("I I\n");
+
+		Sleep(100);
+		a--;
+	}
+	getchar();
+	return 0;
+}
 
 
 
