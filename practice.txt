@@ -1814,7 +1814,7 @@ int main()
 	return 0;
 }
 
-【057——练习：让图像从右往左移动显示】
+【059——练习：让图像从右往左移动显示】
 
 mission A：先尝试一个字母H从右往左移动显示；
 
@@ -1883,6 +1883,184 @@ int main()
 	getchar();
 	return 0;
 }
+
+【第10节】（for循环）
+
+【060——输出1~10】
+
+mission A：while循环：
+
+#include <stdio.h>
+int main()
+{
+	int a;
+	a=1;
+	while(a<=10)
+	{
+		printf("%d",a);
+		a=a+1;
+	}
+	getchar();
+	return 0;
+}
+
+mission B：for循环；
+
+#include <stdio.h>
+int main()
+{
+	int a;
+	for(a=1;a<=10;a++)
+	{
+		printf("%d",a);
+	}
+	getchar();
+	return 0;
+}
+
+【061——求和1~100】
+
+#include <stdio.h>
+int main()
+{
+	int a,sum;
+	sum=0;
+	for(a=1;a<=100;a++)
+	{
+		sum=sum+a;
+	}
+	printf("%d",sum);
+	getchar();
+	return 0;
+}
+
+//题外：等差数列求和计算器(a1=1;d=1)
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b, sum;
+	sum = 0;
+	scanf_s("%d", &b);
+	for (a = 1; a <= b; a++)
+	{
+		sum = sum + a;
+	}
+	printf("%d", sum);
+	Sleep(5000);
+	return 0;
+}
+
+
+【062——求1~100所有偶数和】
+
+#include <stdio.h>
+int main()
+{
+	int a,sum;
+	sum=0;
+	for(a=2;a<=100;a=a+2)
+	{
+		sum=sum+a;
+	}
+	printf("%d",sum);
+	getchar();
+	return 0;
+}
+
+【063——输出1~100所有7的倍数或者末尾含7的数】
+
+#include <stdio.h>
+int main()
+{
+	int a;
+	for(a=1;a<=100;a++)
+	{
+		if(a%10==7||a%7==0)
+			printf("%d",a);
+	}
+	getchar();
+	return 0;
+}
+
+【064——求1~10的乘积】
+
+#include <stdio.h>
+int main()
+{
+	int a,b;
+	b=1;
+	for(a=1;a<=10;a++)
+	{
+		b=b*a;
+	}
+	printf("%d",b);
+	getchar();
+	return 0;
+}
+
+【065——用for循环打印下面图形】
+
+    *    
+   ***   
+  *****  
+ ******* 
+*********
+ ******* 
+  *****  
+   ***   
+    *    
+
+#include <stdio.h>
+int main()
+{
+	int a,b,c;
+	for()
+	{
+		for()
+		{
+		
+		}
+		for()
+		{
+		
+		}
+	}
+
+	for()
+	{
+		for()
+		{
+		
+		}
+		for()
+		{
+		
+		}
+	}
+	getchar();
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
