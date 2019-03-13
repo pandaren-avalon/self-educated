@@ -284,6 +284,22 @@ int main()
 	return 0;
 }
 
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int a, b,c,d;
+	a = 10;
+	b = 5;
+	c = a + b;
+	d = a - b;
+	printf("%d+%d=%d\n%d-%d=%d",a,b,c,a,b,d);	
+	Sleep(2000);
+	return 0;
+}
+
+
+
 【011——输出指定两个数的和差积商例9与3】
 
 #include <stdio.h>	
@@ -348,11 +364,11 @@ int main()
 	int a, b, c;	
 	scanf_s("%d %d", &a, &b);
 	c = a + b;
-	printf("%d+%d=%d", a, b, c);
+	printf("%d+%d=%d\n", a, b, c);
 	c = a - b;
-	printf("%d-%d=%d", a, b, c);
+	printf("%d-%d=%d\n", a, b, c);
 	c = a * b;
-	printf("%d*%d=%d", a, b, c);
+	printf("%d*%d=%d\n", a, b, c);
 	c = a / b;
 	printf("%d/%d=%d", a, b, c);//整数除法结果只留整数部分
 
@@ -842,7 +858,7 @@ int main()
 
 	if (a<b)	d=a;
 	else	d=b;
-	if(c<d)	d=c;//
+	if(c<d)	d=c;
 	printf("%d",d);
 	Sleep(2000);
 	return 0;
@@ -875,7 +891,6 @@ int main()
 {
 	int a;
 	scanf_s("%d", &a);
-
 	if (a%4==0)	printf("yes");
 	else		printf("no");
 	Sleep(2000);
@@ -1128,8 +1143,8 @@ int main()
 {
 	int a = 1, b = 200;
 	system("color 0a");
-	while (a < 100) { printf(" %d", a); a = a + 1; }
-	while (b > 100) { printf(" %d", a); a = a - 1; b = b - 1; }
+	while (a < 100) { printf(" %d ", a); a = a + 1; }
+	while (b > 100) { printf(" %d ", a); a = a - 1; b = b - 1; }
 	getchar();
 	return 0;
 }
@@ -1410,6 +1425,97 @@ int main()
 	return 0;
 }
 
+*【改进】
+
+思路：顺时/ 1小时计时器
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	system("color 0a");
+	int a, b, c, d;
+	a = 0;
+	b = 0;
+	c = 0;
+	d = 0;
+	while(1)
+	{
+		d = d + 1;
+		if (d > 9) { d = 0, c = c + 1; }
+		if (c > 5) { c = 0, b = b + 1; }
+		if (b > 9) { b = 0, a = a + 1; }
+		if (a > 5) { a = 0, b = 0, c = 0, d = 0; }
+		printf("%d%d:%d%d", a, b, c, d);
+		Sleep(1000);
+		system("cls");
+	}	
+	Sleep(5000);
+	return(0);
+}
+
+拓展1 天数计时器：
+【X天X小时XX分XX秒】
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	system("color 0a");
+	int a, b, c, d,t,h;
+	a = 0;
+	b = 0;
+	c = 0;
+	d = 0;
+	t = 0;
+	h = 0;
+	while(1)
+	{
+		d = d + 1;
+		if (d > 9) { d = 0, c = c + 1; }
+		if (c > 5) { c = 0, b = b + 1; }
+		if (b > 9) { b = 0, a = a + 1; }
+		if (a > 5) { a = 0, h = h + 1; }
+		if (h > 23) { h = 0, t = t + 1; }
+		if (h == 0 && t == 0) { printf("%d%d:%d%d", a, b, c, d); }
+		if (h >0&&t==0) { printf("%d:%d%d:%d%d", h, a, b, c, d); }
+		if (t >0) { printf("%d:%d:%d%d:%d%d",t, h, a, b, c, d); }		
+		Sleep(1000);
+		system("cls");
+	}	
+	Sleep(5000);
+	return(0);
+}
+
+
+2分钟倒计时器
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	system("color 0a");
+	int a, b, c;
+	a = 1;
+	b = 0;
+	c = 2;
+	while(c>=0)
+	{
+		a = a - 1;
+		if (a < 0) { a = 9, b = b - 1; }
+		if (b < 0) { b = 5, c = c - 1; }
+		if (a >= 0 && b >= 0 && c >= 0)	{printf("0%d:%d%d", c, b, a);}
+		Sleep(100);
+		system("cls");
+	}	
+	Sleep(5000);
+	return(0);
+}
+
+
+
+
+
 
 【第6节】（嵌套循环）
 
@@ -1628,6 +1734,36 @@ int main()
 	return 0;
 }
 
+【改进】
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	system("color 0a");
+	int a, b,c;
+	a = 1;
+	c = 1;
+	while (a <= 5)
+	{
+		b = 0;
+		while (b < a)
+		{
+			printf("%d ", c);
+			b = b + 1;
+			c = c + 1;
+		}
+		printf("\n");
+		a = a + 1;
+	}		
+	Sleep(5000);
+	return(0);
+}
+
+
+
+
+
+
 
 【第7节】（奔跑的字母）
 
@@ -1639,7 +1775,7 @@ int main()
 {
 	int a, b;
 	a = 0;
-	while (a <= 2)//步数
+	while (a <= 2)
 	{
 		system("cls");
 		b = 1;
@@ -1655,6 +1791,33 @@ int main()
 	getchar();
 	return 0;
 }
+
+【改进】
+
+#include <stdio.h>	
+#include<windows.h>
+int main()
+{
+	system("color 0a");
+	int a, b;
+	a = 0;
+	while (a <= 3) //3为插入空格数
+	{
+		b = 1;
+		while (b <= a)
+		 { 
+			printf(" "); 
+			b = b + 1; 
+		}
+		printf("H");
+		a = a + 1;
+		Sleep(1000);
+		system("cls");
+	}
+	Sleep(5000);
+	return(0);
+}
+
 
 【第8节】（嵌套循环次数）
 
@@ -1760,14 +1923,14 @@ int main()
 
   O  
 <H>
- I  I
+ I   I
 
 #include <stdio.h>
 int main()
 {
-	printf(" O\n");
+	printf(" O \n");
 	printf("<H>\n");
-	printf(" I  I\n");	
+	printf("I  I\n");	
 	getchar();
 	return 0;
 }
@@ -2000,7 +2163,7 @@ int main()
 	return 0;
 }
 
-【065——用for循环打印下面图形】
+【065——练习：用for循环打印下面图形】
 
     *    
    ***   
@@ -2012,38 +2175,73 @@ int main()
    ***   
     *    
 
+解题过程：
+
+1.先尝试输出上半部分：
+    *    
+   ***   
+  *****  
+ ******* 
+*********
+
+1.1引用三个变量；a,b,c;
+分析图形构成：
+
+第几行	*符号数;	空格数;
+a=1;	b=1;	c=4;
+a=2;	b=3;	c=3;
+a=3;	b=5;	c=2;
+a=4;	b=7;	c=1;
+a=5;	b=9;	c=0;
+
+发现规律:
+a=a+1;
+b=b+2;
+c=c-1;
+
+1.2分行：
+
 #include <stdio.h>
 int main()
 {
-	int a,b,c;
-	for()
+	int a, b, c;
+	for (b=1;b<=10;b=b+2)
 	{
-		for()
-		{
-		
-		}
-		for()
-		{
-		
-		}
-	}
-
-	for()
-	{
-		for()
-		{
-		
-		}
-		for()
-		{
-		
-		}
+		printf("\n");
 	}
 	getchar();
 	return 0;
 }
 
+1.3尝试输出*符；
+*
+***
+*****
+*******
+*********
 
+#include <stdio.h>
+int main()
+{
+	int a, b, c;
+	for (b = 1; b <= 10; b = b + 2)
+	{
+		for (a = 1; a <= b; a = a + 1)
+		{
+			printf("*");
+		}
+		printf("\n");
+	}
+	getchar();
+	return 0;
+}
+
+1.4输出空格符
+
+%%%%
+%%%
+%%
+%
 
 
 
