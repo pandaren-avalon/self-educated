@@ -2587,16 +2587,425 @@ int main()
 int main()
 {
 	int a;
-	scanf_s("%d", &a);
-	while (a>0) 
+	for (a = 1; a <= 10; a++)
 	{
-		printf("%d ", a);
-		a=a-1;
 		if (a % 2 == 1)  continue;
-	}	
+		printf("%d ", a);
+	}
 	Sleep(1000);
 	return 0;
 }
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a;
+	scanf_s("%d", &a);
+	for (; a > 0; a--)
+	{
+		if (a % 2 == 0)	printf("%d\n", a);
+		else continue;//其实是多余语句；
+	}
+	Sleep(1000);
+	return 0;
+}
+
+
+【第4节】（哥德巴赫猜想）
+
+【068——任一大于2的偶数都可以写成两个质数之和：4-100范围内用程序验证】
+
+1.输出4-100内的偶数：
+for(a=4;a<=100;a=a+2){printf("%d",a);}
+
+2.拆分a=b+c;	b的范围为（2-a/2）
+
+3.代码框架：
+
+for(a=4;a<=100;a=a+2)
+{
+	for(b=2;b<=a/2;b++)
+		{
+		验证b是否为质数；
+			如果b是质数；
+				{
+				c=a-b;
+				验证c是否为质数；
+				如果c也是质数；
+				输出这个解，并跳出该循环；
+				}
+		}
+}
+
+
+#include <stdio.h>
+int main()
+{
+	int a, b, c, d, e, g;
+
+	for (a = 4; a <= 100; a = a + 2)
+	{
+		for (b = 2; b <= a / 2; b++)
+		{
+			e = 0;
+			for (d = 2; d <= b - 1; d++)
+			{
+				if (b % d == 0) { e = 1; break; }
+			}
+			if (e == 0)
+			{
+				c = a - b;
+				g = 0;
+				for (d = 2; d <= c - 1; d++)
+				{
+					if (c % d == 0) { g = 1; break; }
+				}
+				if (g == 0)
+				{printf("%d=%d+%d\n", a, b, c); break;}
+
+			}
+
+		}
+	}
+	getchar();
+	return 0;
+}
+
+【069——4-100范围内所有偶数能拆分成质数相加的项】
+#include <stdio.h>
+int main()
+{
+	int a, b, c, d, e, g;
+
+	for (a = 4; a <= 100; a = a + 2)
+	{
+		for (b = 2; b <= a / 2; b++)
+		{
+			e = 0;
+			for (d = 2; d <= b - 1; d++)
+			{
+				if (b % d == 0) { e = 1;  }
+			}
+			if (e == 0)
+			{
+				c = a - b;
+				g = 0;
+				for (d = 2; d <= c - 1; d++)
+				{
+					if (c % d == 0) { g = 1;  }
+				}
+				if (g == 0)
+				{printf("%d=%d+%d\n", a, b, c);}
+			}
+		}
+	}
+	getchar();
+	return 0;
+}
+
+【改进显示后】
+
+#include <stdio.h>
+int main()
+{
+	int a, b, c, d, e, g, k;
+
+	for (a = 4; a <= 100; a = a + 2)
+	{
+		k = 0;
+		for (b = 2; b <= a / 2; b++)
+		{
+			e = 0;
+			for (d = 2; d <= b - 1; d++)
+			{
+				if (b % d == 0) { e = 1; }
+			}
+			if (e == 0)
+			{
+				c = a - b;
+				g = 0;
+				for (d = 2; d <= c - 1; d++)
+				{
+					if (c % d == 0) { g = 1; }
+				}
+				if (g == 0)
+				{
+					k++;
+					if (k == 1) { printf("%d=%d+%d", a, b, c); }
+					else { printf("=%d+%d", b, c); }
+				}
+			}
+		} printf("\n");
+	}
+	getchar();
+	return 0;
+}
+
+
+
+
+【第5节】（水仙花数）
+
+#include <stdio.h>
+int main()
+{
+	int a, b, c, d;
+	for (a = 1; a <= 9; a++)
+		for (b = 0; b <= 9; b++)
+			for (c = 0; c <= 9; c++)
+				if (100 * a + 10 * b + c == a * a*a + b * b*b + c * c*c)
+					printf("%d\n", 100 * a + 10 * b + c);			
+	getchar();
+	return 0;
+}
+
+【改进后】
+
+#include <stdio.h>
+int main()
+{
+	int x,a, b, c;
+	for (x = 100; x <= 999; x++)
+	{
+		a = x / 100 % 10;
+		b = x / 10 % 10;
+		c = x % 10;
+		if (x == a*a*a+b*b*b+c*c*c) 
+			printf("%d\n", x);
+	}
+	getchar();
+	return 0;
+}
+
+【070——练习：输入一个三位数，求输出百位数十位数个位数相加的和，例如：输入721输出10；】
+
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int x, a, b, c;
+	scanf_s("%d", &x);
+	a = x / 100 % 10;
+	b = x / 10 % 10;
+	c = x % 10;
+	printf("%d", a + b + c);
+	Sleep(1000);
+	return 0;
+}
+
+【070——练习：输入一个n位数，范围在1-99 999 999；求输出n位数上数字相加的和，例如：输入721输出10；】
+
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int x, s;
+	scanf_s("%d", &x);
+	s = x / 10000000 % 10 + x / 1000000 % 10 + x / 1000000 % 10 + x / 100000 % 10+x / 10000 % 10+x / 1000 % 10+x / 100 % 10+x / 10 % 10+x%10;
+	printf("%d", s);
+	Sleep(1000);
+	return 0;
+}
+
+【改进后】
+
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int x,s,y;
+	y = 0;
+	scanf_s("%d", &x);
+	for (s = 1; s <= 10000000; s = s * 10) 		
+		y = y + x / s % 10;		
+	printf("%d", y);
+	Sleep(1000);
+	return 0;
+}
+
+
+【第8节】（奥数题）
+
+1题： (__3)*6528=(3__)*8256
+
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int a;
+		for (a = 1; a <= 9; a++) 
+		{
+			if((10*a+3)*6528==(30+a)*8256)
+			printf("%d", a);
+		}	
+	Sleep(1000);
+	return 0;
+}
+
+
+2题目：
+
+ABCD
+*     E
+———
+DCBA
+
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int a,b,c,d,e;
+	for (a = 0; a <= 9; a++) 	
+		for (b = 0; b <= 9; b++) 		
+			for (c = 0; c <= 9; c++)			
+				for (d = 0; d <= 9; d++) 				
+					for (e = 0; e <= 9; e++) 					
+						if (a != b && a != c && a != d & a != e
+						&& b != c && b != d && b != e
+						&& c != d && c != e
+						&& d != e)						
+							if ((a * 1000 + b * 100 + c * 10 + d)*e == (d * 1000 + c * 100 + b * 10 + a))
+								printf("%d%d%d%d*%d=%d%d%d%d", a, b, c, d,e,d,c,b,a);
+	getchar();
+	return 0;
+}
+
+【071——练习：三角形三边和相等】
+例：
+5+3+4=4+2+6=6+1+5
+用1-6这6个数字列举出所有排列可能性
+
+    5    		     a
+  3   1 		  b    f
+4   2   6		c   d   e
+
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	int a,b,c,d,e,f;
+	for (a = 1; a <= 6; a++)
+		for (b = 1; b <= 6; b++)
+			for (c = 1; c <= 6; c++)
+				for (d = 1; d <= 6; d++)
+					for (e = 1; e <= 6; e++)
+						for (f = 1; f <= 6; f++)
+							if(a!=b&&a!=c&&a!=d&&a!=e&&a!=f
+								&&b!=c&&b!=d&&b!=e&&b!=f
+								&&c!=d&&c!=e&&c!=f
+								&&d!=e&&d!=f
+								&&e!=f)
+								if (a + b + c == c + d + e && a + b + c == e + f + a)
+									printf("%d+%d+%d+%d+%d+%d\n", a, b, c, d, e, f);						
+	getchar();
+	return 0;
+}
+
+【第9节】（猜数游戏）
+计算机随机给出0-99之间的一个整数，每猜一次，计算机会告诉你猜的数大了还是小了，直到你猜出这个数。
+
+思路：
+1.让计算机随机生成一个数
+
+#include <stdio.h>
+#include<stdlib.h>//调用srand函数数据库
+#include <windows.h>
+int main()
+{
+	int a;
+	a = rand();//rand()生成一个随机数
+	printf("%d\n", a);
+	system("pause");
+	return 0;
+}
+
+2.多次运行后发现输出都是同一个生成的随机数，并没有体现随机性；
+
+#include <stdio.h>
+#include<stdlib.h>
+#include <windows.h>
+int main()
+{
+	int a;
+	srand((unsigned)time(NULL));//系统提供的生成伪随机数序列的种子； /*unsigned  无符号整型0~65535*/； /*time(NULL)系统时间（秒）*/；
+	a = rand();//rand()//根据这个种子的值生成一个随机整数0-32767 ；
+	printf("%d\n", a);
+	system("pause");
+	return 0;
+}
+
+3.这个随机数需要在0-99
+
+#include <stdio.h>
+#include<stdlib.h>
+#include <windows.h>
+int main()
+{
+	int a;
+	srand((unsigned)time(NULL));
+	a = rand()%100;//生成100以内随机整数；
+	printf("%d\n", a);
+	system("pause");
+	return 0;
+}
+
+4.输入一个数开始猜数
+
+#include <stdio.h>
+#include<stdlib.h>
+#include <windows.h>
+int main()
+{
+	int a,b;
+	srand((unsigned)time(NULL));
+	a = rand()%100;
+	scanf_s("%d", &b);
+	if(b>a)	printf("猜大了请继续\n");
+	if (b < a)	printf("猜小了请继续\n");
+	if (b == a)printf("恭喜你猜对了\n");
+	system("pause");
+	return 0;
+}
+
+5.运行后发现只能输入一次；
+
+#include <stdio.h>
+#include<stdlib.h>
+#include <windows.h>
+int main()
+{
+	int a,b;
+	srand((unsigned)time(NULL));
+	a = rand()%100;
+	while (1)
+	{
+		scanf_s("%d", &b);
+		if (b > a)	printf("猜大了请继续\n");
+		if (b < a)	printf("猜小了请继续\n");
+		if (b == a) 
+		{
+			printf("恭喜你猜对了\n");
+			break;
+		}
+	}
+	system("pause");
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
