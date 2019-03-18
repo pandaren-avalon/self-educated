@@ -2175,7 +2175,7 @@ int main()
    ***   
     *    
 
-解题过程：
+/*解题过程：
 
 1.先尝试输出上半部分：
     *    
@@ -2204,7 +2204,7 @@ c=c-1;
 #include <stdio.h>
 int main()
 {
-	int a, b, c;
+	int a, b;
 	for (b=1;b<=10;b=b+2)
 	{
 		printf("\n");
@@ -2223,7 +2223,7 @@ int main()
 #include <stdio.h>
 int main()
 {
-	int a, b, c;
+	int a, b;
 	for (b = 1; b <= 10; b = b + 2)
 	{
 		for (a = 1; a <= b; a = a + 1)
@@ -2243,25 +2243,360 @@ int main()
 %%
 %
 
+*/
 
 
+【改进】
+
+思路：
+
+1.尝试输出代码
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a,b;
+	for (a = 1; a <= 5; a++)
+	{
+		b = 1;
+		while (b <= a)
+		{
+			printf("*");
+			b = b + 1;
+		}
+		printf("\n");
+	}	
+	getchar();
+	return 0;
+}
+
+发现结果
+
+*
+**
+***
+****
+*****
+
+2.与想要输出结果的上半部分差异
+
+*
+***
+*****
+*******
+*********
+
+（12345）与（13579），累差+1；
+
+3.改进代码
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b;
+	for (a = 1; a <= 9; a = a + 2)
+	{
+		for (b = 1; b <= a; b = b + 1)
+		{
+			printf("*");
+		}
+		printf("\n");
+	}
+	getchar();
+	return 0;
+}
+
+4.尝试输出倒序空格符号（43210）
+
+%%%%
+%%%
+%%
+%
 
 
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b,c;
+	for (a = 1; a <= 9; a = a + 2)
+	{
+		for (c = 8; c >= a; c = c - 2)
+		{
+			printf(" ");
+		};
+		for (b = 1; b <= a; b = b + 1)
+		{
+			printf("*");
+		}
+		printf("\n");
+	}
+	getchar();
+	return 0;
+}
+
+5.倒过来尝试输出下半部分
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b, c, d, e, f;
+	for (a = 1; a <= 9; a = a + 2)
+	{
+		for (c = 8; c >= a; c = c - 2)
+		{
+			printf(" ");
+		};
+		for (b = 1; b <= a; b = b + 1)
+		{
+			printf("*");
+		}
+		printf("\n");
+	}
+	for (d = 1; d <= 7; d = d + 2)
+	{
+		for (f = 1; f <= d; f = f + 2)
+		{
+			printf(" ");
+		}
+		for (e = 7; e >= d; e = e - 1)
+		{
+			printf("*");
+		};
+		printf("\n");
+	}
+	getchar();
+	return 0;
+}
+
+6.【别人的思路】
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b, c;
+	for (a = 0; a < 9; a++)
+	{
+		if (a < 5)
+		{
+			for (b = 0; b < 5 - a; b++)
+				printf(" ");
+			for (c = 0; c < 2 * a + 1; c++)
+				printf("*");
+			printf("\n");
+		}
+		else
+		{
+			for (b = a - 3; b > 0; b--)
+				printf(" ");
+			for (c = 17 - 2 * a; c > 0; c--)
+				printf("*");
+			printf("\n");
+		}
+	}
+	getchar();
+	return 0;
+}
 
 
+【066——练习：用for循环打印九九乘法表】
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b;
+	for (a = 1; a <= 9; a++)
+	{
+		for (b = 1; b <= a; b++) 
+		{ 
+			printf("%dx%d=%d	", b, a, a*b);
+		}
+		printf("\n");
+	}
+	getchar();
+	return 0;
+}
+
+【第四章】
+
+【第1节】（程序3种结构）
+
+1.顺序执行
+
+       ↓
+（执行语句）
+        ↓
+（执行语句）
+        ↓
+（执行语句）
+        ↓
+
+2.选择执行
+
+	      ↓
+——————————————
+(满足条件）	(满足条件）
+(执行语句)		(执行语句)
+      ↓		      ↓
+        —————————
+	      ↓
+
+3.循环执行
+
+        ↓ _______
+        ↓	    |
+（执行语句 )  ↑(满足条件)
+        ↓ _______|
+        ↓
 
 
+【第2节】（一些细节）
+
+1.关于累进简写：
+a++是a=a+1简写	 a+=2是a=a+2简写	 a*=2是a=a*2简写
+a -- 是a=a -1简写	 a- =2是a=a -2简写	 a/=2是a=a/2简写
 
 
+【第3节】（判别质数）
+
+【067——练习：如何判别一个数是否是质数】
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b;	
+	b = 2;
+	scanf_s("%d", &a);
+	while (b <= a - 1) 
+	{
+		if (a%b == 0)	printf("%d ",b);
+		b = b + 1;
+	}
+	Sleep(2000);
+	return 0;
+}
+
+根据输出判断，若能输出约数b为合数，若无输出则输入为质数
+但这输出不直观；更进一步改进后：
 
 
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b,c;
+	c = 0;
+	b = 2;
+	scanf_s("%d", &a);
+	while (b<=a-1)
+	{
+		if (a%b == 0)	c = 1;		
+		b = b + 1;
+	}
+	if (c == 0)	printf("质数");
+	else	printf("合数");
+
+	Sleep(1000);
+	return 0;
+}
+
+【改进】如果是合数，顺带输出它的约数；
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b,c;
+	c = 0;	
+	scanf_s("%d", &a);
+	for(b=2;b<=a-1;b++)
+	{
+		if (a%b == 0)
+		{
+			c = 1;
+			printf("%d ", b);			
+		}
+	}
+	if (c == 0)	printf("质数");
+	else	printf("合数");
+	Sleep(1000);
+	return 0;
+}
 
 
+【第4节】（break）
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a, b, c;
+	c = 0;
+	scanf_s("%d", &a);
+	for (b = 2; b <= a - 1; b++)
+	{
+		if (a%b == 0)
+		{
+			c = 1;			
+			printf("%d ", b);
+			break;
+		}
+	}
+	if (c == 0)	printf("质数");
+	else	printf("合数");
+	Sleep(1000);
+	return 0;
+}
+
+break：用来提前打断循环，如上面例子中主要算出一次约数，就打断继续循环计算
+输出结果里面只要算出一个约数，直接判断该数字为合数；提高计算速度。
+【总结】break：用来提前终止for、while或者do-while循环的
 
 
+【第4节】（continue）
 
+两种输出偶数的方法;
 
+1.常规输出法：
 
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a;
+	scanf_s("%d", &a);
+	while (a>0) 
+	{
+		if (a % 2 == 0) { printf("%d ", a); }
+		a=a-1;
+	}	
+	Sleep(1000);
+	return 0;
+}
+
+2.利用continue提前进入下一循环。
+
+#include <stdio.h>
+#include<windows.h>
+int main()
+{
+	int a;
+	scanf_s("%d", &a);
+	while (a>0) 
+	{
+		printf("%d ", a);
+		a=a-1;
+		if (a % 2 == 1)  continue;
+	}	
+	Sleep(1000);
+	return 0;
+}
 
 
 
