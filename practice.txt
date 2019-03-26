@@ -3964,7 +3964,7 @@ int main()
 #include<stdio.h>
 #include<stdlib.h>
 #include<windows.h>
-int main()
+int a()
 {
 	int i, x, y;
 	char ch;
@@ -3975,63 +3975,138 @@ int main()
 					"# **# o ##",
 					"##**#   ##",
 					"##########" };
-	x = 3; y = 2; //x,y代表s小人位置；
-	for (i = 0; i <= 6; i++) { puts(a[i]); }
+	x = 3; y = 2; //x,y代表推箱子的小人‘s’所在初始位置；
 
-	while (1)
+	for (i = 0; i <= 6; i++) { puts(a[i]);}
+	printf("\nWASD控制键\nR可重启一次游戏");
+	
+	while (a[4][2] != 'o' || a[4][3] != 'o' || a[5][2] != 'o' || a[5][3] != 'o')//完成条件四个点都填上o;
 	{
 		ch = getch();
-		if (ch == 's')
+		if (ch == 's')//输入移动指令 WASD控制方向，‘0’为箱子；‘s’为推箱的小人；‘#’墙
 		{
-			if (a[x + 1][y] != '#')
+			if (a[x + 1][y] != 'o')//如果小人下方没有箱子
 			{
-				a[x][y] = ' ';
-				x++;
-				a[x][y] = 's';
+				if (a[x + 1][y] != '#')//如果小人下方不是墙，则小人移动一格；
+				{
+					a[x][y] = ' ';
+					x++;
+					a[x][y] = 's'; 
+				}
+			}
+			else//if (a[x + 1][y] == 'o')//如果小人下方有箱子
+			{
+				if (a[x + 2][y] != '#'&&a[x + 2][y] != 'o')//如果小人跟箱子下方不是墙壁或者另一个箱子，则小人和箱子一起往下移动一格
+				{
+					a[x][y] = ' ';
+					x++;
+					a[x][y] = 's';
+					x++;
+					a[x][y] = 'o';
+					x--;
+				}
 			}
 		}
 		if (ch == 'w')
 		{
-			if (a[x - 1][y] != '#')
+			if (a[x - 1][y] != 'o')
 			{
-				a[x][y] = ' ';
-				x--;
-				a[x][y] = 's';
+				if (a[x - 1][y] != '#')
+				{
+					a[x][y] = ' ';
+					x--;
+					a[x][y] = 's';
+				}
+			}
+			else//if (a[x - 1][y] == 'o')
+			{
+				if (a[x - 2][y] != '#'&&a[x - 2][y] != 'o')
+				{
+					a[x][y] = ' ';
+					x--;
+					a[x][y] = 's';
+					x--;
+					a[x][y] = 'o';
+					x++;
+				}
 			}
 		}
 		if (ch == 'a')
 		{
-			if (a[x][y - 1] != '#')
+			if (a[x][y - 1] != 'o')
 			{
-				a[x][y] = ' ';
-				y--;
-				a[x][y] = 's';
+				if (a[x][y - 1] != '#')
+				{
+					a[x][y] = ' ';
+					y--;
+					a[x][y] = 's';
+				}
+			}
+			else//if (a[x][y - 1] == 'o')
+			{
+				if (a[x][y - 2] != '#'&&a[x][y - 2] != 'o')
+				{
+					a[x][y] = ' ';
+					y--;
+					a[x][y] = 's';
+					y--;
+					a[x][y] = 'o';
+					y++;
+				}
 			}
 		}
 		if (ch == 'd')
 		{
-			if (a[x][y + 1] != '#')
+			if (a[x][y + 1] != 'o')
 			{
-				a[x][y] = ' ';
-				y++;
-				a[x][y] = 's';
+				if (a[x][y + 1] != '#')
+				{
+					a[x][y] = ' ';
+					y++;
+					a[x][y] = 's'; 
+				}
+			}
+			else//if (a[x][y + 1] == 'o')
+			{
+				if (a[x][y + 2] != '#'&&a[x][y + 2] != 'o')
+				{
+					a[x][y] = ' ';
+					y++;
+					a[x][y] = 's';
+					y++;
+					a[x][y] = 'o';
+					y--;
+				}
 			}
 		}
+		if (ch == 'r') { system("cls"); return 2; }
+		if (a[4][2] != 'o' && a[4][2] != 's') { a[4][2] = '*'; }//*终点提示位置保持显示；
+		if (a[4][3] != 'o' && a[4][3] != 's') { a[4][3] = '*'; }
+		if (a[5][2] != 'o' && a[5][2] != 's') { a[5][2] = '*'; }
+		if (a[5][3] != 'o' && a[5][3] != 's') { a[5][3] = '*'; }
+
 		system("cls");
 		for (i = 0; i <= 6; i++) { puts(a[i]); }
+		printf("\nWASD控制键\nR可重启一次游戏");
 	}
 	system("cls");
 	printf("Mission Complete\nCongratulations!\n");
 	Sleep(5000);
-	return 0;
+	return 1;
 }
-
-
-
-
-
-
-
-
-
+int main() 
+{	
+	int t,m;
+	t = 0;
+	for (t=0;t<=1;t++) 
+	{
+		m=a();	
+		if (m == 1)
+		{
+			system("cls");
+			Sleep(5000);
+			return 0;
+		}	
+	}
+}
 
