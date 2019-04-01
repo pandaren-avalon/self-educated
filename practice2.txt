@@ -1,0 +1,457 @@
+【C primer Plus自学】
+
+【第一章】
+
+1.4 计算机能做什么
+	计算机组成：
+	①中央处理单元 CPU；
+	②随机存储内存RAM；
+	③永久内存存储 硬盘；
+	④支持设备、外设等；
+
+	CPU：	从内存获取并执行一条指令；然后再下一条；
+		CPU有自己的小工作区；若干个寄存器；寄存器可存储一个数字；
+		一个寄存器存储下一条指令的内存地址（寄存器a）；
+		CPU用该地址来获取和更新下一条指令；
+		CPU在获取指令后，在另一个寄存器（寄存器b）存储该指令；并更新寄存器a的下一个地址；
+	CPU能理解的指令有限（指令集）多数用于将一个数从一个位置移动到另一个位置；
+	存储在计算机内的所有内容都是数字；
+	计算机程序最终都必须以数字指令码来表示；
+	
+	计算机工作原理：
+	如果希望计算机做某些事：
+	1.必须为其提供特殊的指令列表（程序）；确切的告诉它要做的事以及如何做；
+	2.必须用计算机直接明白的语言（机器语言）创建程序；
+	例如：两数相加；
+		①从内存位置2000上，把一个数字拷贝到寄存器1；
+		②从内存位置2004上，把一个数字拷贝到寄存器2；
+		③把寄存器2和寄存器1中的内容相加，将结果存在寄存器1中；
+		④将寄存器1中的内容拷贝到内存位置2008；
+
+1.5 高级计算机语言和编译器
+	高级编程语言在计算机看来是一堆无法理解的无用数据；
+	编译器：将高级程序语言翻译成机器语言指令集；
+
+1.6 C语言标准：C89/C90  C99  C11
+
+1.7 使用C语言的7个步骤
+	1.定义程序目标：用一般术语表达；比如：
+		程序需要那些信息（输入）；
+		程序需要进行哪些计算和控制（运行）；
+		程序应该报告什么信息（输出）；
+	2.设计程序：比如：用户界面？组织程序？目标用户？如何表达数据？数据处理方法？
+	3.编写代码：用文本编辑器创建源代码；
+	4.编译：
+		①将源代码转换成可执行代码（机器语言）；
+		②将源代码和库代码合并成最终程序（链接器），生成可执行文件；
+	5.运行程序：
+		①常规环境（Windows带命令提示符、UNIX、LinUX）输入可执行文件名；
+		②集成开发环境（IDE）菜单选项或者特殊键（单双击）执行；
+	6.测试、调试程序：查找并修复程序错误（debug）;
+	7.维护和修改代码；
+	*程序越庞大越复杂，事先定义和程序设计环节工作量越大；
+
+1.8 编程机制
+	源代码——编译器——目标代码——链接器——可执行代码
+	(.c文件)		(.obj文件)	   库代码       (.exe文件)	
+	  code		 目标文件	   启动代码    应用程序文件
+
+【第二章】	
+
+2.1
+	#include<stdio.h>		//包含另一个文件；
+	int main(void)		//主函数名；
+	{			//表面函数开始；
+		int a;		//声明变量a；
+		a=1;		//赋值表达式；
+		printf("%d",a);	//调用一个函数printf();	
+		return 0;		//返回值；
+	}			//函数结束；
+2.2
+	1. #include指令和头文件
+	#include<stdio.h>相当于将stdio.h文件中的所有内容输入该行；实质为复制粘贴；方便共享许多程序共有信息；
+	#include是一条C语言预处理信息；#表明C预处理器在编译器接手前处理这条指令；
+	通常在C程序顶部信息集合，称为头文件；
+	特定C实现的文档中应包含对C库函数的说明，确定了使用哪些函数需要用到哪些头文件；
+
+	2. main()函数
+	C程序一定从main()函数开始执行，除了main()函数可以任意命名其他函数名；
+	int是main()函数的返回类型，返回整数给操作系统；
+	int main(void)：	()内包含了一些传入函数的信息，若不需要传递任何信息，()内用单词void；
+
+	3. 注释  // 注释到本行结尾   /*……*/ 注释掉中间部分内容；
+	
+	4. 花括号{}标记函数开始与终结；
+
+	5. 声明
+	int a;	这行代码完成两件事；①声明函数中有个变量a；②int表明变量a是个整数；
+		int是一种数据类型，编译器以此为变量a在内存中分配存储空间；
+		a  是一种标识符，是一个变量、函数或者其他实体的名称；
+		C语言中所有变量都必须声明后才能使用；
+	命名：尽量使用有意义的变量名；编译器能识别前63字符，可以用大小写数字下划线命名，第一位不能用数字；
+
+	6. 赋值：
+	a=1；	在执行声明时，编译器在内存中为变量a预留了空间，赋值时将值存储在预留位置；
+		赋值表达式为从右侧将值赋到左侧；
+		C语言是通过赋值运算而不是赋值语句完成操作；
+	
+	7. printf()函数
+		printf()括号中的内容为main()函数传递给printf()函数的信息；()内信息为函数实际参数；
+		①实际参数：传递给函数的特定值；
+		②形式参数：函数中用于储存变量的值；
+	
+	8. return语句
+		int main(void)函数中的int表明main()函数应返回一个整数；有返回值的函数需要有return语句；
+		return语句是一种跳转语句；
+
+【练习题1.】
+	编写一个程序，调用一次printf()函数，把你的姓名打印在一行，再调用一次printf()函数把你的姓名分别打印在两行，然后再调用两次printf()，把你的姓名打印在一行，输出如下：
+	Gustav Mahler	//第1次打印的内容
+	Gustav 		//第2次打印的内容
+	Mahler		//仍是第2次打印的内容
+	Gustav Mahler	//第3、4此打印的内容
+
+#include<stdio.h>
+int main(void)
+{
+	printf("Gustav Mahler\n");
+	printf("Gustav\nMahler\n");
+	printf("Gustav ");
+	printf("Mahler\n");
+	getchar();
+	return 0;
+}
+
+【练习题2.】
+	编写一个程序，打印你的姓名和地址。
+
+#include<stdio.h>
+int main(void)
+{
+	printf("Name:***\nAddress:Room***, unit***, building**,***Road,***District,***City,***Province\n");
+	getchar();
+	return 0;
+}
+
+【练习题3.】
+	编写一个程序，把你的年龄转换成天数，并显示这两个值，不考虑闰年问题。
+
+#include<stdio.h>
+int main(void)
+{
+	int age, day;
+	age = 18;
+	day = age * 365;
+	printf("Your age:%d\nConvert age to days:%d\n", age, day);
+	getchar();
+	return 0;
+}
+
+【练习题4.】
+	编写一个程序，生成以下输出;除了main()函数以外，自定义两个函数，第一个打印前三条，调用一次打印一次；另一个打印最后一条消息；
+	hello world
+	hello world
+	hello world
+	i'm good
+
+#include<stdio.h>
+void hello(void){printf("hello world\n");}
+void good(void){ printf("i'm good\n"); }
+int main(void) 
+{
+	hello(); 
+	hello();
+	hello();
+	good();
+	getchar();
+	return 0;
+}
+
+【练习题5.】
+	编写一个程序，生成以下输出；除了main()函数外，自定义两个函数br()和ic()分别为“Brazil,Russia”;和“India,China”各依次调用并打印一次，其余内容在main()函数中完成。
+	Brazil,Russia,India,China
+	India,China，
+	Brazil,Russia
+
+#include<stdio.h>
+void br(void) { printf("Brazil,Russia"); }
+void ic(void) { printf("India,China"); }
+int main(void) 
+{
+	br();
+	printf(",");
+	ic();
+	printf("\n");
+	printf("India,China,\n");
+	printf("Brazil,Russia");
+	getchar();
+	return 0;
+}
+
+【练习题6.】
+	编写一个程序，创建一个整型变量toes，并将toes设置为10.程序中还要计算toes的两倍和平方并打印和描述；
+
+#include<stdio.h>
+int main(void) 
+{
+	int toes;
+	toes = 10;
+	printf("toes=%d\n2*toes=%d\ntoes*toes=%d\n", toes, 2 * toes, toes*toes);
+	getchar();
+	return 0;
+}
+
+【练习题7.】
+	编写一个程序，生成以下格式输出；自定义一个函数，调用一次打印一次“smile!”
+	smile!smile!smile!
+	smile!smile!
+	smile!
+	
+#include<stdio.h>
+void smile(void) { printf("smile!"); }
+int main(void) 
+{
+	smile(); 
+	smile();
+	smile();
+	printf("\n");
+	smile();
+	smile();
+	printf("\n");
+	smile();
+	printf("\n");
+	getchar();
+	return 0;
+}
+
+【练习题8.】
+	编写一个函数，调用one()的函数打印“one”调用two()函数打印“two”，要求输出如下：
+	starting now:
+	one
+	tow
+	three
+	done!
+
+
+#include<stdio.h>
+void one(void) { printf("one"); }
+void two(void) { printf("two"); }
+int main(void) 
+{
+	printf("starting now\n");
+	one();
+	printf("\n");
+	two();
+	printf("\n");
+	printf("three\n");
+	printf("done!\n");
+	getchar();
+	return 0;
+}
+
+【第三章】
+
+3.1	
+	#include<stdio.h>
+	int main(void)
+	{
+		float weight;	//浮点数变量
+		float value;
+		float prince;
+		prince=1700.0;
+		printf("please enter your weight in pounds: ");
+		scanf_s("%f",&weight);	//scanf_s()读取键盘输入；%f浮点数占位符
+		value=prince*weight*14.5833;	//变量与常量；
+		printf("your weight in platinum is worth $%.2f.\n",value);	//%.2f .2控制精度
+		printf("if platinum princes drop,eat more maintain your value.\n");
+		getchar();
+		getchar();
+		return 0;
+	}
+
+3.3
+	【数据类型关键字】
+
+            【K&C】		【C90】		【C99】
+
+	int		signed		_Bool
+	long		void		_Complex
+	short				_Imaginary
+	unsigned
+	char
+	float
+	double
+
+	【位、字节和字】
+
+	最小的存储单元是位(bit)，可以存储0或1；
+	字(byte)节是常用的计算机存储单位，1字节=8位 1byte=8bit;既然1位可以表示0或者1，8位字节就有256种可能组合(2的8次方)；通过二进制编码，便可表示0-255的整数或一组字符；
+	字(word)、计算机进行数据处理时，一次存取、加工和传送的数据长度称为字(word)；字长越大，数据转移越快；允许访问的内存也更多；
+
+	【整数和浮点数】
+	整数：2进制存储；最高位设置为符号位，1代表负数(负数补码=负数反码)，0代表正数(正数原码=反码=补码)；
+	浮点数：与整数存储方案不同；采用小数部分+指数部分来表示；
+
+3.4
+	【int类型】（有符号整型）
+		
+	int类型的值必须是整数，可以是正整数、负整数或0，取值范围随系统，ISO C规定最小16位(-32768~32767)；
+	
+	1.声明int变量	
+	int a;
+	int b;
+	int a,b;
+
+	给变量提供值的方法：
+
+	①赋值：
+		int a;
+		a=1;
+	②函数获取：
+		int a;
+		scanf_s("%d",&a);
+	
+
+	2.初始化变量：C语言中可以直接在声明中给变量赋一个初始值
+		int a=1;
+	
+	声明其实已经位变量创建和标记了存储空间，若初始化在声明里，则为其直接指定初始值；
+
+	3.int类型常量
+	C语言把不含小数点和指数的数作为整数，如22和-44是整型常量，但22.0和2.2E1则不是；
+	C语言把大多数整型常量视为int类型，但是非常大的整数除外（long常量）；
+	
+	4.打印 int 值
+	可以使用printf()函数；%d称为"转换说明”,它指定了printf()函数应使用什么格式来显示一个值；
+	使用printf()函数时，要确保转换说明数量%d与待打印值的变量数相等，若无指定，将读取内存中任意值
+
+	5.八进制和十六进制
+	计算机如何10000是十进制十六进制还是二进制？C语言中用特定的前缀表示；
+	0x或者0X前缀表示十六进制  	例如十进制16等于十六进制0x10
+	0前缀表示八进制；		例如十进制16等于八进制020
+	
+	6.显示八进制和十六进制；
+	%d——十进制
+	%o——八进制
+	%x——十六进制
+	另外若要显示后两种进制数的前缀0、0x或0X，分别使用%#o、 %#x、 %#X，例如打印十进制的100：
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int a = 100;
+		printf("dec=%d,	octal=%o,	hex=%x\n", a, a, a);//十进制、八进制、十六进制
+		printf("dec=%d,	octal=%#o,	hex=%#x,	hex=%#X\n", a,a,a,a);
+		getchar();
+		return 0;
+	}
+
+	【其他整数类型】：
+	short int 类型(或简写为short)用于较小数值的场合以节省空间，是有符号类型；
+	long  int 类型(或简写为 long)用于较大数值的场合，也是有符号类型；
+	long long int (或简写为 long long)占用64位以上的更大数值场合，也是有符号类型；
+	unsigned int  (或简写为unsigned)只用于非负数值的场合，
+		例如16位取值范围为0~65535，而非-32768~32767，是用符号位拿来存二进制位；
+	在任何有符号类型前面添加关键字signed，可强调使用有符号类型的意图。
+
+	1.声明其他整数类型：与int相同；
+
+	2.int long short 只规定了占位大小关系，因为对16位机或者32位机甚至64位机对应的取值范围不同；
+	   通常个人PC最常见设置 long long占64位，long占32位，short占16位，int占16或32位(依计算机字长)；
+	  ① 当取值范围在int内，尽量不用long，，使用long类型会减慢运算速度；其他关键字类推；
+	  ②若需要从32位机移植程序到16位机的情况，若有当需要用到32位数字时，用long，其他关键字类推；
+
+	3.long 和long long
+	通常程序中使用的数字会被存储为int类型；
+	若超出范围，编译器依次视其为long----unsigned long----long long-nusigned long long
+	特定情形下需要用long存储一个小数字，可以加个后缀l或者L 大写字母易区分1与l；如7L；9LL；
+	
+	整数溢出
+	#include<stdio.h>
+	int main(void)
+	{
+		int a=2147483647;
+		unsigned int b=4294967295;
+		printf("%d %d %d\n",a,a+1,a+2);
+		printf("%u %u %u\n",b,b+1,b+2);
+		getchar();
+		return 0;
+	}
+
+	观察结果，溢出后数字从定义类型范围的最小始开始
+	最小看取值范围int、 unsigned int
+	本例中int为32位（+标识符加31位数字，二进制下为+2147483647）范围(-2147483648~2147483647)
+	所以unsigned范围为（0~4294967295）例题中a+1和b+1数字溢出后从最小处重新开始取值；
+
+	4.打印short、long、long long和unsigned
+	short		——%hd；%hx；%ho；	//十进制、十六进制、八进制；
+	long		——%ld；%lx；%lo		//常量后缀在转换说明里只能用小写；
+	long long		——%lld；%lldx;%lldo;
+	
+	unsigned		——%u；
+
+	nusigned short	——%hu;
+	unsigned long	——%lu；
+	nusigned long long	——%llu；
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		unsigned a = 3000000000;	//int为32位下系统；
+		short b = 200;
+		long c = 65537;
+		long long d = 12345678908642;
+
+		printf("a=%u not %d \n", a, a);
+		printf("b=%hd and %d \n", b, b);
+		printf("c=%ld not %hd \n", c, c);
+		printf("d=%lld not %ld", d, d);
+
+		getchar();
+		return 0;
+	}
+	
+	①第一行输出：%d和%u的区别在于signed和unsigned的区别，两个输出不同的值在内存中的二进制排列相同；
+	   但是在signed读取的时候，最高位的数字被读取成符号位；unsigned则直接为数字一部分；
+	②
+
+
+
+	综上，不管是signed和unsigned还是整数溢出，其实质都是定义数集合的范围不一样导致的；
+	存储在内存中的二进制数字，对不同的定义和转换说明，其排列到的位序，即在这个定义集合里的值都不一样；
+	计算机能存储的状态就是0和1的有限组合，同样的组合能根据用户的定义给出更多的不同值的表达；
+
+
+
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
