@@ -2,7 +2,7 @@
 
 【第一章】
 
-1.4 计算机能做什么
+1.4 	计算机能做什么
 	计算机组成：
 	①中央处理单元 CPU；
 	②随机存储内存RAM；
@@ -28,13 +28,13 @@
 		③把寄存器2和寄存器1中的内容相加，将结果存在寄存器1中；
 		④将寄存器1中的内容拷贝到内存位置2008；
 
-1.5 高级计算机语言和编译器
+1.5 	高级计算机语言和编译器
 	高级编程语言在计算机看来是一堆无法理解的无用数据；
 	编译器：将高级程序语言翻译成机器语言指令集；
 
-1.6 C语言标准：C89/C90  C99  C11
+1.6 	C语言标准：C89/C90  C99  C11
 
-1.7 使用C语言的7个步骤
+1.7 	使用C语言的7个步骤
 	1.定义程序目标：用一般术语表达；比如：
 		程序需要那些信息（输入）；
 		程序需要进行哪些计算和控制（运行）；
@@ -51,7 +51,7 @@
 	7.维护和修改代码；
 	*程序越庞大越复杂，事先定义和程序设计环节工作量越大；
 
-1.8 编程机制
+1.8 	编程机制
 	源代码——编译器——目标代码——链接器——可执行代码
 	(.c文件)		(.obj文件)	   库代码       (.exe文件)	
 	  code		 目标文件	   启动代码    应用程序文件
@@ -105,101 +105,104 @@
 		return语句是一种跳转语句；
 
 【练习题1.】
-	编写一个程序，调用一次printf()函数，把你的姓名打印在一行，再调用一次printf()函数把你的姓名分别打印在两行，然后再调用两次printf()，把你的姓名打印在一行，输出如下：
+	编写一个程序，把你的姓名打印在一行，输出如下：
+
 	Gustav Mahler	//第1次打印的内容
 	Gustav 		//第2次打印的内容
 	Mahler		//仍是第2次打印的内容
 	Gustav Mahler	//第3、4此打印的内容
 
-#include<stdio.h>
-int main(void)
-{
-	printf("Gustav Mahler\n");
-	printf("Gustav\nMahler\n");
-	printf("Gustav ");
-	printf("Mahler\n");
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	int main(void)
+	{
+		printf("Gustav Mahler\n");
+		printf("Gustav\nMahler\n");
+		printf("Gustav ");
+		printf("Mahler\n");
+		getchar();
+		return 0;
+	}
 
 【练习题2.】
 	编写一个程序，打印你的姓名和地址。
 
-#include<stdio.h>
-int main(void)
-{
-	printf("Name:***\nAddress:Room***, unit***, building**,***Road,***District,***City,***Province\n");
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	int main(void)
+	{
+		printf("Name:***\nAddress:Room***, unit***, building**,***Road,***District,***City,***Province\n");
+		getchar();
+		return 0;
+	}
 
 【练习题3.】
 	编写一个程序，把你的年龄转换成天数，并显示这两个值，不考虑闰年问题。
 
-#include<stdio.h>
-int main(void)
-{
-	int age, day;
-	age = 18;
-	day = age * 365;
-	printf("Your age:%d\nConvert age to days:%d\n", age, day);
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	int main(void)
+	{
+		int age, day;
+		age = 18;
+		day = age * 365;
+		printf("Your age:%d\nConvert age to days:%d\n", age, day);
+		getchar();
+		return 0;
+	}
 
 【练习题4.】
-	编写一个程序，生成以下输出;除了main()函数以外，自定义两个函数，第一个打印前三条，调用一次打印一次；另一个打印最后一条消息；
+	编写一个程序，生成以下输出;除了main()函数以外，自定义两个函数；
 	hello world
 	hello world
 	hello world
 	i'm good
 
-#include<stdio.h>
-void hello(void){printf("hello world\n");}
-void good(void){ printf("i'm good\n"); }
-int main(void) 
-{
-	hello(); 
-	hello();
-	hello();
-	good();
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	void hello(void){printf("hello world\n");}
+	void good(void){ printf("i'm good\n"); }
+	int main(void) 
+	{
+		hello(); 
+		hello();
+		hello();
+		good();
+		getchar();
+		return 0;
+	}
 
 【练习题5.】
-	编写一个程序，生成以下输出；除了main()函数外，自定义两个函数br()和ic()分别为“Brazil,Russia”;和“India,China”各依次调用并打印一次，其余内容在main()函数中完成。
+	编写一个程序，生成以下输出；除了main()函数外，自定义两个函数br()和ic()分别为“Brazil,Russia”;和“India,China”;
+	各依次调用并打印一次，其余内容在main()函数中完成。
+
 	Brazil,Russia,India,China
 	India,China，
 	Brazil,Russia
 
-#include<stdio.h>
-void br(void) { printf("Brazil,Russia"); }
-void ic(void) { printf("India,China"); }
-int main(void) 
-{
-	br();
-	printf(",");
-	ic();
-	printf("\n");
-	printf("India,China,\n");
-	printf("Brazil,Russia");
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	void br(void) { printf("Brazil,Russia"); }
+	void ic(void) { printf("India,China"); }
+	int main(void) 
+	{
+		br();
+		printf(",");
+		ic();
+		printf("\n");
+		printf("India,China,\n");
+		printf("Brazil,Russia");
+		getchar();
+		return 0;
+	}
 
 【练习题6.】
 	编写一个程序，创建一个整型变量toes，并将toes设置为10.程序中还要计算toes的两倍和平方并打印和描述；
 
-#include<stdio.h>
-int main(void) 
-{
-	int toes;
-	toes = 10;
-	printf("toes=%d\n2*toes=%d\ntoes*toes=%d\n", toes, 2 * toes, toes*toes);
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	int main(void) 
+	{
+		int toes;
+		toes = 10;
+		printf("toes=%d\n2*toes=%d\ntoes*toes=%d\n", toes, 2 * toes, toes*toes);
+		getchar();
+		return 0;
+	}
 
 【练习题7.】
 	编写一个程序，生成以下格式输出；自定义一个函数，调用一次打印一次“smile!”
@@ -207,22 +210,22 @@ int main(void)
 	smile!smile!
 	smile!
 	
-#include<stdio.h>
-void smile(void) { printf("smile!"); }
-int main(void) 
-{
-	smile(); 
-	smile();
-	smile();
-	printf("\n");
-	smile();
-	smile();
-	printf("\n");
-	smile();
-	printf("\n");
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	void smile(void) { printf("smile!"); }
+	int main(void) 
+	{
+		smile(); 
+		smile();
+		smile();
+		printf("\n");
+		smile();
+		smile();
+		printf("\n");
+		smile();
+		printf("\n");
+		getchar();
+		return 0;
+	}
 
 【练习题8.】
 	编写一个函数，调用one()的函数打印“one”调用two()函数打印“two”，要求输出如下：
@@ -233,21 +236,21 @@ int main(void)
 	done!
 
 
-#include<stdio.h>
-void one(void) { printf("one"); }
-void two(void) { printf("two"); }
-int main(void) 
-{
-	printf("starting now\n");
-	one();
-	printf("\n");
-	two();
-	printf("\n");
-	printf("three\n");
-	printf("done!\n");
-	getchar();
-	return 0;
-}
+	#include<stdio.h>
+	void one(void) { printf("one"); }
+	void two(void) { printf("two"); }
+	int main(void) 
+	{
+		printf("starting now\n");
+		one();
+		printf("\n");
+		two();
+		printf("\n");
+		printf("three\n");
+		printf("done!\n");
+		getchar();
+		return 0;
+	}
 
 【第三章】
 
@@ -285,8 +288,12 @@ int main(void)
 	【位、字节和字】
 
 	最小的存储单元是位(bit)，可以存储0或1；
-	字(byte)节是常用的计算机存储单位，1字节=8位 1byte=8bit;既然1位可以表示0或者1，8位字节就有256种可能组合(2的8次方)；通过二进制编码，便可表示0-255的整数或一组字符；
-	字(word)、计算机进行数据处理时，一次存取、加工和传送的数据长度称为字(word)；字长越大，数据转移越快；允许访问的内存也更多；
+	字(byte)节是常用的计算机存储单位;
+	1字节=8位 1byte=8bit;
+	既然1位可以表示0或者1，8位字节就有256种可能组合(2的8次方)；
+	通过二进制编码，便可表示0-255的整数或一组字符；
+	字(word)、计算机进行数据处理时，一次存取、加工和传送的数据长度称为字(word)；
+	字长越大，数据转移越快；允许访问的内存也更多；
 
 	【整数和浮点数】
 	整数：2进制存储；最高位设置为符号位，1代表负数(负数补码=负数反码)，0代表正数(正数原码=反码=补码)；
@@ -666,14 +673,246 @@ int main(void)
 
 	【复数和虚数类型】
 
+	3种复数类型，float_Complex、double_Complex、long double_Complex
+	3种虚数类型，float_Imaginary、double_Imaginary、long double_Imaginary
+	
+	【其他类型】
+	
+	数组、指针、结构和联合等
+
+	指针——指向变量或其他数据对象位置，如scanf()函数里用到的前缀&，告诉函数把数据放在何处；
+		
+	【类型大小】
+	如何知道当前系统的指定类型大小是多少？%zd 或者%u %lu;
+
+	#include<stdio.h>
+	int main(void)
+	{
+		printf("int size =%zd bytes\n", sizeof(int));
+		printf("short size =%zd bytes\n", sizeof(short));
+		printf("long size =%zd bytes\n", sizeof(long));
+		printf("long long size =%zd bytes\n", sizeof(long long));
+		printf("unsigned size =%zd bytes\n", sizeof(unsigned));
+		printf("char size =%zd bytes\n", sizeof(char));
+		printf("float size =%zd bytes\n", sizeof(float));
+		printf("double size =%zd bytes\n", sizeof(double));
+		printf("long double size =%lu bytes\n", sizeof(long double));
+		getchar();
+		return 0;
+	}
+	
+3.5
+	【合理选用变量类型】
+
+	int a=3			//正确
+	int b=3.0			//不推荐；
+	int c=12.99		//取值C为12，int截断小数部分，精度丢失严重
+	float d=3.1415926536	//损失精度；float只保证前6位精度，编译器警告；
+	
+3.6	【参数与陷阱】
+
+	printf() 和 scanf()与一般函数不同，他们的参数个数是可变的；
+	第一个字符串的转换说明与后面的参数需一一对应；
+	程序员要负责确保转换说明的数量、类型与后面参数的数量、类型相匹配；
+	错误示例：
+	#include<stdio.h>
+	int main(void)
+	{
+		int m = 4;
+		int n = 5;
+		float f = 7.0f;
+		float g = 8.0f;
+		printf("%d\n", n, m);		//参数太多
+		printf("%d %d %d\n", n);	//参数太少
+		printf("%d %d\n", f, g);	//转换说明类型不匹配
+		getchar();
+		return 0;
+	}
+		
+3.7	【转义序列】
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		float salary;
+		printf("\aEnter your salary:");	
+		printf(" $________\b\b\b\b\b\b\b");
+		scanf_s("%f",&salary);
+		printf("\n\t$%.2f a month is $%.2f a year.",salary,salary*12.0);
+		printf("\rGee!\n");
+		getchar();
+		getchar();
+	}
+
+	
+	最初，printf()语句把输出发送到一个叫做缓冲区的中间存储区域，然后再发送到屏幕上；
+	当缓冲区满、遇到换行字符或者需要输入的时候，刷新缓冲区；
+	(从缓冲区把数据发送到屏幕或文件被称为刷新缓冲区；)
+	旧式编译器遇到scanf()也不会强行刷新缓冲区，程序会停在那里不显示任何内容，等待用户输入；
+	在这种情况下，可以在示例中第一行输出末尾加入换行字符\n刷新缓冲区。
+
+3.8	计算机中的浮点数和整数在本质上不同，其存储方式和运算过程有很大差别；
+	即使两个32位存储单元存储的位组合完全相同，但一个解释为float类型，另一个解释为long类型；
+	这两个相同的位组合表示的值也完全不同；举例：
+	假设一个位组合表示float类型的数256.0，如果将其解释为long类型，则值是113246208；
+	#include<stdio.h>
+	int main(void)
+	{
+		float a;
+		a = 256.0;
+		printf("%.1f = %lld",a,a);	//VS2017输出为long long类型4643211215818981376
+		getchar();
+		getchar();
+	}
+
+【练习题1.】
+	通过试验(编程验证)观察系统如何处理整数上溢、浮点数上溢和下溢的情况；
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int a;
+		float b,c;
+		a=1000000000000000;
+		b=3.5e+60;
+		c=1/b;
+		printf("%d\n",a);
+		printf("%f\n",b);
+		printf("%f\n",c);
+		getchar();
+		return 0;
+	}
+
+【练习题2.】
+	编写一个程序，要求提示输入一个ASCII码值(如，66)，然后打印输入的字符；
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int ASCII;
+		printf("输入一个ASCII可打印码值(33-127): ");
+		scanf_s("%d",&ASCII);
+		printf("%c",ASCII);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+【练习题3.】
+	编写一个程序，发出一声警报，然后输出下面文本：“what was that!”
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		printf("\awhat was that!\n");
+		getchar();
+		return 0;
+	}
+
+【练习题4.】
+	编写一个程序，读取一个浮点数，先打印成小数点形式，再打印成指数形式，如果系统支持，再打成P记数法；
+	按以下格式输出：
+
+	Enter a floating-point value: 64.25
+	fixed-point notation: 64.250000
+	exponential notation: 6.425000e+01
+	p notation: 0x1.01p+6
+
+	#include<stdio.h>
+	int main(void)
+	{
+		float pr;
+		printf("Enter a floating-point value: ");
+		scanf_s("%f", &pr);
+		printf("fixed-point notation: %lf\n", pr);
+		printf("exponential notation: %e\n", pr);
+		printf("p notation: %a\n", pr);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+【练习题5.】
+	一年大约有3.156*10^7秒。编写一个程序，提示用户输入年龄，然后显示该年龄对应的秒数；
+
+	#include<stdio.h>
+	int main(void)
+	{
+		double sec;
+		float age;	
+		printf("Enter your age: ");
+		scanf_s("%f", &age);
+		sec = age * 3.156e+7;
+		printf("your ages change to sec = %e", sec);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+【练习题6.】
+	1个水分子的质量约为3.0*10^-23克，1夸脱水大约是950克，输入水的夸脱数，求水分子数量；
+
+	#include<stdio.h>
+	int main(void)
+	{
+		double qty;	//水分子数量
+		double m;
+		m = 3.0*10e-32;	//每个水分子的质量；
+		float quarts;	//输入的水的夸脱数；
+		printf("Enter the number of quarts for water ");
+		scanf_s("%f",&quarts);
+		qty = quarts * 950 / m;
+		printf("there are %e of water molecules", qty);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+【练习题7.】
+	1英寸相当于2.54厘米。编写一个程序，输入身高(英寸)，然后显示厘米单位身高。
+
+	#include<stdio.h>
+	int main(void)
+	{
+		float height;	//身高cm
+		float inch;		//身高in
+		printf("Enter your height by inch: ");
+		scanf_s("%f", &inch);
+		height = inch * 2.54;
+		printf("your height is %.1f cm", height);
+		getchar();
+		getchar();
+	}
+
+【练习题8.】
+	编写一个程序，用户输入杯数，以其他单位容量显示等价容量；
+	1品脱=2杯；1杯=8盎司；1盎司=2汤勺；1汤勺=3茶勺；
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		float pint;
+		int cup, oz, tbsp, tsp;
+		printf("Enter the number of cup: ");
+		scanf_s("%d", &cup);
+		pint = 0.5*cup;
+		oz = 8 * cup;
+		tbsp = 2*oz;
+		tsp = 3*tbsp;
+		printf("%d cup=%.1f pint\n", cup,pint);
+		printf("%d cup=%d oz\n",cup,oz);
+		printf("%d cup=%d tbsp\n",cup,tbsp);
+		printf("%d cup=%d tsp\n",cup,tsp);
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+
 
 
 
 	
-	
-
-
-
 
 
 
