@@ -692,6 +692,21 @@ C标准；
 	2.0e20 是2后面有20个0；如果把该数加1，那么发生变化的是第21位，要正确计算，程序至少要存储21位数字；
 	而float类型的数字通常只能存储按指数比例缩小或放大的6或7位有效数字；
 
+	显示精度问题
+
+	#include <stdio.h>	
+	int main()
+	{
+	float a;
+	double b;
+	a=3.1415926535897932;
+	b=3.1415926535897932;	
+	printf("%.15f",a);		//输出结果a=3.141592741012573;".15"表示保留小数点后15位
+	printf("%.15lf",b);		//输出结果a=3.141592653589793
+	getchar();			
+	return 0;
+	}
+
 	【复数和虚数类型】
 
 	3种复数类型，float_Complex、double_Complex、long double_Complex
@@ -942,6 +957,11 @@ C标准；
 	long long 		long long a=1LL;		%lld
 	unsigned long long  unsigned long long a=1ull;	%llu
 
+	关键字		声明/初始化		十进制	指数记数法	
+浮点型	float		float a=3.14f		%f	%e	
+	double		double=3.14		%f	%e
+	long double	long double=3.14L		%f	%e
+
 	关于本机C语言整型数字取值范围：
 	8位(bit)	256个数	【char】占用1字节长度；1字节的整型 unsigned (0~255)  signed数字轴左移一半
 	16位	256^2个	本机 【short】占用2字节长度；unsigned(0~65535)signed数字轴左移一半
@@ -949,38 +969,270 @@ C标准；
 	64位	256^8个	本机【long long】占用8字节长度；unsigned(0~18446744073709551615)signed数字轴左移一半
 
 代码验证如下：
-#include<stdio.h>
-int main(void)
-{
-	int a=2147483647;
-	unsigned b=4294967295;
-	short c=32767;
-	unsigned short d=65535;
-	long e = 2147483647;
-	unsigned long f = 4294967295;
-	long long g = 9223372036854775807;
-	unsigned long long h = 18446744073709551615;
-	printf("a = %d	a+1=%d		sizeof int = %zd \n",a,a+1,sizeof(a));
-	printf("b = %u	b+1=%u		sizeof unsigned = %zd \n", b,b+1, sizeof(b));
-	printf("c = %hd	c+1=%hd		sizeof short = %zd \n", c,c+1, sizeof(c));
-	printf("d = %hu	d+1=%hu		sizeof unsigned short = %zd \n", d, d+1,sizeof(d));
-	printf("e = %ld	e+1=%ld		sizeof long = %zd \n", e, e + 1, sizeof(e));
-	printf("f = %lu	f+1=%lu		sizeof unsigned long = %zd \n", f, f + 1, sizeof(f));
-	printf("g = %lld	g+1=%lld		sizeof long long = %zd \n", g, g + 1, sizeof(g));
-	printf("h = %llu	h+1=%llu		sizeof unsigned long long = %zd \n", h, h + 1, sizeof(h));
-
-	getchar();
-	return 0;
-}
-
+	#include<stdio.h>
+	int main(void)
+	{
+		int a = 2147483647;
+		unsigned b = 4294967295;
+		short c = 32767;
+		unsigned short d = 65535;
+		long e = 2147483647;
+		unsigned long f = 4294967295;
+		long long g = 9223372036854775807;
+		unsigned long long h = 18446744073709551615;
+		char ch = 'T';
+		float j = 3.14159265358979323846;
+		double k = 3.14159265358979323846;
+		long double l= 3.14159265358979323846;
+		float flp = 3.1415926e38;
+		float flm = 3.1415926e-45;
+		double dp = 3.1415926e307;
+		double dm = 3.1415926e-324;
+		long double ldp= 3.1415926e307;
+		long double ldm = 3.1415926e-324;
+		printf("a = %d	a+1=%d		sizeof int = %zd \n", a, a + 1, sizeof(a));
+		printf("b = %u	b+1=%u		sizeof unsigned = %zd \n", b, b + 1, sizeof(b));
+		printf("c = %hd	c+1=%hd		sizeof short = %zd \n", c, c + 1, sizeof(c));
+		printf("d = %hu	d+1=%hu		sizeof unsigned short = %zd \n", d, d + 1, sizeof(d));
+		printf("e = %ld	e+1=%ld		sizeof long = %zd \n", e, e + 1, sizeof(e));
+		printf("f = %lu	f+1=%lu		sizeof unsigned long = %zd \n", f, f + 1, sizeof(f));
+		printf("g = %lld	g+1=%lld		sizeof long long = %zd \n", g, g + 1, sizeof(g));
+		printf("h = %llu	h+1=%llu		sizeof unsigned long long = %zd \n", h, h + 1, sizeof(h));	
+		printf("ch=%c	ASCII NO.=%d	sizeof char=%zd\n",ch,ch,sizeof(ch));
+		printf("j=%.20f	j*10=%e		sizeof float=%zd\n", j, j*10, sizeof(j));
+		printf("k=%.20f	k*10=%e		sizeof double=%zd\n", k, k * 10, sizeof(k));
+		printf("l=%.20f	k*10=%e		sizeof long double=%zd\n", l, l * 10, sizeof(l));
+		printf("flp=%e	flp*10=%e\n", flp,flp*10);
+		printf("flm=%e	flm/10=%e\n", flm, flm / 10);
+		printf("dp=%e	dp*10=%e\n", dp, dp * 10);
+		printf("dm=%e	dm/10=%e\n", dm, dm / 10);
+		printf("ldp=%e	ldp*10=%e\n", ldp, ldp * 10);
+		printf("ldm=%e	ldm/10=%e\n", ldm, ldm / 10);
+		getchar();
+		return 0;
+	}
 
 【第四章】
+
+4.1
+	#include<stdio.h>
+	#include<string.h>
+	#define DENSITY 62.4//预处理：define 宏定义；
+	int main(void)
+	{
+		float weight,volume;
+		int size, letters;
+		char name[40];//name是一个可容纳39字符的数组;
+		printf("what's your first name?\n");
+		gets(name);
+		printf("what's your weight in pounds?\n");
+		scanf_s("%f", &weight);
+		size = sizeof name;
+		letters = strlen(name);//strlen()函数获取字串长度；
+		volume = weight / DENSITY;
+		printf("%s,your volume is %.2f cubic feet.\n", name, volume);//%s 字符串转换说明；
+		printf("also,your first name has %d letters.\n", letters);
+		printf("we have %d bytes to store it.\n", size);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	【字符串和字符】	
+	字符串常量"X"和字符常量'X'不同
+	区别1：'X'是基本类型char；“X”是派生类型(char 数组)
+	区别2："X"实际上由两个字符组成'X'和空字符 \0	//空字符作为字符串的结束；
+
+	#include<stdio.h>
+	#include<string.h>
+	#define PRAISE "You are an extraordinary being."
+	int main(void)
+	{
+		char name[40];
+		printf("what's your name?\n");
+		gets(name);
+		printf("hello,%s.%s\n", name, PRAISE);
+		printf("your name of %zd letters occupies %zd memory cells.\n", strlen(name), sizeof name);
+		printf("the phrase of parise has %zd letters,", strlen(PRAISE));
+		printf("and occupies %zd memory cells.\n", sizeof PRAISE);
+		getchar();
+		getchar();
+		return 0;
+	}
+	例输入'peter'；
+	sizeof 运算符报告，name数组有40个存储单元，但是只有前5个单元用来存储peter，所以strlen()函数得出的结果是5；
+	name数组的第6个单元存储空字符\0；strlen()并未将其计入；
+	对于预定义的PRAISE 用strlen()得出字符串中的字符数为31(含空格、标点)，
+	而sizeof运算符给出的数字为32，因为它把字符串末尾不可见的空字符也计算在内。
+	该程序并未明确告诉计算机要给PRAISE字符串预留多少空间，所以它必须计算双引号内的字符数；
 	
-
-
-
-
+	关于sizeof后面是否带圆括号取决于运算对象是类型还是特定量；
+	运算对象是类型时，圆括号必不可少，但对于特定量，可有可无。但是建议都加圆括号；
 	
+4.3	【常量和C预处理器 #define】
+	circumference=3.14159*diameter；	//常量3.14159代表圆周率pi(π)
+	circumference=pi*diameter；		//使用符号常量能更方便、表达更多信息；
+	假设程序中多出使用一个常量，有时需要变更它的值，比如经常浮动的税率。
+	如果程序使用符号常量，则只需更改符号常量定义，而不用在程序中查找使用常量的地方逐一修改；
+	如何创建符号常量？
+
+	方法1：声明一个变量，然后将该变量设置为所需的常量；如
+	float taxrate；
+	taxrate=0.015；
+	这样做就给0.015这个常量提供了一个符号名，但是taxrate是一个变量，程序可能会无意间改变它的值；
+	所以C语言提供了一个更好的方案——C预处理器。
+	方法2：用预处理器来定义一个常量；如
+	#define TAXRATE 0.015	//格式 #define NAME value
+	编译程序时，程序中所有TAXRATE都会被替换成0.015；这过程被称为“编译时替换”，这样定义的常量也称明示常量；
+	符号常量名一般建议用大写名；程序中看到大写名可以立刻明白这是个符号常量，而非变量；提高可读性；
+	
+	#include<stdio.h>
+	#define PI 3.14159
+	int main(void)
+	{
+		float area, circum, radius;
+		printf("what's the radius of your pizza?\n");
+		scanf_s("%f", &radius);
+		area = PI * radius*radius;
+		circum = 2.0*PI*radius;
+		printf("your basic pizza parameters are as follow:\n");
+		printf("circumference=%.2f,area=%.2f\n", circum, area);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	#define指令还可以定义字符和字符串常量，前者使用单引号，后者使用双引号；如
+	#define BEEP '\a'
+	#define TEE 'T'
+	#define ESC '\033'
+	#define OOPS "Now you have done it!"
+	
+	const限定符，用于限定一个关键量为只读。声明如下
+	const int MONTHS=12；	//MONTHS在程序中不可更改，值为12
+
+	C头文件limits.h 和 float.h 分别提供了整数类型和浮点类型大小限制相关的详细信息；
+	每个头文件都定义了一系列供实现使用的符号常量；例如limits.h头文件包含以下类似代码：
+	#define INT_MAX +32767
+	#define INT_MIX -32768
+	这些明示常量代表int类型可以表示的最大值和最小值。如果系统使用32位的int，该头文件会为这些明示常量提供不同的值。
+	如果在程序中包含limits.h头文件，就可以编写下面代码：
+	#include<stdio.h>
+	#include<limits.h>
+	int main(void)
+	{
+		printf("Maxmum int value on this system=%d\n", INT_MAX);
+		getchar();
+		return 0;
+	}
+	类似的float.h也定义了一些明示常量；演示如下：
+
+	#include<stdio.h>
+	#include<limits.h>//整型限制
+	#include<float.h>//浮点型限制
+	int main(void)
+	{
+		printf("some number limits for this system:\n");
+		printf("Biggist int =%d\n", INT_MAX);
+		printf("Smallest long long =%lld\n",LLONG_MIN);
+		printf("One byte=%d bits\n",CHAR_BIT);
+		printf("Largest double=%e\n",DBL_MAX);
+		printf("Smallest normal float=%e\n",FLT_MIN);
+		printf("float precision =%d digits\n",FLT_DIG);
+		printf("float epsilon=%e\n",FLT_EPSILON);
+		getchar();
+		return 0;
+	}
+
+
+	【printf()】
+
+	#include<stdio.h>
+	#define PI 3.141593
+	int main(void)
+	{
+		int num = 7;
+		float pies = 12.75;
+		int cost = 7800;
+		printf("the %d contestants are %.2f berry pies.\n",num,pies);
+		printf("the value of PI is %f.\n",PI);
+		printf("farewell! thou art too dear for my possessing,\n");
+		printf("%c%d.\n",'$',2*cost);	//printf()函数使用的是值，无论是变量、常量还是表达式的值			
+		getchar();
+		return 0;
+	}
+
+	printf()函数格式
+	printf(“格式字符串”，待打印项1，待打印项2……)；
+	格式字符串包含两种形式：1.需要实际打印的字符；2.转换说明，数量跟待打印项相对应
+	
+	printf()的转换说明修饰符
+
+	①标记
+		(-、+、空格、#和0)，可以不使用标记或者使用多个标记；示例：“%-10d”左对齐10个格位；
+		-：待打印项目左对齐
+		+：显示值的正负符号；值为正，在值前面显示+；若为负显示-；
+		空格：若值为正，占用一空格，若值为负，显示-号；
+		#：把结果转换成另一种格式；%o格式则以0开始；%x则以0x开始；
+		     对于所有的浮点格式，#保证即使后面没有任何数字，也打印一个小数点字符；
+		     对%g格式，#防止结果后面的0被删除；
+
+	②数字 
+		显示字段宽度，如果该字段不能容纳待打印的数字或者字符串，系统会使用更宽的字段；示例："%4d"
+
+	③.数字
+		标明精度；
+		对于%e、%E和%f转换，表示小数点右边数字的位数；示例“%.2f”保留小数点后两位；
+		对于%g、%G转换，表示有效数字最大位数；
+		对于%s转换，表示待打印字符的最大数量；
+		对于整型转换，表示待打印数字的最小位数；
+		如有必要，使用前导0来达到这个位数
+		只使用.表示其后跟随一个0，所以%.f和%.0f相同
+	④字符：
+		h：和整型转换说明一起使用，表示short int或unsigned short int类型的值；
+		hh：signed char或unsigned char；
+		j：intmax_t或uintmax_t；
+		l：long int或 unsigned long int；
+		ll：long long  或unsigned long long；
+		L：long double；
+		t：ptrdiff_t；
+		z：size_t；
+
+	类型可移植性：sizeof运算符以字节为单位返回类型或值的大小；系统只规定了该值为unsigned整数；
+		      如果移植要查找返回值类型选择用u-int、u-long甚至u-long long
+	float参数的转换：有double和long double类型的转换，printf()函数中float类型函数自动转换成double类型；	
+
+	#include<stdio.h>
+	#define PAGES 959
+	int main(void)
+	{
+		printf("*%d*\n",PAGES);	//*959*	//不带任何修饰符，默认输出结果；
+		printf("*%2d*\n", PAGES);	//*959*	//修饰符要求2字段宽度，但待打印整数有3位数字，字段扩大字段宽度；
+		printf("*%10d*\n", PAGES);	//*       959*//输出10个字段宽度，7空格+3数字；
+		printf("*%-10d*\n", PAGES);	//*959       *//输出10个字段宽度，7空格+3数字；-修饰符，数字左靠齐；
+		getchar();
+		return 0;
+	}
+
+	#include<stdio.h>
+	int main(void)
+	{
+		const double RENT = 3852.99;	//const限定变量只读；
+		printf("*%f*\n", RENT);	//*3852.990000*	//字段宽度和小数点后面的位数均为默认
+		printf("*%e*\n", RENT);	//*3.852990e+03*	//指数写法；小数点左侧1位，右侧6位；
+		printf("*%4.2f*\n", RENT);	//*3852.99*	//
+		printf("*%3.1f*\n", RENT);	//*3852.0*
+		printf("*%10.3f*\n", RENT);	//*  3852.990*
+		printf("*%10.3E*\n", RENT);	//* 3.853E+03*
+		printf("*%+4.2f*\n", RENT);	//*+3852.99*
+		printf("*%010.2f*\n", RENT);	//*0003852.99*
+		getchar();
+		return 0;
+	}
+
+
+
+
 
 
 
