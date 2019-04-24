@@ -1220,15 +1220,151 @@ C标准；
 		const double RENT = 3852.99;	//const限定变量只读；
 		printf("*%f*\n", RENT);	//*3852.990000*	//字段宽度和小数点后面的位数均为默认
 		printf("*%e*\n", RENT);	//*3.852990e+03*	//指数写法；小数点左侧1位，右侧6位；
-		printf("*%4.2f*\n", RENT);	//*3852.99*	//
-		printf("*%3.1f*\n", RENT);	//*3852.0*
-		printf("*%10.3f*\n", RENT);	//*  3852.990*
-		printf("*%10.3E*\n", RENT);	//* 3.853E+03*
-		printf("*%+4.2f*\n", RENT);	//*+3852.99*
-		printf("*%010.2f*\n", RENT);	//*0003852.99*
+		printf("*%4.2f*\n", RENT);	//*3852.99*	//4字段宽度被扩大，小数点后两位；
+		printf("*%3.1f*\n", RENT);	//*3853.0*		//3字段宽度也失效，小数点后保留1位，四舍五入；
+		printf("*%10.3f*\n", RENT);	//*  3852.990*	//10字段宽度指定生效，小数点后三位；
+		printf("*%10.3E*\n", RENT);	//* 3.853E+03*	//10字段宽度生效；小数点后保留三位，指数写法；
+		printf("*%+4.2f*\n", RENT);	//*+3852.99*	//显示正负号；指定字段宽度失效；保留2位小数；
+		printf("*%010.2f*\n", RENT);	//*0003852.99*	//指定10字段宽度，空位用0填充，小数点后保留2位；
 		getchar();
 		return 0;
 	}
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		printf("%x %X %#x\n",31,31,31);		//1f 1F 0x1f
+		printf("**%d**% d**% d**\n",42,42,-42);		//**42** 42**-42**
+		printf("**%5d**%5.3d**%05d**%05.3d**\n",6,6,6,6);	//**    6**  006**00006**  006**
+		getchar();
+		return 0;
+	}
+
+	字符串输出：
+	
+	#include<stdio.h>
+	#define BLURB "Authentic imitation!"
+	int main(void)
+	{
+		printf("[%2s]\n", BLURB);	//指定2字段宽度，但是被扩大为可容纳所有字符字段；
+		printf("[%24s]\n", BLURB);	//输出24字段宽度字符串，多余部分会显示出左边空位；
+		printf("[%24.5s]\n", BLURB);	//.5精度限制输出待打印字符的个数，只输出5个字符；
+		printf("[%-24.5s]\n", BLURB);	//-标记使得文本左对齐输出；
+		getchar();
+		return 0;
+	}
+
+
+	【转换说明】
+	转换说明把以二进制格式存储在计算机中的值转换成一系列字符(字符串)以便于显示；
+	转换不是原始值被替换成转换后的值，而是一种翻译说明；%d的意思是把给定的值翻译成十进制整数输出；
+
+	1.转换不匹配问题：
+
+	①整型转换不匹配示例：
+	
+	#include<stdio.h>
+	#define PAGES 336
+	#define WORDS 65618
+	int main(void)
+	{
+		short num=PAGES;
+		short mnum=-PAGES;
+		printf("num as short and unsigned short:%hd %hu\n",num,num);		//336 336
+		printf("-num as short and unsigned short:%hd %hu\n",mnum,mnum);		//-336 65200
+		printf("num as int and char:%d %c\n",num,num);				//336 P
+		printf("WORDS as int,short,and char:%d %hd %c",WORDS,WORDS,WORDS);	//65618 82 R
+		getchar();
+		return 0;
+	}
+
+	第三行演示了把一个大于255的值转换成字符会发生的情况，short int是2字节；char是1字节；
+	当printf()用%c打印336时候，它只查看336数字2字节中的后1字节；这种被称为截断：
+	P在ASCII表中为80；   80在二进制中为 01010000；
+		而336的二进制为 00000001 01010000；
+	该数字被解释成“以256为摸”(modulo256),即该数字除以256后取其余数。
+
+	②整型与浮点型混淆示例：
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		float n1=3.0;
+		double n2=3.0;
+		long n3=2000000000;
+		long n4=1234567890;
+		printf("%.1le %.1le %.1le %.1le\n",n1,n2,n3,n4);	//3.0e+00 3.0e+00 3.1e+46 7.1e-305
+		printf("%ld %ld\n",n3,n4);			//2000000000 1234567890
+		printf("%ld %ld %ld %ld\n",n1,n2,n3,n4);		//0 1074266112 0 1074266112
+		getchar();
+		return 0;
+	}
+
+	最后一行输出n3,n4也出错了；结果显示如果printf()语句有其他不匹配的地方，即使用对了转换说明也会出错
+	问题出在C如何把信息传递给函数，即参数传递机制；
+
+	函数调用 printf("%ld %ld %ld %ld\n",n1,n2,n3,n4);
+	该调用告诉计算机把n1,n2,n3,n4的值传递给程序；这是一种常见的参数传递方式：
+	程序把传入的值放入被称为“栈”(stack)的内存区域；
+
+	计算机根据变量类型(而不是根据转换说明) 把这些值放入栈中；
+		因此，n1被存储在栈中，占8字节(float类型被转换成double类型)；n2也占8字节；
+		而n3和n4在栈中分别占4字节；
+
+	然后控制转到printf()函数，
+	该函数根据转换说明(而不是根据变量类型)从栈中读取值：
+		%ld表明printf()应该读取4字节，所以只读取了n1的前半部分；并被解释成一个long类型整数；
+		根据下一个%ld，printf()再读取4字节，读取了n1的后半部分；被解释成第二个long类型整数；
+		类似的根据第三个和第四个%ld，分别读取了n2的前、后两部分，并被解释成n3，n4;
+
+	2.printf()的返回值
+	
+	#include<stdio.h>
+	int main(void)
+	{
+	int rep;
+	rep=printf("hello world\n");		//输出printf()，并将这个printf()的返回值赋给rep
+	printf("rep have %d characters",rep);	//输出rep返回值，hello+空格+world+\n=5+1+5+1=12字符数；
+	getchar();
+	return 0;
+	}
+
+	
+	【scanf()】
+	printf()函数使用变量、常量和表达式；scanf()函数使用指向变量的指针；
+	1.如果用scanf()读取基本变量类型的值，在变量名前加上一个&；
+	2.如果用scanf()把字符串读入字符数组中，不要使用&；
+
+	#include<stdio.h>
+	#pragma warning(disable:4996)；
+	int main(void)
+	{
+		int age;
+		float assets;
+		char pet[30];
+		printf("Enter your age,assets,and favorite pet.\n");
+		scanf("%d %f", &age, &assets);
+		scanf("%s", pet);
+		printf("your age : %d,\nand your assets: $%.2f,\nand your favorite pet:%s.\n", age, assets, pet);
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+	示例里面的输入三个参数，可以用回车键、tab键或者空格键来隔开；所以可以将输入在一行或者多行进行；
+	其中%c是例外，scanf()会读取每个字符，包括空白。
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
