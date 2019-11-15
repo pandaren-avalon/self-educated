@@ -1,6 +1,6 @@
 【C primer Plus自学】
 
-【第一章】
+【第一章】初识
 
 C语言历史和特性；
 程序编写步骤；
@@ -61,7 +61,7 @@ C标准；
 	(.c文件)		(.obj文件)	   库代码       (.exe文件)	
 	  code		 目标文件	   启动代码    应用程序文件
 
-【第二章】
+【第二章】概述
 运算符：=
 函数main()、printf()
 编写一个简单C程序；
@@ -267,7 +267,7 @@ C标准；
 		return 0;
 	}
 
-【第三章】
+【第三章】数据和C
 
 关键字int、short、long、unsigned、char、float、double、_Bool、_Complex、_Imaginary
 运算符 sizeof()
@@ -1012,7 +1012,7 @@ C标准；
 		return 0;
 	}
 
-【第四章】
+【第四章】字符串和格式化输入/输出
 
 4.1
 	#include<stdio.h>
@@ -1350,6 +1350,25 @@ C标准；
 		getchar();
 		return 0;
 	}
+
+	【scanf_s解决办法】
+	#include<stdio.h>
+	int main(void)
+	{
+		int age;
+		float assets;
+		char pet[30];
+		printf("Enter your age,assets,and favorite pet.\n");
+		scanf_s("%d %f", &age, &assets);
+		scanf_s("%s", pet,30);				/*scanf_s(,,)第三个参数的数字是限制读取边界*/
+		printf("your age : %d,\nand your assets: $%.2f,\nand your favorite pet:%s.\n", age, assets, pet);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+
+
 	
 	示例里面的输入三个参数，可以用回车键、tab键或者空格键来隔开；所以可以将输入在一行或者多行进行；
 	其中%c是例外，scanf()会读取每个字符，包括空白。
@@ -1450,22 +1469,624 @@ C标准；
 	若转换说明为printf("Count Jack ran %8.2f miles in 3 hours.\n",distance);
 	Count Jack ran         10.22 miles in 3 hours.
 
-4.5 	关键概念
-	1.
+4.7 	练习
+	1.编写一个程序，提示用户输入名和姓，然后以“名，姓”的格式打印出来
+	#include<stdio.h>
+	int main(void)
+	{
+		char name1[40], name2[40];
+		printf("Please enter your first name.\n");
+		scanf_s("%s", name1, 40);
+		printf("please enter your family name.\n");
+		scanf_s("%s", name2, 40);
+		printf("so your neme is %s,%s.", name1, name2);
+		getchar();
+		getchar();
+		return 0;
+	}
 	
+	2.编写一个程序，提示用户输入名和姓，并执行以下操作：
+	a,打印名和姓，包括双引号；
+	b.在宽度为20的字段右端打印名和姓，包括双引号；c.换字段左端；
+	d.在比姓名宽度宽3的字段中打印名和姓。
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char name1[40], name2[40];
+		int a, b,c;
+
+		printf("Please enter your first name.\n");
+		scanf_s("%s", name1, 40);
+		printf("please enter your family name.\n");
+		scanf_s("%s", name2, 40);
+		a = strlen(name2);
+		a = 20 - a - 1;
+		b = strlen(name1);
+		b = -(20 - b - 1);
+		c = strlen(name1)+ 3;
+
+		printf("so your neme is \"%s.%s\"\n", name1, name2);
+		printf("so your neme is \"%*s.%s\"\n", a, name1, name2);
+		printf("so your neme is \"%s.%*s\"\n", name1, b, name2);
+		printf("so your neme is \"%*s.%s\"\n", c,name1,name2);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	3.编写一个程序，读取一个浮点数，首先以小数点记数法打印，然后以指数记数法打印。
+	用下面的格式进行输出：
+	a. 输入21.3或者2.1e+001；
+	b.输入21.290或2.129E+001;
+	#include<stdio.h>
+	int main(void) 
+	{
+		float a;
+		scanf_s("%f", &a);
+		printf("%f\n", a);
+		printf("%e", a);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	4.编写一个程序，提示用户输入身高和姓名，然后以下面的格式显示用户输入信息：
+
+	Dabney, you are 6.208 feet tall
+	使用float类型，并用/作为除号，要求用户以mm为单位输入身高以米输出
+
+	#include<stdio.h>
+	#include<Windows.h>
+	int main(void) 
+	{
+		float height;
+		float feettall;	
+		char firstname[40];
+		char familyname[40];	
+
+		printf("Pleast enter your height in feet\n");
+		scanf_s("%f", &feettall);
+		printf("Pleast enter your height in mm\n");
+		scanf_s("%f", &height);
+	
+		printf("Pleast enter your first name\n");
+		scanf_s("%s", firstname,40);
+		printf("Pleast enter your family name\n");
+		scanf_s("%s", familyname,40);	
+	
+		system("cls");
+		printf("%s.%s, you are %.3f feet tall\n",firstname,familyname,feettall);
+		printf("you are %.3f meters tall.", height/1000);
+
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	5.编写一个程序，提示用户输入以兆位每秒(Mb/s)为单位的下载速度和以兆字节(MB)为单位的文件大小；
+	程序中应计算文件的下载时间，1字节等于8位，使用float，并用/作除号；
+	要以下面格式打印三个变量的值，显示小数点后面两位数字：
+	At 18.12 megabits per second,a file of 2.20 megabytes downloads in 0.97 seconds.
+
+	#include<stdio.h>
+	#include<Windows.h>
+	int main(void)
+	{
+		float speed, file;
+
+		printf("Please enter your download speed by Mb/s\n");
+		scanf_s("%f", &speed);
+		printf("Please enter your download file megabntes\n");
+		scanf_s("%f", &file);
+	
+		system("cls");
+		printf("At %.2f megabits per second,a file of %.2f megabytes downloads in %.2f seconds.", speed, file,file*8/speed);
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+	6.编写一个程序，先提示用户输入名，然后输入姓。在一行打印输入的名和姓，再下一行分别打印名和姓的字母数；
+	字母数要和相对应的名和姓结尾对齐，如下所示：
+	Melissa Honeybee
+	         7               8
+	换字母开头对齐：
+	Melissa Honeybee
+	7           8
+	
+	#include<stdio.h>
+	#include<Windows.h>
+	int main(void)
+	{
+		char firstname[40],familyname[40];
+		int a, b;
+
+		printf("Please enter your first name.\n");
+		scanf_s("%s", firstname, 40);
+		a = strlen(firstname);
+		printf("Please enter your family name.\n");
+		scanf_s("%s", familyname, 40);
+		b = strlen(familyname);
+	
+		system("cls");
+		printf("%s %s\n%*d %*d\n", firstname, familyname,a,a,b,b);
+		printf("%s %s\n%-*d %-*d\n", firstname, familyname, a, a, b, b);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	//关于输入姓名超出给定范围或者格式，如何删除冗余输入不影响后续的暂行办法，如下如果name[4]就没法解决超出3字节问题；
+	#include<stdio.h>
+	#pragma   warning(disable:4996)
+	int main(void)
+	{
+		char name[40];
+		int age,a,i;
+		printf("please enter your name.\n");
+		scanf_s("%s", name, 40);
+
+		//for (a = 0; a < 4; a++) { name[a] = getchar(); }
+		//fflush(stdin);
+		setbuf(stdin, NULL);
+		//while ((name[4] = getchar()) != EOF && name[4] != '\n');
+		i = strlen(name);
+		printf("your name have %d byte\n\n", i);
+
+		printf("please enter your age.\n");
+		scanf_s("%d", &age);
+
+		printf("\nwell,%s,you are %d years old.\n", name, age);
+
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	7.编写一个程序，将一个double类型的变量设置为1.0/3.0，将一个float类型的变量设置为1.0/3.0；
+	分别显示两次计算的结果各3次：
+	一次显示小数点后面6位数字；一次显示小数点后12位数字；一次显示小数点后16位数字；
+	程序中要包含float头文件，并显示FLT_DIG和DBL_DIG的值；
+	1.0/3.0的值与这些值一致吗？
+	
+	#include<stdio.h>
+	#include<float.h>
+	int main(void) 
+	{
+		double a;
+		float b;
+		a = 1.0 / 3.0;
+		b = 1.0 / 3.0;
+		printf("%.6f\n%.12f\n%.16f\n", a, a, a);
+		printf("%.6f\n%.12f\n%.16f\n", b, b, b);
+		printf("%d\n%d", FLT_DIG, DBL_DIG);
+		getchar();
+		return 0;
+	}
 
 
+	8.编写一个程序，提示用户输入旅行的里程和消耗的汽油量，然后计算并显示消耗每加仑汽油行驶的英里数，保留一位小数；
+	1加仑约3.785升；1英里约1.609千米；将单位是英里/加仑的值转换为升/100公里并显示结果，保留一位小数点；
+	注：美国采用的方案测量消耗单位燃料的里程值，而欧洲采用单位距离消耗的燃料测量方案；
+	使用#define创建符号常量或使用const限定符创建变量来表示两个转换系数；
+	
+	#include<stdio.h>
+	#define c 100*3.785/1.609
+	int main(void)
+	{
+		float a, b;
+	
+		printf("Please enter your mileage:\n");
+		scanf_s("%f", &a);
+		printf("Please enter your fuel consumed in gallon:\n");
+		scanf_s("%f", &b);
+	
+		printf("your comprehensive oil consumption is:\n");
+		printf("MPG:%.1f \n", a/b);
+		printf("%.1f L/100KM", c*b/a );
+		getchar(); 
+		getchar();
+		return 0;
+	}
 
 
+【第五章】运算符、表达式和语句
+
+	
+5.1 	循环
+
+	数据对象：用于储存值的数据存储区域；
+	左值：用于标明特定数据对象的名称或表达式；对象定位值；
+	右值：能赋值给可修改左值的量，且本身不是左值；
+	运算符：基本运算符=+-*/
+	
+5.2.1 	赋值运算符=
+	
+	#include<stdio.h>
+	int main(void)
+	 {
+		int jane, tarzan, cheeta;
+		cheeta = tarzan = jane = 68; //三重赋值；
+		printf("cheeta    tarzan    jane\n");
+		printf("%4d %8d %8d\n", cheeta, tarzan, jane);
+		getchar();
+		return 0;
+	}	
+
+	赋值顺序从右往左，首先把86赋值给jane,然后再赋值给tarzan；最后赋值给cheeta；
+
+5.2.2	加法运算符+
+	printf("%d",4+20);打印的是24而不是表达式4+20；
+	相加的对象可以是变量也可以是常量；
+	
+5.2.3	减法运算符-
+	takehome=224-24;
+	+和-运算都被成为二元运算符，即这些运算符需要两个运算对象才能完成操作；
+
+5.2.4	符号运算符-和+
+	减号还可以用于标明或改变一个值的代数符号如
+	rocky=-12；
+	smokey=-rocky；
+	smokey最后的值为12；
+	
+	二元：36-12 值为24
+	一元：-16	   值为-16
+	二者兼有：-（12-20） 值为8
+
+5.2.5	乘法运算符*
+	例：C没有平方函数，如果需要打印一个平方表，则：
+	/*squares.c——计算1-20的平方*/
+	#include<stdio.h>
+	int main(void)
+	{
+		int num;
+		num = 1;
+		while (num < 21) 
+		{
+			printf("%d*%d=%d\n", num, num, num*num);
+			num = num + 1;
+		}
+		getchar();
+		return 0;
+	}
+	
+	1.指数增长：
+	棋盘上的米粒：第一格放1粒，第二格放2粒，第三格放4粒，第四格放8粒；
+	以此类推，放满64个格子数；
+	/*指数增长，让程序计算出每个格子放多少，并计算总数*/
+	#include<stdio.h>
+	int main(void)
+	{
+		int a;
+		double b,c;
+		a = 1;	//格子数
+		b = 1.0;	//格子上米粒数
+		c = 1.0;	//总米粒数
+		printf("格子数	米粒数		总数\n");
+		while(a<65)
+		{				
+			printf("%d:	%.2e	%.2e\n",a, b,c);	
+			b = 2 * b;		
+			a = a + 1;		
+			c = c + b;		
+		}
+		getchar();
+		return 0;
+	}
+
+	改进：制作一个指数函数查看表1；
+	#include<stdio.h>
+	#include<Windows.h>
+	int main(void)
+	{
+		int count,num;
+		double result;
+		count = 1;	
+		result = 1.0;
+		printf("please enter the number as the powerof 2\n");
+		scanf_s("%d", &num);
+		while (count < num+1)
+		{
+			count = count + 1;		
+			result = 2 * result;
+		}
+		system("cls");
+		printf("the %d power of 2 is %.2e\n", num, result);	
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+	改进：制作一个指数函数查看表2；
+	#include<stdio.h>
+	int main(void)
+	{
+		int count,n,num;
+		double result;
+		count = 1;	
+		n = 0;
+		result = 1.0;
+		printf("please enter the number as the powerof 2\n");
+		scanf_s("%d", &num);
+
+		printf("n.	result\n");
+		while (count < num+2)
+		{		
+			printf("%d	%.2e\n", n, result);
+			count = count + 1;		
+			result = 2 * result;
+			n = count - 1;		
+		}	
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+5.2.6	除法运算符/
+	整数除法和浮点数除法不同，浮点数除法的结果是浮点数，而整数除法的结果是整数，没有小数部分；
+	所以整数除法使得5/3这样的情况，实际结果有小数部分，但是被丢弃，这过程称为截断；
+	#include<stdio.h>
+	int main(void)
+	{
+		printf("int division: 5/4 is %d\n", 5 / 4);		//1
+		printf("int division: 8/4 is %d\n", 8 / 4);		//2
+		printf("int division: 7/4 is %d\n", 7 / 4);		//1，截断为丢弃整个小数部分，不会四舍五入；
+		printf("float division: 7.0/4.0 is %.2f\n", 7.0 / 4.0);	//1.75
+		printf("mixed division: 7.0/4 is %.2f\n", 7.0 / 4);	//1.75，尽量避免此类；4会被先转化成4.0
+		getchar();
+		return 0;
+	}
+
+5.2.7	运算符优先级：
+
+	（）	从左往右
+	+ -(一元)	从右往左(正负)
+	* /	从左往右
+	+ -(二元)	从左往右(加减)
+	=	从右往左
+
+5.3	其他运算符：
+	
+5.3.1	sizeof运算符和size_t类型
+	#include<stdio.h>
+	int main(void)
+	{
+		int n = 0;
+		size_t intsize;	
+		intsize = sizeof(int);	
+		printf("n=%d,n has %u bytes;all ints have %u bytes.\n", n, sizeof n, intsize);
+		getchar();
+		return 0;
+	}
+
+5.3.2	求模运算符%
+	用于整数运算，给出左侧整数除以右侧整数后的余数；
+	13%5的结果为3；
+
+	#include<stdio.h>
+	#define SEC_PER_MIN 60
+	int main(void)
+	{
+		int sec, min, left;
+
+		printf("Convert seconds to minutes and secods!\n");
+		printf("Enter the number of seconds(<=0 to quit):\n");
+		scanf_s("%d", &sec);
+		while(sec>0)
+		{
+			min = sec / SEC_PER_MIN;//截断分钟数；
+			left = sec % SEC_PER_MIN;//剩下的秒数；
+			printf("%d seconds is %d minutes, %d seconds.\n", sec, min, left);
+			printf("Enter next value(<=0 to quit):\n");
+			scanf_s("%d", &sec);
+		}
+		printf("Done!\n");
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+	关于负数求模；
+	11/5 得2	11%5得1
+	11/-5得-2	11%-2得1
+	-11/-5得2	-11%-5得-1
+	-11/5得-2	-11%-2得-1
+	综上：
+	如果第一个运算对象是负数，那么结果就为负数；
+	如果第一个运算对象为正数，那么求模结果也是正数；	
+
+	实际上，只要a和b是整数，便可通过 a-(a/b)*b来计算；
+
+	例如：-11%5：
+	  -11-（-11/5）*5
+	=-11-（-2）*5
+	=-11-（-10）
+	=-1
 
 
+5.3.3	递增运算符++
+	执行简单的任务，将其运算对象递增1；分为：
+	1.前缀模式		 a++
+	2.后缀模式		 ++a
+	
+	【前后缀相似之处】
+
+	#include<stdio.h>
+	int main(void) 
+	{
+		int ultra = 0, super = 0;
+		while (super < 5)
+		{
+			super++;
+			++ultra;
+			printf("super=%d, ultra=%d\n", super, ultra);
+		}
+		getchar();
+		return 0;
+	}
+
+	程序输出：
+	super=1, ultra=1
+	super=2, ultra=2
+	super=3, ultra=3
+	super=4, ultra=4
+	super=5, ultra=5
+
+	#include<stdio.h>
+	int main(void) 
+	{
+		int ultra = 0, super = 0;
+		while (super++ < 5)//super=0<5,super+1=0+1=1;执行循环,
+		{
+			++ultra;//ultra=1；使用ultra之前先递增ultra;
+			printf("super=%d,ultra=%d\n", super, ultra);
+		}	
+		getchar();
+		return 0;
+	}
+
+	【前后缀区别】
+	#include<stdio.h>
+	int main(void) 
+	{
+		int a=1,b=1;
+		int a_post, pre_b;
+		a_post = a++;	//后缀，使用a值之后，递增a
+		pre_b = ++b;	//前缀，使用b值之前，递增b
+		printf("a	a_post	b	pre_b\n");
+		printf("%d	%5d	%5d	%5d\n", a, a_post, b, pre_b);	
+		getchar();
+		return 0;
+	}
+
+	结果为a=2,a_post=1,b=2,pre_b=2
 
 
+	前缀形式：
+	q=2*++a;		首先，a递增1；然后2乘以a并将结果给q；
+	后缀形式；
+	q=2*a++;		首先，2乘以a并将结果给q；然后，a递增1；
 
+5.3.4	递减运算符--（与++同；略）
+	
+5.3.5	优先级
+	递增递减运算符都有很高的优先级，只有圆括号优先级高于它们；
+	因此，x*y++表示是(x)*(y++),而不是(x*y)(++),而且后者无效，递增和递减运算符只能影响一个变量；
+	如果n++是表达式的一部分，可以视其为 先使用n，再递增；
+	而++n则表示 先递增n，在使用；
 
+5.3.6	如果一个变量出现在一个函数的多个参数中，不要对该变量使用递增递减；
+	如果一个变量多次出现在一个表达式中，不要对该变量使用递增递减
 
+5.4	表达式和语句
 
+5.4.1	表达式
+	表达式由运算符和运算对象组成，最简单的表达式是一个单独的运算对象，一些表达式由子表达式组成；
+	每个表达式都有一个值；
 
+5.4.2	语句	
+	一条语句相当于一条完整的计算机指令，大部分语句都以分号结尾；因此：
+	legs=4 	只是一个表达式
+	legs=4;	则是一条语句
+	最简单的语句是空语句
+	；//空语句
+	C把末尾加上一个分号的表达式都看作是一条语句，即表达式语句
+	8；
+	3+4；
+	但是这些语句在程序中什么也不做，不算是正真有用的语句
+	确切的说，语句可以改变值或者调用函数：
+	x=25;
+	++x;
+	y=sqrt(x);
+	虽然一条语句相当于一条完整的指令，但并不是所有的指令都是语句，比如：
+	x=6+(y=5);
+	其中y=5是一条完整的指令，但是它只是语句的一部分，用分号识别这种情况下的语句；
+
+	#include<stdio.h>
+	int main(void) 
+	{
+		int count, sum;		//声明；
+		count = 0;			//表达式语句
+		sum = 0;			//表达式语句
+		while (count++ < 20)
+			{sum= sum + count;	}	//迭代语句	
+		printf("sum=%d\n", sum);		//表达式语句
+		return 0;			//跳转语句
+	}
+	
+	声明创建了名称和类型，并分配内存位置，但声明不是表达式语句，如删分号，剩下也不是表达式，没有值；
+	赋值表达式语句：一个变量名，后面是一个赋值运算符，再跟一个表达式，最后分号结尾；
+	函数表达式语句会引起函数调用；在上例中，调用printf()函数打印结果。
+	while()语句有3部分组成，首先是关键字while，圆括号内为待测试条件；如果条件为真，则执行while循环里的语句；
+	while语句是一种迭代语句，也称为结构化语句；
+
+	【副作用和序列点】
+
+	副作用：是对数据对象或文件的修改；例如
+	a=50;
+	它的副作用是将变量的值设置为50；
+	类似的，调用printf()函数时，它显示的信息其实是副作用(printf()的返回值是待显示字符的个数)；
+
+	序列点：是程序的执行点，在该点上，所有的副作用都在进入下一步之前发生；
+	在C中，语句中的分号标记了一个序列点，
+	意思是在该语句中，赋值、递增、递减对运算对象的改变必须在程序执行下一条语句前完成；
+	任何一个完整表达式的结束也是一个序列点。
+	完整表达式：就是指这个表达式不是另一个更大表达式的子表达式；例如：
+	表达式语句中的表达式；while循环中的测试条件表达式；
+
+	序列点有助于分析后缀递增何时发生，例如：
+	
+	while(a++<10) 
+		printf("a=%d\n",a);
+
+	举例，a=5；
+	该例子中，如果按照“先使用值，再递增”的后缀意思，会先printf()输出guests的值,再递增它；
+	显示数字 a=5;然后a递增变成6；
+	但是，表达式guests++<10是一个完整的表达式；是while循环的测试条件；所以该表达式的结束就是一个序列点；
+	所以保证在执行printf()之前，发生副作用；a递增a=6;printf()输出%d调用a的值为6；
+	同时，使用后缀递增保证了a在完成与10的比较后才进行递增，即a=5<10成立，输出6这个动作得以执行；
+
+5.4.3	复合语句(块)
+	
+	复合语句是用花括号括起来的一条或多条语句，也成为块block；
+	
+	/*程序段1*/
+
+	a=0;
+	while(a++<10)
+		 {b=10*a+2;}
+	printf("b=%d",b);
+	
+	/*程序段2*/
+
+	a=0;
+	while(a++<10)
+	 {
+		b=10*a+2; 
+		printf("b=%d",b);
+	}
+
+	程序段1，while循环只有一条赋值表达语句，while这行运行至下一个分号；循环结束后printf()只会被调用一次；
+	程序段2，花括号确保两条语句都是while循环的一部分，每执行一次循环都调用一次printf()函数；
+
+	风格提示：循环中的缩进，对编译器不起作用，编译器通过花括号和while循环的结构来识别和解释指令；
+	这里的缩进是为了让使用者可以一眼看出程序是如何组织的；使用缩进和花括号的位置可以进一步提高可读性；
+
+5.5	类型转换
+	通常，在语句和表达式中应使用类型相同的变量和常量；
+	但是如果使用混合类型，C虽然会采用一套规则自动转化类型，但是有一定的危险性；
+	1.当类型转换出线在表达式时，无论是unsigned还是signed的char和short都会被自动转为int；
+	  如有必要会被转换成unsigned int（若short与int大小相同，unsigned short就比int大）；
+	  这种情况下，unsigned short会被转成unsigned int；
+	由于都是从较小型转换为较大类型，所以这些转换被称为升级promotion；
+	
+	2.涉及两种类型的运算，两个值会被分别转换成两种类型的更高级别；
+	3.类型的级别从高至低：long double>double>float>unsignedlong long>long long>unsigned long>
+			long>unsigned int>int>
+	  例外的情况是，当long和int大小相同时，unsigned int 比long 的级别高，short和char均被升级到int或者unsigned int；
+
+	
 
 
 
