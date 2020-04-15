@@ -2084,19 +2084,1207 @@ C标准；
 	2.涉及两种类型的运算，两个值会被分别转换成两种类型的更高级别；
 	3.类型的级别从高至低：long double>double>float>unsignedlong long>long long>unsigned long>
 			long>unsigned int>int>
-	  例外的情况是，当long和int大小相同时，unsigned int 比long 的级别高，short和char均被升级到int或者unsigned int；
+	  例外：当long和int大小相同时，unsigned int 比long 的级别高，short和char均被升级到int或者unsigned int；
+	4.在赋值表达式语句中，计算的最终结果会被转换成被赋值变量的类型；这结果可能导致升级或降级；
+	5.当作为函数参数传递时，char和short被转换成int，float被转换成double，函数原型会覆盖自动升级；
+	类型升级通常都不会有什么问题，但是类型降级会导致正真的麻烦，可能会溢出；
+	
+	待转换的值与目标类型不匹配，涉及类型转换时：
+	①目标类型是无符号整型，且待赋的值是整数时，额外的位将被忽略；
+		例如目标类型是8位unsigned char，待赋的值是原始值求模256；
+	②如果目标类型是一个符号整型，且待赋的值是整数，结果因实现而异；
+	③如果目标类型是一个整型，且待赋的值是浮点数，该行为未定义；
+	④如果把浮点数换成整数，原来的浮点值会被截断；
+	下面的程序演示了这些转换规则；
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		int i;
+		float fl;
+
+		fl = i = ch = 'C';
+		printf("ch=%c,i=%d,fl=%2.2f\n", ch, i, fl);
+		ch = ch + 1;
+		i = fl + 2 * ch;
+		fl = 2.0*ch + i;
+		printf("ch=%c,i=%d,fl=%2.2f\n", ch, i, fl);
+		ch = 1107;
+		printf("Now ch=%c\n", ch);
+		ch = 80.89;
+		printf("Now ch=%c\n", ch);
+		getchar();
+		return 0;
+	}
+	
+5.5.1	强制类型转换运算符 cast
+	在某个变量的前面放置用圆括号括起来的类项名，该类型名是希望转换成的目标类型；通用形式是 (type)
+	用实际需要的类型替换(如long)替换type即可；例：
+	int mice;
+	mice=1.6+1.7；		//1.6+1.7=3.3,截断为int，结果为3；
+	mice=（int）1.6+(int)1.7;	//1.6和1.7都被强制转换成int，截断后结果1+1=2；
+	
+总结
+	赋值运算符：
+	=	将右侧的值赋给左侧变量；如：a=2;
+	算数运算符：
+	+	将其左侧的值与右侧的相加；如：1+2=3;
+	-	将其左侧的值减去右侧的值；如：3-2=1;
+	-	作为一元运算符，改变其右侧值的符号；如：-1;
+	*	将其左侧的值乘以右侧的值；如：2*3=6;
+	/	将其左侧的值除以右侧的值；若都是整数，计算结果被截断；如：3/2=1;
+	%	将其左侧的值除以右侧的值，取其余数(限整数)；如：16%5=1;	
+	++	对其右侧的值加1(++a);对其左侧的值加1(a++);
+	--	对其右侧的值减1(--a);  对其左侧的值减1(a--);
+	其他运算符：
+	sizeof	获得其右侧运算对象的大小(字节)，运算对象可以是类型说明符(sizeof(int))或者变量sizeof a;
+	(type)	强制类型转换运算符，将其右侧的值转成圆括号内指定的类型；(float)9=9.0;
+
+5.6	带参数的函数
+	
+	#include<stdio.h>
+	void pound(int n);//ANSI函数原型声明
+	int main(void)
+	{
+		int times = 5;
+		char ch = '!';//ASCII码=33
+		float f = 6.0f;
+
+		pound(times);//int类型的参数
+		pound(ch);//pound((int)ch);
+		pound(f);//pound((int)f)
+		getchar();
+		return 0;
+	}
+	void pound(int n)//ANSI风格函数头
+	{
+		while (n-- > 0) { printf("#"); }
+		printf("\n");	
+	}
+
+	其中，函数头：
+	void pound(int n);
+	如果函数不接受任何参数，函数头的圆括号中应该写上关键字void
+	由于该函数接受一个类型的参数，所以圆括号中包含一个int类型变量n的声明；
+	声明参数就创建了一个形式参数（形参）；pound(10)就是把10的值赋给n；n是形参
+	我们称函数调用传递的值为实际参数（实参）；10就是实际参数；
+	所以pound(time)把实际参数time的值5传递给函数pound(int n)，然后函数把5赋值给形式参数(变量n);
+	
+	(可以理解为形参是没有分配内存的，传入实际参数才分配内存，运行之后被释放了，所以n不会存数，
+	下一次传实参进去又分配内存给它继续执行；）
+	
+	看上面例子的函数调用过程：
+	第一个函数调用的是pound(time)，time的值5被赋给n，因此printf()函数打印了5个#和一个换行符；
+	第二个函数调用的是pound(ch)，ch是char类型，被初始化为！字符，在ASCII中ch的值是33。但是pound()函数
+	的参数类型是int，与char不匹配，程序开头的函数原型声明发挥了作用，描述了函数的返回值和参数：
+	①该函数没有返回值(函数名前面有void关键字)；
+	②该函数有一个int类型的参数ponud（int n）；//pound(type n);
+	该例中，函数原型告诉编译器pound()需要一个int类型的参数，于是当编译器执行到pound(ch)时，把ch转成int类型；
+	同理，pound(f)也让float类型的变量被自带转换成int类型；
+	
+	
+5.7	总结
+	用一个程序来涵盖本章内容：
+	
+	#include<stdio.h>
+	const int S_PER_M = 60;		//每分钟的秒数；
+	const int S_PER_H = 3600;	//每小时的秒数；
+	const double M_PER_K = 0.62137;//1公里转换的英里数；
+	int main(void)
+	{
+		double distk, distm;//距离数k-公里；m-英里；
+		double rate;//平均速度（英里/小时）；
+		int min, sec;//分；秒；
+		int time;
+		double mtime;//跑1英里需要的时间（秒）；
+		int mmin, msec;//跑1英里需要的时间，以分钟秒钟为单位；
+
+		printf("this programe bonverts your time for a metric race\n");
+		printf("to a time for running a mile and to your average\n");
+		printf("speed in miles per hour.\n");
+		printf("Please enter,in kilometers,the distance run.\n");
+		scanf_s("%lf", &distk);//%lf读取一个double类型值；
+
+		printf("Next enter the time in minutes and seconds.\n");
+		printf("Begin by entering the minutes.\n");
+		scanf_s("%d", &min);	
+		printf("Now enter the seconds.\n");
+		scanf_s("%d", &sec);
+
+		time = S_PER_M * min + sec;//把时间转换成秒；
+		distm = M_PER_K * distk;//把公里转换成英里；
+		rate = distm / time * S_PER_H;//英里/秒*秒/小时=英里/小时；
+		mtime = (double)time / distm;//时间/距离=跑1英里所用的时间（秒）；
+		mmin = (int)mtime / S_PER_M;//求出分钟数；截断；
+		msec = (int)mtime%S_PER_M;//求出余下的秒数；
+
+		printf("You ran %1.2f km (%1.2f miles)in %d min,%d sec.\n", distk, distm, min, sec);
+		printf("That pace corresponds to running a mile in %d min,%d sec.\n", mmin, msec);
+		printf("Your average speed was %1.2f mph.\n", rate);
+
+		getchar();
+		getchar();	
+		return 0;
+	}
+
+5.10 	复习题
+	
+	1.假设所有变量类型都是int，下列各项变量的值是多少；
+	x=(2+3)*6;	//x=30;
+	x=(12+6)/2*3;	//y=27;
+	y=x=(2+3)/4;	//x=1;y=1;
+	y=3+2*(x=7/2);	//x=3;y=9;
+	x=(int)3.8+3.3;	//x=6;
+	x=(2+3)*10.5;	//x=52;
+	x=3/5*22.0;	//x=0;
+	x=22.0*3/5;	//x=13;
+
+	3.对下列各表达式求值；
+	30.0/4.0*5.0；	//37.5
+	30.0/(4.0*5.0);	//1.5
+	30/4*5;		//35
+	30*5/4;		//37
+	30/4.0*5;		//37.5
+	30/4*5.0;		//35.0
+	
+	6.下面的程序将输出什么：
+	#include<stdio.h>
+	#define FORMAT "%s! C is cool!\n"
+	int main(void)
+	{
+		int num = 10;
+		printf(FORMAT, FORMAT);	//printf("%s! C is cool!\n","%s! C is cool!\n");
+		printf("%d\n", ++num);	//++num 先递增num=11 再输出11；结果输出11；
+		printf("%d\n", num++);	//num++ 先使用num=11 printf()输出11；再递增num=12; 
+		printf("%d\n", num--);	//num--   先使用num=12 printf()输出12；再递减num=11;
+		printf("%d\n", num);		//num=11;直接输出；
+		getchar();
+		return 0;
+	}
+
+	7.下面的程序将输出什么：
+	#include<stdio.h>
+	int main(void)
+	{
+		char c1, c2;
+		int diff;
+		float num;
+		c1 = 'S';		//ASCII码83
+		c2 = 'O';		//ASCII码79
+		diff = c1 - c2;	//diff=83-79=4；
+		num = diff;	//num=4.0;
+		printf("%c%c%c:%d %3.2f\n", c1, c2, c1, diff, num);
+		// SOS:4 4.00
+		getchar();
+		return 0;
+	}
+
+	8.下面的程序将输出什么：
+	#include<stdio.h>
+	#define TEN 10
+	int main(void)
+	{
+		int n = 0;
+		while (n++ < TEN)		//n++;先使用再递增，0<10,n=1
+			printf("%5d", n);	//输出    1继续循环；输出1~10每个数字前面带4空格；
+		printf("\n");		//回车
+		getchar();
+		return 0;
+	}
+	
+	修改上面的程序使其可以打印字母a~g; (ASCII码，a对应97，g=103)；
+
+	#include<stdio.h>
+	#define TEN 103
+	int main(void)
+	{
+		char n = 96;
+		while (n++ < TEN) { printf("%5c", n); }
+		printf("\n");
+		getchar();
+		return 0;
+	}
+	
+	或者;
+	
+	#include<stdio.h>	
+	int main(void)
+	{
+		char ch = 'a';
+		while (ch <= 'g') { printf("%5c", ch++); }
+		printf("\n");
+		getchar();
+		return 0;
+	}
+	
+	10.假设下面是完整程序中的一部分，它们分别输出什么：
+	①
+	int x=0;
+	while(++x<3);		//++x,先递增x=1,1<3成立
+		printf("%4d",x);	//输出    1    2
+	
+		
+	②
+	int x=100;
+	while(x++<103)		//x++,先使用100<103成立；再递增x=101
+		printf("%4d\n",x);	//输出  101回车 102回车 103回车
+		printf("%4d\n",x);	//输出  104回车
+	分析组后一行为什么会输出104
+	#include<stdio.h>	
+	int main(void)
+	{
+		int x = 100;
+		while (x++ < 103)		//x++,先使用x=100<103成立；再递增x=101
+			printf("%4d\n", x);	//输出  101回车 ，继续循环
+		/*
+		即:x=100,x<103成立；递增后：x=101；执行printf()输出 101；
+		    x=101,x<103成立；递增后：x=102；执行printf()输出 102；
+		    x=102,x<103成立；递增后：x=103；执行printf()输出 103；
+		    x=103,x<103不成立；
+		因为while()循环条件是个完整表达式，序列点在此处；副作用产生，x递增实现，x=104
+		序列点：程序执行的点，在该点上，所有的副作用都在进行下一步之前发生。
+		知识点：任何一个完整的表达式的结束也是一个序列点；
+		*/
+		printf("%4d\n", x);		//输出104
+		getchar();
+		return 0;
+	}
+
+
+
+
+	③
+	char ch='s';
+	while(ch<'w')		
+	{
+		printf("%c",ch);	//stuv
+		ch++;
+	}
+	printf("%c\n",ch);		//w回车
 
 	
+	11.下面的程序会输出什么：
+	
+	#define MESG "COMPUTER BYTES DOG"
+	#include<stdio.h>
+	int main(void)
+	{
+		int n=0;
+		while(n<5)
+			printf("%s\n",MESG);		//n=0;循环只输出MESG一次；
+			n++;			//n++不在循环内；
+		printf("That's all.\n");			//输出That's all.回车；
+		return 0;
+	}
+
+
+	12.分别编写一条语句，完成下面各任务（使其具有副作用）：
+	①将变量x的值增加10；
+		x=x+10;
+	②将变量x的值增加1；
+		x=x+1;
+	③将a与b之和的两倍赋给c；
+		c=2*(a+b);
+	④将a与b的两倍之和赋给c；
+		c=2*a+2*b;
+	⑤将变量x的值减少1；
+		x=x-1;
+	⑥将n除以k的余数赋值给m；
+		m=n%k;
+	⑦q除以b减去a，并将结果赋给p；
+		p=q/b-a;
+	⑧a与b之和除以c与d的乘积，并将结果赋值给x；
+		x=(a+b)/(c*d);
+
+5.11	编程练习
+	
+	1.编写一个程序，用分钟表示的时间转换成用小时和分钟表示的时间。
+	使用#define或const创建一个表示60的符号常量或const变量；
+	通过while循环让用户重复输入值，小于等于0时停止循环；	
+	#include<stdio.h>
+	#include<Windows.h>
+	#define M_PER_H 60
+	int main(void)
+	{
+		int time,min, hour;
+		time = 1;	
+		while (time > 0)
+		{
+			printf("This program convert time format:MIN to HOUR_MIN.\n");
+			printf("Please enter the time used by minutes.\n");
+			scanf_s("%d", &time);	
+			hour = time / M_PER_H;
+			min = time % M_PER_H;
+			printf("%d minutes = %d hours and %d minutes.\n\n", time, hour, min);	
+			printf("(program continues until you enter 0.)\n");
+			Sleep(2000);
+			system("cls");
+		}		
+		getchar();
+		return 0;
+	}
+
+	2.编写一个程序，提示用户输入一个整数，然后打印从该数到比该数大10的所有整数，如5，5~15；
+	要求打印的各值之间用一个空格、制表符或者换行符分开；
+	#include<stdio.h>
+	int main(void) 
+	{
+		int a,c;
+		printf("Please enter a num.\n");
+		scanf_s("%d", &a);
+		c =1;
+		while (c++<12)printf("%d\n", a++);				
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	
+	3.编写一个程序，提示用户输入天数，然后将其转换成周数和天数；（略）
+	4.编写一个程序提示用户输入身高(厘米)，并分别以厘米和英寸为单位显示；允许有小数部分；
+	该程序应该能让用户重复输入身高，直到用户输入一个非正值；示例输出如下：
+	Enter a height in centimeters: 182
+	182.0 cm = 5 feet, 11.7 inches
+	Enter a height in centimeters(<=0 to quit): 168.7
+	168.7 cm = 5 feet, 6.4 inches
+	Enter a height in centimeters(<=0 to quit): 0
+	bye
+	
+	#include<stdio.h>
+	#define IN_PER_CM 0.3937
+	#define IN_PER_FT 12
+	int main(void) 
+	{
+		float cm,height, inch;
+		int foot;		
+		printf("Enter a height in centimeters:");
+		scanf_s("%f",&cm);	
+		while(cm>0)
+		{
+			height = cm * IN_PER_CM;
+			foot = (int)height / IN_PER_FT;
+			inch = height - foot * IN_PER_FT;
+			printf("%.1f cm = %d feet,%.1f inches\n", cm, foot, inch);
+			printf("Enter a height in centimeters(<=0 to quit):");
+			scanf_s("%f", &cm);		
+		}
+		printf("bye\n");
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+	5.编写一个程序使其可以与用户交互，根据用户输入的数进行计算：
+	假设第1天赚$1,第2天赚$2，第3天赚$3，以此类推……
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int days,date,wealth;
+		wealth = 0;	
+		printf("Suppose you make $1 on the first day,the next day $2,and the third day $3…\n");
+		printf("Please enter the number of days you want to calculate:");
+		scanf_s("%d", &days);
+		date = days;
+		while (days>0) 
+		{		
+			wealth = wealth + days;
+			days--;
+		}
+		printf("So,you made $%d in %d days.\n", wealth,date);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	
+	6.修改上一题，使其能计算整数的平方和；
+	即第1天赚$1，第2天赚$4，第三天赚$9……
+	//wealth = wealth + days;改成wealth = wealth + days*days;即可
+
+	7.编写一个程序，提示用户输入一个double类型的数，并打印该数的立方值。
+	自己设计一个函数计算并打印立方值，main()函数要把用户输入的值传递给该函数。
+
+	#include<stdio.h>
+	double cubic(double);
+	int main(void)
+	{
+		double x;
+		printf("This program will calculate cubic number.\n");
+		printf("Enter the number:");
+		scanf_s("%lf", &x);
+		printf("%lf*%lf*%lf=%lf\n", x, x, x, cubic(x));
+		getchar();
+		getchar();
+		return 0;
+	}
+	double cubic(double x)
+	{
+		return x*x*x;
+	}
+
+	8.编写一个程序，显示求模运算的结果。把用户输入的第一个整数作为求模运算符的第二个运算对象；
+	该数在运算过程中保持不变；用户后面输入的数是第一个运算对象。当输入一个非正值程序结束。
+	示例如下：
+	
+	This progran computes moduli.
+	Enter an integer to sever as the second operand:256
+	Now enter the first operand: 438
+	438 % 256 is 182
+	Enter next number for first operand(<=0 to quit):1234567
+	1234567 % 256 is 135
+	Enter next number for first operand(<=0 to quit):0
+	Done
+
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int a, b;
+		printf("This progran computes moduli.\n");
+		printf("Enter an integer to sever as the second operand:");
+		scanf_s("%d", &b);
+		printf("Now enter the first operand:");
+		scanf_s("%d", &a);
+		while(a>0)
+		{
+			printf("%d %% %d is %d\n", a, b, a%b);
+			printf("Enter next number for first operand(<=0 to quit):");
+			scanf_s("%d", &a);
+		}
+		printf("Done");
+		getchar();
+		getchar();	
+		return 0;
+	}
+
+	
+	9.编写一个程序，要求用户输入一个华氏温度。程序应读取double类型的值作为温度值，并把该值作为参数
+	传递给一个用户自定义的函数Temperatures()。该函数计算摄氏温度和开式温度，并以小数点后两位数字的
+	精度显示三种温度。要使用不同的温标来显示这三个温度值。
+	摄氏温度=5.0/9.0*（华氏温度-32.0）
+	开式温度=摄氏温度+273.16
+	Temperatures()函数中用const创建温度转换中使用的变量。在main()函数中使用一个循环让用户重复输入温度
+	当用户输入q或其他非数字时，循环结束。scanf()函数返回读取数据的数量，所以如果读取数字则返回1，
+	如果读取q则不返回1.可以使用=运算符将scanf()的返回值和1做比较，测试两值是否相等。
+	
+
+	#include<stdio.h>
+	double Temperatures(double);
+	int main(void)
+	{
+		double F;
+		printf("please enter the number of temperatures(F):");
+		while (scanf_s("%lf", &F))
+		{
+			Temperatures(F);
+			printf("please enter the number of temperatures(F)(q to quit)");
+		}	
+		return 0;
+	}
+	double Temperatures(double F)
+	{
+		double C = 5.0 / 9.0 * (F - 32.0);
+		double K = C + 273.16;
+		printf("%.2lf ℉\n%.2lf ℃\n%.2lf K\n", F, C, K);
+		return 1;
+	}
+	
+
+【第六章】C控制语句：循环
+
+程序流：1.执行语句序列；2.如果满足某些条件就重复执行语句序列(循环)；3.通过测试选择执行哪一个语句序列(分支)；
+
+3种循环：while循环 、for循环、do while循环
+
+
+6.1.1 while循环
+
+	#include<stdio.h>
+	#include<Windows.h>
+	int main(void)
+	{
+		long num;
+		long sum = 0L;
+		int status;
+		printf("Please enter an integer to be summed(q to quit):");	
+		status = scanf_s("%ld", &num);
+		while(status==1)
+		{
+			sum = sum + num;	
+			printf("Please enter an integer to be summed(q to quit):");
+			status = scanf_s("%ld", &num);
+		}
+		printf("Those integers sum to %ld.\n", sum);
+		Sleep(2000);
+		return 0;
+	}
+
+
+程序结构分析(伪代码)：伪代码：用一种间的的句子表示程序思路的方法；
+
+	把sum初始化为0
+	提示用户输入数据
+	读取用户输入的数据
+	当输入的数据为整数的时候
+		将输入值累计到sum
+		提示用户继续输入
+		然后读取下一个输入
+	输入完成后，输出sum的值；
+
+	总之，因为while循环是入口条件循环，程序在进入循环之前必须获取输入的数据并检查status的值
+	所以在while前面要有一个scanf_s()；
+	要让循环继续执行，在循环内需要一个读取数据的语句，来重置status的值；
+
+	所以可以将下面的伪代码作为while循环的标准格式：
+		获得第一个用于测试的值
+		当测试为真时
+			处理值
+			获取下一个值
+
+6.1.2	C风格读取循环
+
+	原代码格式：
+	status = scanf_s("%ld", &num);
+	while(status==1)
+	{
+		/*循环行为*/
+		status = scanf_s("%ld", &num);
+	}
+
+	可以简化替换为
+
+	while(scanf_s("%ld",&num)==1)
+	{
+		/*循环行为*/
+	}
+	
+	第二种形式同时使用scanf_()的两种不同特性；
+	首先，如果函数调用成功，scanf_s()会把一个值存入num
+	然后，利用scanf_s()的返回值(0或1)来控制while循环。
+	
+	因为每次迭代都会判断循环的条件，所以每次都需要调用scanf_()读取新的num值来做判断；
+	所以C语言特性让你可以用下面精简版本替代标准版本：
+		当获取值和判断值都成功
+			处理该值
+
+
+6.2 	while语句
+	while循环的通用形式如下：
+	while(expression)
+		statment
+	statment部分可以是以分号结尾的简单语句，也可以是用花括号括起来的复杂语句。
+	到目前为止，expression部分都是使用关系表达式，如果expression为真(非0)，执行statment部分一次，
+	然后再次判断xepression，在expression为假(0)之前，循环的判断和执行一直重复进行
+	每次循环都被成为一次迭代(iteration)
+	
+6.2.1	终止while循环
+	while循环有一点非常重要：在构建while循环时，必须让表达式的值有变化，表达式最终要为假(0)
+	否则，循环就不会终止(实际上可以使用break和if语句来终止)
+	考虑下面的例子：
+	index=1；
+	while(index<5){/*表达式*/}；
+	↑程序将无限重复；
+	index=1；
+	while(--index<5){/*表达式*/}；
+	↑程序虽然改变了index的值，但是需要循环到该类型数据溢出；
+	//表达式改成++index<5则是达到执行有限的指定次数效果；
+
+6.2.2	何时终止循环
+	
+	#include<stdio.h>
+	int main(void)
+	 {
+		int n = 5;
+		while (n < 7)			 //第5行
+		{
+			printf("n=%d\n", n);
+			n++;			//第8行
+			printf("now n=%d\n", n);	//第9行
+		}
+		printf("the loop has finished.\n");
+		getchar();
+		return 0;
+	}
+--------------------------------------------
+	n=5
+	now n=6
+	n=6
+	now n=7
+	the loop has finished.
+	
+	在第二次循环时，变量n在第8行首次获得值7，程序此时并未退出，它继续执行本次循环(执行第9行)，
+	并在对第5行的测试条件求值时候才退出循环n=7  (n<7)不成立，退出循环，执行循环外语句。
+
+6.2.3	while：入口循环条件
+	while循环是使用入口条件的有条件循环。所谓有条件指的是语句部分的执行取决于表达式的描述/限定；
+	例如(index<5),该表达式是一个入口条件(entry condition),满足该条件才能进入循环。
+	
+6.2.4	语法要点
+	使用while时，要牢记一点：只有在测试条件后面的单独语句(简单语句或复合语句)才是循环部分；
+	错误示例：
+	
+	#include<stdio.h>
+	int main(void) 
+	{
+		int n = 0;
+		while(n<3)	
+			printf("n is %d\n", n);	//该部分为循环部分；因n没有重置而陷入死循环；
+			n++;			//不在测试条件后面的单独语句；跳出循环前不执行；
+		printf("that's all this program does.\n");
+		getchar();
+		return 0;	
+	}
+	
+	
+	综上，即使while语句本身是复合语句，但是在语句构成上，它也是一条单独的语句；
+	该语句从while开始执行，到第一个分号结束。在使用了复合语句情况下到右花括号结束。
+
+	示例：下面两个例子输出结果差别：
+
+	#include<stdio.h>
+	int main(void) 
+	{
+		int n = 0;
+		while(n++<3)	
+			printf("n is %d\n", n);	//while语句结束位置	
+		printf("that's all this program does.\n");
+		getchar();
+		return 0;	
+	}
+	
+
+	#include<stdio.h>
+	int main(void) 
+	{
+		int n = 0;
+		while(n++<3)
+		；			//while语句结束位置
+		printf("n is %d\n", n);	
+		printf("that's all this program does.\n");
+		getchar();
+		return 0;	
+	}
+	
+	在后一例中，测试条件后的单独分号是空语句(null statement),它什么也不做；
+	有时故意使用带空语句的while语句，因为所有的任务都在测试条件中完成了，不需要在循环中做什么。
+	例如，假设你想跳过输入到第一个非空白字符或数字，可以这样写：
+	while(scanf_s("%d",&num)==1)
+	;		
+
+	只要scanf_s()读取一个整数，就会返回1，循环继续执行。
+	为了提高代码可读性，应该让这行分号独占一行，不要直接把它放在测试表达式同行。
+	这样一方面让读者更容易看到空语句；另一方面也提醒自己和读者，空语句是有意而为之。
+
+6.3	用关系运算符和表达式比较大小
+	＜	小于
+	＞	大于
+	≤	小于等于
+	≥	大于等于
+	==	等于
+	！=	不等于
+	
+	示例
+	while(number<6)
+	while(ch!='$')
+	while(scanf_s("%f",&num)==1)
+	
+	虽然运算关系也可以用来比较浮点数，但是要注意：比较浮点数时，尽量使用<和>
+	因为浮点数的舍入误差导致在逻辑上应该相等的两数却不相等，例如3乘以1/3的积是1.0
+	如果把1/3表示成小数点后6位数字，乘积则是0.999999不等于1.0
+	使用fabs()函数（声明在math.h头文件中）可以方便的比较浮点数，该函数返回一个浮点值的绝对值。
+	示例：
+
+	#include<stdio.h>
+	#include<math.h>
+	int main(void)
+	{
+		const double answer = 3.14159;
+		double respons;
+		printf("What's the value of pi?\n");
+		scanf_s("%lf", &respons);
+		while(fabs(respons-answer)>0.0001)
+		{
+			printf("try again!\n");
+			scanf_s("%lf", &respons);
+		}
+		printf("close enough!\n");
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+6.3.1	什么是真
+	在C语言中，表达式一定有一个值，关系表达式也不例外。
+	示例：程序打印两个关系表达式的值，一个为真一个为假。
+	#include<stdio.h>
+	int main(void)
+	{
+		int truevalu, falsevalu;
+		truevalue = (10 > 2);
+		falsevalue = (10 == 2);
+		printf("ture=%d;false=%d\n", truevalu, falsevalu);
+		getchar();
+		return 0;
+	}
+
+	所以对C语言而言，表达式为真的值是1，表达式为假的值是0；
+	有些循环结构由于1为真，所以循环会一直执行如；while(1){...}
+
+6.3.2	其他真值
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int n = 3;
+		while(n)
+		{
+			printf("%2d is true\n", n--);
+		}
+		printf("%2d is false\n", n);
+
+		n = -3;
+		while (n)
+		{
+			printf("%2d is true\n", n++);
+		}
+		printf("%2d is false\n", n);
+		getchar();
+		return 0;
+	}
+
+	也可以说，只要测试条件的值为非零，就会执行while循环。
+	这是从数值方面，而不是真/假方面来看测试条件；
+	要牢记：关系表达式为真，求值得1；关系表达式为假，求值得0；
+	因此，这些表达式实际上相当于数值。
+	因此可以很好的利用测试条件这一特性；比如用while(valu)替换while(valu!=0)
+
+6.3.3	真值的问题
+	C对真的概念约束太少会带来一些麻烦；例如：
+	
+	#include<stdio.h>
+	#include<Windows.h>
+	int main(void)
+	{
+		long num;
+		long sum = 0L;
+		int status;
+
+		printf("Please enter an integer to be summed(q to quit):");	
+		status = scanf_s("%ld", &num);
+		while(status=1)					//将等号==改为赋值=
+		{
+			sum = sum + num;	
+			printf("Please enter an integer to be summed(q to quit):");
+			status = scanf_s("%ld", &num);
+		}
+		printf("Those integers sum to %ld.\n", sum);
+		Sleep(2000);
+		return 0;
+	}
+	
+	调试程序，本应在用户输入q结束输入并计算结果的时候，循环开始陷入重复输入提示的bug……
+
+	由于status=1是一个赋值表达式语句，赋值后，while(status=1)循环语句实际就变成while(1),
+	虽然用户输入q，status被设置为0，但是循环测试条件把status又重置为1，进入了下一次迭代；
+	那为什么会陷入重复提示且无法输入呢？
+	因为，如果scanf_s()读取指定形式的输入失败，就把无法读取的输入留在输入队列中，供下次读取；
+	当scanf_s()把q作为整数读取失败了，它把q留下。
+	在下次循环时，scanf_s()函数从上次读取失败的地方(q)作为整数开始读取，又失败了，陷入无限循环；
+
+	不要在本应使用==的地方使用=
+	一些计算机语言如(basic)用相同的符号表示赋值运算符和关系相等运算符，但这两个运算符完全不同
+	示例：
+	value==5  //检查value的值是否为5；
+	value=5	//把数值5赋给value；
+	
+	tips：如果待比较的值是常量，可以把该常量放在左侧有助于编译器捕获错误
+	5=value；//语法错误；
+	5==value	//检查value的值是否为5；
+
+	这是因为C语言不允许给常量赋值，编译器会把赋值运算符的这种用法作为语法错误标记出来；
+
+	总之，关系运算符用于构成关系表达式，关系表达式为真的时候值是1，为假时值为0.
+	通常用关系表达式作为测试条件的语句如while if可以使用任何表达式作为测试条件，非零为真，零为假
+
+6.3.4	C99新增的 _Bool 类型
+	
+	在编程中，表示真或假的变量称为布尔变量（boolean variable），所以_Bool是C语言中布尔变量的类型名；
+	_Bool类型的变量只能存储1(真)或0(假)，如果把其他非零数值赋给_Bool类型的变量，该变量会被设置为1；
+	
+	#include<stdio.h>
+	#include<Windows.h>
+	int main(void)
+	{
+		long num;
+		long sum = 0L;
+		_Bool input;
+
+		printf("Please enter an integer to be summed(q to quit):");	
+		input =( scanf_s("%ld", &num)==1);
+		while(input)					
+		{
+			sum = sum + num;	
+			printf("Please enter an integer to be summed(q to quit):");
+			input =( scanf_s("%ld", &num)==1);
+		}
+		printf("Those integers sum to %ld.\n", sum);
+		Sleep(2000);
+		return 0;
+	}
+	
+	C99提供了stdbool.h的头文件，该头文件让bool成为_Bool的别名，而且还把true和false分别定义为1和0；
+	包含该头文件后，写出的代码可以与C++兼容，因为C++把bool ture false定义为关键字；
+	如果系统不支持_Bool类型，导致无法运行该程序，可以把_Bool替换成int即可。
+
+6.3.5	优先级和关系运算符
+
+	1.关系运算符的优先级比算术运算符低，比赋值运算符高。
+	这意味着
+	 x>y+2 和 x>(y+2)相同；
+	 x=y>2 和 x=(y>2)相同；//如果y大于2，则给x赋值1，否则0，y的值不会赋给x；
+	
+	2.关系运算符之间有不同的优先级
+	高优先级组：＜ ≤ ＞ ≥
+	低优先级组：== !=
+	与其他大多数运算符一样，关系运算符的结合律也是从左往右；因此
+	ex!=wye==zee 和 (ex!=wye)==zee 相同//先判断ex与wye是否相等得出值0或者1，再与zee比较；
+
+	完整优先等级表
+	运算符(优先级从高到低)	结合律
+	（）			从左往右→
+	-  +  ++  -- sizeof		从右往左←	
+	*   /  %			从左往右→
+	+  -			从左往右→
+	<  >  ≥  ≤			从左往右→
+	==  !=			从左往右→
+	=			从右往左←	
+
+6.4	不确定循环和计数循环
+	不确定循环：在测试表达式为假之前，预先不知道要执行多少长循环
+	计数循环：   在循环执行之前就知道要重复执行多少次
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int a = 1;			//初始化
+		while (a <= 10)		//测试
+		{
+			printf("goodluck\n");	//行为
+			a++;		//更新计数
+		}
+		getchar();
+		return 0;
+	}
+	
+	在创建一个重复执行固定次数的循环中涉及3个行为：
+	1.必须初始化计数器；
+	2.计数器与有限的值作比较；
+	3.每次循环时递增/减计数器；
+
+	在上面的例子中，递增发生在循环的末尾，可以防止不小心漏掉递增，因此这样比(a++<=10)好，
+	但是计数器的初始化放在循环外，就有可能忘记初始化。
+
+6.5	for循环
+	for循环将上述3个行为(初始化、测试和更新)组合在一起
+	#include<stdio.h>
+	int main(void)
+	{
+		int a;	
+		for (a = 1; a <= 10; a++)
+		{
+			printf("%d	%d",a,a*a);
+		}
+		getchar();
+		return 0;
+	}
+	
+	关键字for后面的圆括号内有3个表达式，分别用分号隔开；
+	第1个表达式是初始化；只会在for循环开始时执行一次；
+	第2个表达式是测试条件，在执行循环之前对表达式求值，如果表达式为假，循环结束；
+	第3个表达式执行更新，在每次循环结束时求值；
+	
+	这三个表达式也叫控制表达式，都是完整的表达式，所以每个表达式的副作用都发生在下一个表达式求值之前
+
+6.5.1	利用for的灵活性
+	for的灵活性源于如何使用for循环中的3个表达式
+	在前面示例中，1表达式给计数器赋初值，2表达式计数器范围，3表达式递增计数器
+	除此以外，for循环还有其他9种用法：
+
+	1.递减计数
+	for(a=5;a>0;a--)
+	
+	2.固定数递增
+	for(n=2;n<60;n=n+10)
+	
+	3.用字符代替数字计数
+	for(ch='a';ch<='z';ch++)
+
+	4.除了测试迭代次数外，还可以测试其他条件比如
+	for(a=1;a<=6;a++)替换成for(a=1;a*a<=36;a++)
+	与控制次数相比，如果更关心测试条件限制，可以这样使用；
+	
+	5.让递增的量几何增长，而不是算术增长
+	for(a=10;a<150;a=a*1.2)
+
+	6.第三个表达式可以使用任意合法的表达式；并每次迭代都会更新该表达式的值
+	for(x=1;y<=75;y=(++x*5)+50)
+
+	7.可以省略一个或多个表达式
+	n=25;
+	for(a=2;n<=125;){n=n*a}//该循环保持a=2;变量n的值从初始25变50 100 200；
+	另；省略第2个表达式被视为真，所以for(;;),则循环会一直运行；
+
+	8.第1个表达式不一定是给变量赋初值，也可以使用printf()
+	在执行循环其他部分之前，只对第1个表达式求一次值或执行一次；例：
+	#include<stdio.h>
+	int main(void)
+	{
+		int num = 0;
+		for (printf("keep entering numbers!\n"); num != 6;)
+		{scanf_s("%d", &num);}
+		printf("That's the one I want!\n");
+		getchar();
+		getchar();
+		return 0;
+	}
+
+
+	9.循环体中的行为可以改变循环头中的表达式；例如
+	for(n=1;n<10000;n=n+delta)
+	如果程序经过几次迭代后发现变量delta太小或者太大，循环中的if语句可以改变delta的值
+	在交互式程序中，用户可以在循环运行时才改变delta的值；但如果delta为0循环失效；
+
+6.6	其他赋值运算符 +=  -=  *=  /=  %=
+	
+	a+=20	等效于	a=a+20
+	a -=20	等效于	a=a -20
+	a *=20	等效于	a=a *20
+	a /=20	等效于	a=a /20
+	a%=20	等效于	a=a%20
+
+	上述所列运算符右侧都使用了简单的数字，还可以使用更复杂的表达式；例如
+	x*=3*y+12	等效于	x=x*(3*y+12)
+
+
+6.7	逗号运算符
+
+	示例程序：
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int a, b;
+		for (a = 1, b = 5; a <= 5; a++, b += 3)
+		{printf("%d %d\n", a, b);}
+		getchar();
+		return 0;
+	}
+	
+	该程序在初始化表达式和更新表达式中都使用了逗号运算符；
+	初始化表达式中逗号使得a和b都进行了初始化；
+	更新表达式中逗号使每次迭代都更新a和b的值；绝大部分计算都在for循环头中进行
+
+	逗号运算符并不局限在for循环，但是这是它最常用的地方
+	逗号运算符有2个特质：
+	1.	首先它保证了被它分隔的表达式从左往右求值；(即逗号是一个序列点)
+	逗号左侧所有副作用都在程序执行逗号右侧前发生；
+	例如 a++,b=a+20;在该表达式中，先递增a的值，然后在b的表达式中使用a更新后的值；
+
+	2.	整个逗号表达式的值是右侧项的值，例如：
+	x=(y=3,(z=++y+2)+5);
+	效果是先把3赋给y，然后y递增为4，然后4+2=6赋给z，z+5=11赋给x；x=11；
+	
+	另，加入在输入数字时不小心输入了逗号：
+	a=249,500;
+	此表达式没语法错误，编译器会将其解释成一个逗号表达式；即a=249为左侧，500为右侧表达式；
+	效果类同于 
+	a=249;
+	500;	//tips:任何表达式后面加上一个分号就成了表达式语句，500；也是一条语句，虽然它什么都不做；
+	
+	另，
+	a=(249,500);	//赋值给a的值是逗号右侧的子表达式的值，即a=500;
+	
+	逗号也可以作为分隔符。如 int a=2,b=3;此时逗号是分隔符，不是逗号运算符；
 
 
 
 
+6.7.1	芝诺悖论与for循环
+	
+	芝诺二分法悖论
+	
+	从A点到B点，必须通过AB之间的中点，每一次到达中点后剩下的路程还有中点…
+	按照芝诺悖论，把AB之间有限的距离无限细分，永远走不完这条路……
+	用无限序列来表示总时间，假设走到AB中点花费的时间为1，则匀速走完AB需要的时间s：
+	s=1+1/2+1/4+1/8+1/16+……
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int a;//计数项
+		double s, zeno;//s:所花时间总和，zeno：每次剩下一半的变量
+		int limit;//查看点
+
+		printf("Enter the number of terms you want:");
+		scanf_s("%d", &limit);
+		for (s = 0, zeno = 1, a = 1; a <= limit; a++, zeno = zeno * 2.0)
+		{
+			s = s + 1.0 / zeno;
+			printf("time=%f when terms =%d.\n", s, a);
+		}
+		getchar();
+		getchar();
+		return 0;
+	}
+	
+	
+	数学家证明当项的数目接近无穷时，总和无限接近2.0，数学证明方法：
+	
+	s=1+1/2+1/4+1/8+1/16……
+	
+	将s除以2可得
+
+	s/2=1/2+1/4+1/8+1/16……
+	
+	将第一个式子减去第二个式子可得
+	s-s/2=1,
+
+	即s=2；
+	
+
+6.8	出口条件循环 do while
+	
+	while循环和for循环都是入口条件循环，即在循环的每次迭代之前检查测试条件，
+	所以有可能根本不执行循环中的内容；
+	而出口条件循环则是在循环的每次迭代之后检测测试条件，
+	这保证了至少执行循环中的内容一次；这种循环成为do while
+	
+	示例
+	#include<stdio.h>
+	int main(void)
+	{
+		int a,code;
+		code = 13;
+		printf("wellcome to play number riddle\n");
+		do
+		{	
+			printf("Please enter a number you choose:");
+			scanf_s("%d", &a);
+		} 
+		while (a != code);
+		printf("congratulations!\n");
+		getchar();
+		getchar();
+		return 0;
+	}
+
+	do while循环的通用形式：
+	
+	do
+	        statement
+	while(expression);
+	
+	statement可以是一条简单语句或复合语句，do while循环以分号结尾；
+	do while 循环适应于那些至少要迭代一次的循环，如：
+	
+	do
+	{
+		提示用户输入密码
+		读取用户输入的密码
+	}while（用户输入的密码不等于密码）；
+	
+	
+6.9	如何选择循环
+	入口条件循环和出口条件循环按照是否需要必须执行一次来选择；
+	通常入口条件循环常用些，好处在于：
+	1.一般原则是在执行程序前测试条件比较好
+	2.测试条件放在循环的开头程序可读性更高；
+	3.许多应用中要求在一开始不满足测试条件时直接跳过整个循环；
+	
+	入口条件循环的选择用for还是while看个人喜好；
+	一般当循环涉及初始化和更新变量时，用for循环比较合适，其他情况下while循环更好；
+	如
+	while(scanf_s("%ld",&num)==1)
+	for(count=1;count<=100;count++)
 
 
+6.10	嵌套循环
+	嵌套循环指的是在一个循环内包含另一个循环，嵌套循环常用于按行和列显示数据
+	也就是说一个循环处理一行所有的列，另一个循环处理所有的行
+	示例：
+	#include<stdio.h>
+	#define ROWS 6
+	#define CHARS 10
+	int main(void)
+	{
+		int row;
+		char ch;
+		for (row = 0; row < ROWS; row++)		//外层循环，创建6行
+		{
+			for (ch = 'A'; ch < ('A' + CHARS); ch++) 	//内层循环，打印10字符
+			{ printf("%c", ch); }
+			printf("\n");
+		}
+		getchar();
+		return 0;
+	}
+
+6.10.2	嵌套变式
+		
+	#include<stdio.h>
+	int main(void)
+	{
+		const int ROWS = 6;
+		const int CHARS = 6;
+		int row;
+		char ch;	
+		for (row = 0; row < ROWS; row++)
+		{
+			for (ch = ('A' + row); ch < ('A' + CHARS); ch++)
+			{printf("%c", ch);}
+			printf("\n");
+		}
+		getchar();
+		return 0;
+	}
 
 
+6.11	数组简介
+	数组是按照顺序存储的一系列类型相同的值；整个数组有一个数组名，通过整数下标访问数组中单独的项或元素
+	声明示例如下：
+	float debts [20];
+	
+	声明debts是一个内含20个元素的数组，每个元素都是存储float类型的值；
+	第1个元素是debts[0],第2个元素是debts[1]…以此类推直到debts[19]；
+	
+	数组元素编号从0开始，而不是从1开始，可以给每个元素赋值，比如
+	debts[5]=32.2;
+	debts[6]=1.732;
+	实际上使用数组元素和使用同类型的变量一样，例如可以把值读入指定的元素中：
+	scanf_s("%f",&debts[4]);	//把一个值读取入数组的第5个元素
+	tips：C编译器不会检查数组的下标是否正确，例如示例声明中：
+	debts[30]=20.5;	//该数组元素实际并不存在，debts[19]是该数组最后的元素；
+	
+	
+		
+	
+	
+	
+	
+	
+	
+		
 
+		
+	
+	
+	
+	
+	
 
+	
 
 
 
