@@ -3236,6 +3236,7 @@ C标准；
 	#include<stdio.h>
 	int main(void)
 	{
+
 		const int ROWS = 6;
 		const int CHARS = 6;
 		int row;
@@ -3266,19 +3267,336 @@ C标准；
 	scanf_s("%f",&debts[4]);	//把一个值读取入数组的第5个元素
 	tips：C编译器不会检查数组的下标是否正确，例如示例声明中：
 	debts[30]=20.5;	//该数组元素实际并不存在，debts[19]是该数组最后的元素；
+	因为编译器不会查找这样的错误，当程序运行时，会导致数据被放置在已被其他数据占用的地方
+	这可能会破坏程序的结果甚至导致程序异常中断；
+	
+	int num[20];	//可存储20个int类型整数的数组；
+	char name[50];	//可存储50个字符的数组；
+	long big[500];	//可存储500个long类型整数的数组；
+	
+	字符串：如果char类型的数组末尾包含一个表示字符串末尾的空字符\0，则该数组中的内容就构成字符串；
+	you can see it.	char[15]	//字符数组，不是字符串；
+	you can see it.\0	char[16]	//即是字符数组，也是字符串
+
+	用于识别数组元素的数字被称为下标/索引/偏移量；
+	下标必须是整数而且要从0开始计数，数组的元素被依次存储在内存中的相邻位置；如：
+	
+	int boo[4]  (每个int为2字节)
+
+	1980	46	4816	3
+	boo[0]	boo[1]	boo[2]	boo[3]
+	
+	char foo[4]  (每个char为1字节)
+
+	h	e	l	p
+	foo[0]	foo[1]	foo[2]	foo[3]
+
+
+6.11.1	在for循环中使用数组
+	示例：程序读取10个高尔夫分数，稍后进行处理；使用数组就不用创建10个不同的变量来存储10个高尔夫分数
+	而且，还可以用for循环来读取数据，程序输出总分、平均分、差点(平均分与标准分的差值)
+
+	#include<stdio.h>
+	#define SIZE 10
+	#define PAR 72
+	int main(void)
+	{	
+		int index,score[SIZE];
+		int sum = 0;
+		float average;
+		printf("Enter %d golf scores:\n", SIZE);
+		for (index = 0; index < SIZE; index++) 
+		{ scanf_s("%d", &score[index]); }//读取10个高尔夫分数
+		printf("The scores read in are as follow:\n");
+		for(index=0;index<SIZE;index++)
+		{printf("%2d %5d\n", index+1, score[index]);}//验证输入
+		for (index = 0; index < SIZE; index++) { sum = sum + score[index]; }//求总分
+		average = (float)sum / SIZE;//求平均分
+		printf("Sum of score=%d,average=%.2f\nThat's a handicap of %.0f.\n", sum, average, average - PAR);
+		getchar();
+		getchar();
+		return 0;
+	}
+
+6.12	使用函数返回值的循环示例
+	
+	#include<stdio.h>
+	double power(double n, int p);	//ANSI函数原型
+	int main(void)
+	{
+		double x, xpow;
+		int exp;
+		printf("Enter a number and the positive integer power");
+		printf("to which\nthe number will be raised.(q to quit).\n");
+		while (scanf_s("%lf %d", &x, &exp) == 2)
+		{
+			xpow = power(x, exp);//函数调用
+			printf("%.3g to the power %d is %.5g\n", x, exp, xpow);
+			printf("Enter next pair of numbers or q to quit.\n");
+		}
+		printf("hope you enjoyed this power trip--bye!\n");
+		return 0;
+	}
+	double power(double n, int p)	//函数定义
+	{
+		double pow = 1;
+		int i;
+		for (i = 1; i <= p; i++)
+			pow *= n;
+		return pow;
+	}
+
+
+6.12.2	使用带返回值的函数
+	声明函数，调用函数，定义函数，使用关键字return，都是定义和使用带返回值函数的基本要素
+	为什么在定义中说明了power()的返回类型为double，还要单独声明这个函数？
+	既然在使用函数返回值之前要声明函数，为什么scanf_s()返回值之前没有声明scanf_s()
+	
+	编译器在程序中首次遇到power()时，需要直到它的返回类型；
+	此时编译器尚未执行到power()的定义，并不知道函数中的返回类型是double
+	因此必须通过前置声明，预先说明函数的返回类型，前置声明告诉编译器，该函数的定义在别处，
+	其返回类型为double。如果把power()函数的定义置于main()的文件顶部，就可以省略前置声明，
+	但是这不是C语言的标准风格，因为main()通常只提供整个程序的框架，最好把main()放在所有函数定义的前面；
+	另外，通常把函数放在其他文件中，所以前置声明必不可少；
+	scanf_s()能使用的原因是已经声明了，stdio.h头文件中包含了函数原型，它的返回类型是int
+
+
+6.13	关键概念
+	1.注意循环的测试条件要能使循环结束(可退出)；
+	2.确保循环测试中的值在首次使用之前已经初始化；
+	3.确保循环在每次迭代都更新测试的值；
+
+	C通过求值来处理测试条件，结果为0表示假，非0表示真，带关系运算符的表达式也常用来做循环测试；
+	数组由相邻的内存位置组成，只存储相同类型的数据，下标从0开始编号；
+	
+	使用函数设计3个步骤：
+	1.通过函数原型声明函数；
+	2.在程序中通过调用函数使用；
+	3.定义函数；
+	
+	函数原型是为了方便编译器查看程序中使用的函数是否正确，函数定义描述了函数如何工作；
+	现代的编程习惯是把程序要素分为接口部分和实现部分，例如函数原型和函数定义
+	接口部分描述了如何使用一个特性，也就是函数原型所做的；
+	实现部分描述了具体的行为，这正是函数定义所做的。
+
+	
+6.14	本章小结
+	
+	1.典型的while循环设计伪代码如下：
+
+	获得初值
+	while(满足测试条件)
+	{
+	处理该值
+	获取下一个值
+	}
+
+	2.for循环也可以完成相同的任务：
+	
+	for(获得初始值；满足测试条件；获得下一个值)
+		{处理该值}
+
+	这些循环都使用测试条件来判断是否继续执行下一次迭代；
+	一般而言，如果对测试表达式求值为非0，继续循环，否则循环结束
+
+6.15	复习题
+	
+	1.写出执行完下列各行后quack的值是多少；后5行使用的是第1行quack的值
+	int quack=2；
+	quack+=5;	//quack=quack+5	==7
+	quack*=10;	//quack=quack*10	==20
+	quack-=6;		//quack=quack-6	==-4
+	quack/=8;		//quack=quack/8	==1/4
+	quack%=3;	//quack=quack%3	==2
+
+
+	2.假设value是int类型，下面循环的输出是什么？如果value是double类型，会出现什么问题？
+	
+	for(value=36;value>0;value/=2)printf("%3d",value);
+	
+	36	18	9	4	2	1	
+	
+	36.0	18.0	9.0	4.5	2.25	1.125	……
+	
+	3.用代码表示以下测试条件：
+	①.x大于5					//x>5;
+	②.scanf_s()读取一个名为x的double类型的值且失败	//double x;    scanf_s("%lf",&x)==0;
+	③.x的值等于5				//x==5;
+	④.scanf_s()成功读入一个整数			//int x;    scanf_s("%d",&x)==1;
+	⑤.x不等于5				//x!=5;
+	⑥.x大于或等于20				//x>=20;
+
+	5.下面的程序有点问题，请找出问题所在
+
+	#include<stdio.h>
+	int main(void)
+	{					//第3行；				
+		int i, j, list[10];			//第4行；	
+
+		for (i = 1; i <= 10; i++)		//第6行；for(;;)中间分号隔开
+		{				//第7行；			
+			list[i] = 2 * i + 3;		//第8行；
+			for (j = 1; j <= i; j++)	//第9行；	for(;;)中间分号隔开；j<=i;否则无限循环
+				printf("  %d", list[j]);	//第10行；	
+			printf("\n");		//第11行；	
+		}				//第12行；}为for循环结尾					
+		getchar();
+		return 0;
+	}		
+	
+
+	6.编写一个程序打印下面的图案，要求使用嵌套循环：
+	$$$$$$$$
+	$$$$$$$$
+	$$$$$$$$
+	$$$$$$$$
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int a, b;	
+		for (a = 0; a < 4; a++)
+		{
+			for (b = 0; b < 8; b++) 
+				printf("$");
+			printf("\n");		
+		}
+		getchar();
+		return 0;
+	}
+	
+
+	7.下面的程序各打印什么内容？
+	
+	①//Hi! Hi! Hi! Bye! Bye! Bye! Bye! Bye! 
+	#include<stdio.h>
+	int main(void)
+	{
+		int i = 0;
+		while (++i < 4)
+			printf("Hi! ");
+		do
+			printf("Bye! ");
+		while (i++ < 8);
+		getchar();
+		return 0;
+	}
+	
+
+	②//ACGM
+	#include<stdio.h>
+	int main(void)
+	{
+		int i;
+		char ch;
+		for (i = 0, ch = 'A'; i < 4; i++, ch += 2 * i)
+			printf("%c", ch);
+		getchar();
+		return 0;
+	}
 	
 	
+
+	8.假设用户输入的是 Go west,young man! 下面各程序输出的是什么？
+	(在ASCII码中 !紧跟在空格字符后面)
+
+	①// Go west,youn	/*循环遇到输入g后终止；*/
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		scanf_s("%c", &ch,1);
+		while (ch != 'g')
+		{
+			printf("%c", ch);
+			scanf_s("%c", &ch,1);
+		}
+		return 0;
+	}
+
+	
+	②// Hp!xfty-zpvo	/*循环遇到输入g后终止，所有输出按照输入偏移1个值*/
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		scanf_s("%c", &ch,1);
+		while (ch != 'g')
+		{
+			printf("%c", ++ch);
+			scanf_s("%c", &ch,1);
+		}
+		return 0;
+	}	
 		
 	
+	③//Go west,young	/*do while 遇到输入g时先输出g然后终止循环*/
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		do
+		{
+			scanf_s("%c", &ch,1);
+			printf("%c",ch);
+		}
+		while (ch != 'g')
+		return 0;
+	}	
 	
+	④$o west,youn	/*for循环初始值执行一次ch=$赋值行为，遇到输入g后终止循环*/
 	
-	
-	
-	
+	#include<stdio.h>	
+	int main(void)
+	{
+		char ch;
+		scanf_s("%c", &ch, 1);
+		for (ch = '$'; ch != 'g'; scanf_s("%c", &ch))
+			printf("%c", ch);		
+		return 0;
+	}
 		
 
-		
+	9.下面的程序输出什么内容？
 	
+	#include<stdio.h>
+	int main(void)
+	{
+		int n, m;
+		n = 30;
+		while (++n <= 33)
+			printf("%d|", n);//31|32|33|
+
+		n = 30;
+		do
+			printf("%d|", n);
+		while (++n <= 33);	//30|31|32|33|
+
+		printf("\n***\n");	//换行***换行
+
+		for (n = 1; n*n < 200; n += 4)
+			printf("%d\n", n);	//1换行5换行9换行13换行
+
+		printf("\n***\n");	//换行***换行
+
+		for (n = 2, m = 6; n < m; n *= 2, m += 2)
+			printf("%d %d\n", n, m);//2 6换行 4 8换行 8 10换行
+
+		printf("\n***\n");	//换行***换行
+
+		for (n = 5; n > 0; n--)
+		{
+			for (m = 0; m <= n; m++)
+				printf("=");
+			printf("\n");
+		}//======换行=====换行====换行===换行==换行
+
+		getchar();
+		return 0;
+	}
 	
 	
 	
