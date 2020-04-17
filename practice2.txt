@@ -3401,12 +3401,12 @@ C标准；
 
 6.15	复习题
 	
-	1.写出执行完下列各行后quack的值是多少；后5行使用的是第1行quack的值
-	int quack=2；
+	1.写出执行完下列各行后quack的值是多少；后5行使用的均是前1行quack的值
+	int quack=2；	//quack=2
 	quack+=5;	//quack=quack+5	==7
-	quack*=10;	//quack=quack*10	==20
-	quack-=6;		//quack=quack-6	==-4
-	quack/=8;		//quack=quack/8	==1/4
+	quack*=10;	//quack=quack*10	==70
+	quack-=6;		//quack=quack-6	==64
+	quack/=8;		//quack=quack/8	==8
 	quack%=3;	//quack=quack%3	==2
 
 
@@ -3420,7 +3420,7 @@ C标准；
 	
 	3.用代码表示以下测试条件：
 	①.x大于5					//x>5;
-	②.scanf_s()读取一个名为x的double类型的值且失败	//double x;    scanf_s("%lf",&x)==0;
+	②.scanf_s()读取一个名为x的double类型的值且失败	//double x;    scanf_s("%lf",&x)==0;//scanf_s("%lf",&x)!=1;
 	③.x的值等于5				//x==5;
 	④.scanf_s()成功读入一个整数			//int x;    scanf_s("%d",&x)==1;
 	⑤.x不等于5				//x!=5;
@@ -3598,11 +3598,253 @@ C标准；
 		return 0;
 	}
 	
+	10.考虑下面的声明：
+	double mint[10];
+	数组名是什么？	//mint
+	该数组有多少个元素	//10
+	每个元素可以存储什么类型的值	//double
+	下面哪一个scanf_s()的用法正确：
+	①scanf_s("%lf",mint[2])
+	②scanf_s("%lf",&mint[2])	//正确项
+	③scanf_s("%lf",mint)
 	
+	11.下面程序创建了一个存储2、4、6、8等以2为计数的数组，查找程序问题：
+	
+	#include<stdio.h>
+	#define SIZE 8
+	int main(void)
+	{
+		int two[SIZE];
+		int index;
+		for (index = 1; index <= SIZE; index++)
+			two[index] = 2 * index;
+		for (index = 1; index <= SIZE; index++)
+			printf("%d\n", two[index]);	//原程序printf("%d\n", two]);输出错误；
+		getchar();
+		return 0;
+	}
+
+	14.下面的程序输出什么内容：
+	#include<stdio.h>
+	int main(void)
+	{
+		int k;
+		for (k = 1,printf("%d:Hi!\n", k); printf("k=%d\n", k), k*k < 26; k += 2, printf("Now k is %d\n", k))
+			printf("k is %d in the loop\n", k);
+		getchar();
+		return 0;
+	}
+
+	//输出内容
+	1:Hi!
+	k=1
+	k is 1 in the loop
+	Now k is 3
+	k=3
+	k is 3 in the loop
+	Now k is 5
+	k=5
+	k is 5 in the loop
+	Now k is 7
+	k=7
+
+
+6.16	编程练习
+	1.编写一个程序，创建一个包含26个元素的数组，并在其中存储26个小写字母并输出
+	①
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		char ch[QTY];
+		int index;
+		for (index = 0; index < QTY; index++)
+			scanf_s("%c", &ch[index],1);	//给ch[]数组分配26个小写字母
+		for (index = 0; index < QTY; index++)
+			printf("%c\n", ch[index]);	//输出数组内容；	
+		getchar();
+		getchar();
+		return 0;
+	}
+	//该程序仍需要手动输入a~z字母给数组；那有没有办法可以让系统自动分配字母给数组呢？
+	
+	②
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		char ch[QTY];
+		char a = 'a';
+		int index;
+		for (index = 0; index < QTY; index++)
+		{
+			ch[index] = a++;
+			printf("%c", ch[index]);		
+		}
+		getchar();
+		return 0;
+	}
+
+	③
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		char ch[QTY];
+		char a = 'a';
+		int index=0;
+		while(index<QTY)
+		{
+			ch[index++] = a++;
+			printf("%c", ch[index-1]);			
+		}
+		getchar();
+		return 0;
+	}
+
+	④
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		char ch[QTY]="abcdefghijklmnopqrstuvwxyz";
+		int index;
+		for(index=0;index<QTY;index++)
+			printf("%c",ch[index]);
+		getchar();
+		return 0;
+	}
+	//程序直接将数组内容预赋值完毕；
+	
+	⑤
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		char ch[QTY];
+		char a = 'a';
+		int index;
+		for (index = 0; index < QTY; index++)
+		{
+			ch[index-1] = a++;
+			printf("%c", ch[index-1]);
+		}
+		getchar();
+		return 0;
+	}
+	
+	//想一想下面这个程序为什么不对：
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch[26];
+		int a,index=0;
+		ch[index]='a';
+		for(a=0;a<26;a++)
+		{
+			printf("%c",ch[index]);			
+			ch[index]++;
+		}
+		getchar();
+		return 0;
+	}
+	//虽然输出了26个字母，但是都是ch[0],index始终没更新给下一个数组；
+	
+
+	2.使用嵌套循环，按下面格式打印字符：	
+	$
+	$$
+	$$$
+	$$$$
+	$$$$$
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int a,b;
+		for (a = 0; a < 5; a++)
+		{
+			for (b = 0; b <= a; b++)
+				printf("$");
+			printf("\n");
+		}
+		getchar();
+		return 0;
+	}
+
+
+	3.使用嵌套循环，按下面的格式打印字母：
+	F
+	FE
+	FED
+	FEDC
+	FEDCB
+	FEDCBA
+
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		char ch[QTY] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		int n,index;
+		for (n = 5; n >=0; n--) 
+		{
+			for (index = 5; index >=n; index--)
+				printf("%c", ch[index]);
+			printf("\n");
+		}
+		getchar();
+		return 0;
+	}
+
+
+	4.使用嵌套循环，按下面的格式打印字母：
+	A
+	BC
+	DEF
+	GHIJ
+	KLMNP
+	PQRSTU
+
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		char ch[QTY] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		int n, m,index=0;
+		for (n = 0; n < 6; n++)			//n控制换行数
+		{
+		
+			for (m = 0; m <= n; m++)		//m控制每行字母数量
+			{
+				printf("%c", ch[index]);	//index控制输出字母
+				index++;
+			}
+			printf("\n");
+		}
+		return 0;
+	}
+
+
+
+	5.编写一个程序，提示用户输入大写字母，使用嵌套循环以下面金字塔型的格式打印字母：
+	
+	          A         	
+	        ABA
+	      ABCBA
+	    ABCDCBA	        
+	  ABCDEDCBA
+	
+	打印这样的图形，要根据用户输入的字母来决定，例如上面的图形是在用户输入E后的打印结果
+	提示：用外层循环处理行，每行使用3个内层循环，分别处理空格，升序字母，降序字母的输出
 	
 	
 
-	
+
+
+
+
+
 
 
 
