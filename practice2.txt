@@ -3838,7 +3838,31 @@ C标准；
 	打印这样的图形，要根据用户输入的字母来决定，例如上面的图形是在用户输入E后的打印结果
 	提示：用外层循环处理行，每行使用3个内层循环，分别处理空格，升序字母，降序字母的输出
 	
-	
+	#include<stdio.h>
+	#define QTY 26
+	int main(void)
+	{
+		int a,b,c,d,row;
+		char E, ch[QTY] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		printf("Please enter a capital letter: ");
+		scanf_s("%c", &E, 1);
+		row = E +1- 'A';
+		for (a = 0; a < row; a++)			//for循环控制换行；
+		{
+			for (b = row-1; b > a; b--)		//for循环输入空格
+				printf(" ");
+			for (c = 0; c <= a; c++)		//for循环输入顺序字母
+				printf("%c", ch[c]);
+			for (d =0 + a; d >0; d--)		//for循环输入逆序字母
+				printf("%c", ch[d-1]);
+			printf("\n");
+		}
+		getchar();
+		getchar();
+		return 0;
+	}
+
+
 
 
 
