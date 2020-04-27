@@ -3865,6 +3865,1095 @@ C标准；
 
 
 
+	6.编写一个程序打印一个表格，每一行打印一个整数，该数的平方，该数的立方；
+	要求用户输入表格的上下限，使用for循环。
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int first, last,n;
+		printf("Check list\n");
+		printf("Enter the number of list start form:\n");
+		scanf_s("%d", &first);
+		printf("And enter the number in the end:");
+		scanf_s("%d", &last);
+		for (n = first; n <= last; n++)
+		{
+			printf("n=%d;	n*n=%d;	n*n*n=%d\n",n,n*n,n*n*n);
+		}
+		getchar();
+		return 0;
+	}
+
+	
+	7.编写一个程序把一个单词读入一个字符数组中，然后倒序打印这个单词；
+	提示：strlen()函数可用于计算数组最后一个字符的下标；
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int n,i;
+		char ch[40];
+		scanf_s("%s", ch,40);	
+		n = strlen(ch);
+		for (i = n; i >= 0; i--)
+			printf("%c", ch[i-1]);
+		return 0;
+	}
+
+
+
+	8.编写一个程序，要求用户输入两个浮点数，并打印两数之差除以两数乘积的结果；
+	在用户输入非数字之前，程序应循环处理用户输入的每对值；
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		float a, b,c;
+		printf("Please enter two number,q to quit:\n");	
+		while (scanf_s("%f", &a) == 1 && scanf_s("%f", &b) == 1)
+		{
+			c = (a - b) / (a*b);
+			printf("%.2f", c);
+		}
+		return 0;
+	}
+
+	
+	
+	9.修改练习8，使用一个函数返回计算的结果；
+	
+
+	#include<stdio.h>
+	float back(float x, float y);
+	int main(void)
+	{
+		float a,b;
+		printf("Please enter two number,q to quit:\n");
+		while (scanf_s("%f", &a) == 1 && scanf_s("%f", &b) == 1)
+			printf("%.2f\n",back(a,b));		
+		return 0;
+	}
+	float back(float x, float y)
+	{
+		float n;
+		n = 1.0;
+		n = (x - y) / (x*y);
+		return n;
+	}
+
+
+	10.编写一个程序，要求用户输入一个上限整数和一个下限整数；
+	程序计算从上限到下限范围内所有整数的平方和，并显示计算结果；
+	程序循环执行，直到输入的上限数小于下限数为止；
+	程序的运行示例如下：
+	Enter lower and upper integer limits：5  9
+	the sums of the spuares form 25 to 81 is 255
+	Enter next set of limits: 3  25
+	the sums of the spuares form 9 to 625 is 5520
+	Enter next set of limits: 5  5
+	Done
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int low, up,n,sum=0;	
+		printf("Enter lower and upper integer limits:");
+		scanf_s("%d %d", &low, &up);	
+		for (n = low; n <=up; n++)
+		{
+			for (n = low; n <= up; n++)
+				sum = sum + n * n;
+			printf("the sums of the spuares form %d to %d is %d\n", low*low, up*up, sum);
+			printf("Enter next set of limits:");
+			scanf_s("%d %d", &low, &up);
+			n = low;
+			sum = 0;
+		}
+		printf("Done");
+		return 0;
+	}
+
+	11.编写一个程序，在数组中读入8个整数，然后按倒序打印这8个整数
+	#include<stdio.h>
+	int main(void)
+	{
+		int n, i,num[8];
+		for(n=0;n<8;n++)
+			scanf_s("%d", &num[n]);
+		for (i = 7; i >=0; i--)
+			printf("%d\n", num[i]);
+		return 0;
+	}
+	
+
+
+	12.思考下面两个无限序列：
+	1.0+1.0/2.0+1.0/3.0+1.0/4.0+……
+	1.0- 1.0/2.0+1.0/3.0- 1.0/4.0+……
+	编写一个程序计算这两个无限序列的总和，直到到达某次数。
+	提示：奇数个-1相乘为-1；偶数个-1相乘为1；让用户交互地输入指定次数
+	当用户输入0或者负值时结束输入。
+	查看运行100项；1000，10000项后的总和，是否发现每个序列都收敛于某值？
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int i,j,limit,k=-1;
+		float n=0,m=0;
+		printf("Enter the number you look up:\n");
+		scanf_s("%d", &limit, 1);
+		while (limit > 0)
+		{
+			for (i = 1; i <= limit; i++)
+			{
+				n = n + (1.0 / i);
+				//printf("%d	%.2f\n", i, n);
+			}
+			for (k = 1, j = 1; j <= limit; k = k * -1, j++)
+			{
+				m = m + (1.0 / j)*k;
+				//printf("%d	%.2f\n", j, m);
+			}
+			printf("%.2f\n", n + m);
+			scanf_s("%d", &limit, 1);
+			i = 1;
+			j = 1;
+			n = 0;
+			m = 0;
+		}
+		return 0;
+	}
+	
+
+
+	13.编写一个程序，创建一个包含8个元素的int类型数组，分别把数组元素设置为2的前8次幂。
+	使用for循环设置数组元素的值，使用do while循环显示数组元素的值。
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int i,j, n[9];
+		n[0] = 2;
+		j = 1;
+		for (i = 1; i <= 8; i++)			
+			n[i] = n[i-1] * 2;		
+		do
+		{
+			printf("%d\n", n[j-1]);
+			j++;
+		}
+		while (j <= 8);
+		return 0;
+	}
+
+
+	14.编写一个程序，创建两个包含8个元素的double类型数组，使用循环提示用户为第一个数组输入8个值。
+	第二个数组元素的值设置为第一个数组对应元素的累积之和；
+	最后使用循环显示两个数组的内容，第一个数组显示成一行，第二个数组显示在下一行，元素相对应；
+
+	#include<stdio.h>
+	int main(void)
+	{
+		double a[8], b[8],sum;
+		int i, j,k;	
+		sum = 0;
+		printf("Please enter 8 numbers for the first digit group:\n");
+	
+		for (i = 0; i < 8; i++)//为第一个数组输入8个值；
+		{
+			printf("Enter the number (%d/8) is:",i+1);
+			scanf_s("%lf", &a[i], 1);
+			//printf("the number of %d/8 is:%.2f\n", i+1, a[i]);			
+		}	
+	
+		for (j = 0; j < i; j++)//为第二个数组输入值；
+		{
+			sum = sum + a[j];
+			b[j] = sum;
+			//printf("b[%d]=%.2f\n",j, b[j]);
+		}
+
+		printf("the first digit group:	");
+		for (k = 0; k < 8; k++)
+			printf("%5.2f	", a[k]);
+		printf("\nthe second digit groua:	");
+		for (k = 0; k < 8; k++)
+			printf("%5.2f	", b[k]);
+		return 0;
+	}
+
+
+
+	15.编写一个程序，读取一行输入，然后把输入的内容倒序打印出来，可以把输入储存在char类型的数组中；
+	假设每行字符不超过255.回忆下，根据%c，scanf_s()函数一次只能从输入中读取一个字符；
+	而且在用户按下enter键时scanf()函数会生成一个换行字符(\n)
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch[255];
+		int i, n;	
+		scanf_s("%s", &ch,255);//输入内容;
+		n = strlen(ch)-1;
+		for (i = n+1; i >= 0; i--)
+			printf("%c", ch[i - 1]);
+		return 0;
+	}
+
+
+	16.达芙妮以10%的单利息投入了100美元(每年投资获利=原始投资*10%)；
+	迪尔德以5%的复合利息投资了100美元(利息是当前余额的5%，包含之前的利息)；
+	编写一个程序，计算需要多少年迪尔德的投资额才会超过达芙妮，并显示那时两人的投资额。
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int i;
+		double sum1, sum2;
+		sum1 = 100;
+		sum2 = 100;
+		for (i = 1; sum2 <= sum1; i++)
+		{
+			sum1 = 100+10*i;
+			sum2 = sum2 * 1.05;
+			//printf("%d	%.2f	%.2f\n",i, sum1, sum2);
+		}
+		printf("after %dyears,	Daphne:%.2f $;	Deirdre: %.2f $\n", i, sum1, sum2);
+		return 0;
+	}
+
+
+
+	17.chuckie赢得了100万美元(税后)，他把奖金存入年利率8%的账户，在每年的最后一天，chuckie取出10万美元；
+	编写一个程序，计算多少年后chuckie会取完账户的钱？
+
+	#include<stdio.h>
+	void main(void)
+	{
+		double sum1, sum2;
+		int i;
+		sum1 = 100;
+		sum2 = 100;
+		for (i = 1; sum2 >= 10; i++)
+		{
+			sum2 = sum2*1.08-10;
+			printf("%d,%.2f\n", i, sum2);
+		}	
+		printf("after %d years,Chuckie has no money left.", i );
+		return 0;
+	}
+
+
+	18.Rabnud博士加入了一个社交圈，起初他有5个朋友，他注意到他的朋友数量以下面方式增长
+	第1周少了1个朋友，剩下的朋友数量翻倍；第2周少了2个朋友，剩下的朋友数量翻倍；
+	计算并显示博士每周的朋友数量，该程序一直运行直到超过邓巴数(一个人社交圈稳定关系上限150)
+	
+	#include<stdio.h>
+	void main(void)
+	{
+		int weeks,friends;
+		friends = 5;
+		for (weeks = 1; friends < 150; weeks++)
+		{
+			friends = (friends - weeks) * 2;
+			printf("%d weeks,he has %d friends.\n", weeks, friends);
+		}
+		return 0;
+	}
+
+
+
+
+
+
+【第七章】C控制语句：分支和跳转
+
+关键字：	if、else、swith、continue、break、case、default、goto
+运算符：	&&、||、?:
+函数：	getchar()、putchar()、ctype.h系列
+如何使用 if 和 if else 语句，如何嵌套它们；
+在更复杂的测试表达式中用逻辑运算组合关系表达式
+C的条件运算符
+switch语句
+continue、break 和 goto 语句
+ctype.h 头文件提供的字符分析函数系列
+
+
+
+7.1	if 语句
+	
+	程序读取一列数据，每个数据都表示每日的最低温度(℃)，然后输出统计的总天数和最低温度在0℃以下的天数占比；
+	程序中的循环通过scanf_s()读入温度值，while循环每迭代一次，就递增计数器增加天数；if语句负责判断0℃以下天数；
+
+	示例程序：		//示例程序有问题会报错，无法计算百分比；
+	#include<stdio.h>
+	int main(void)
+	{
+		const int FREEZING = 0;
+		float temperature;
+		int cold = 0, all = 0;
+		printf("Enter the list of daily low temperatures.\n");
+		printf("Use Celsius,and q to quit.\n");
+		while (scanf_s("%lf", &temperature,1) == 1)
+		{
+			all++;
+			if (temperature < FREEZING)
+				cold++;
+		}	
+		if (all != 0)
+			printf("%d days total:%.1f%% were below freezing.\n", all,100.0*(float)cold/all);
+		if (all == 0)
+			printf("No date entered!\n");		
+		return 0;
+	}
+		
+
+
+	if语句被称为分支语句或选择语句，它相当于一个交叉点，程序要在两条分支中选择一条执行；
+	if语句的通用形式如下：
+		if(expression)
+			statement
+
+	如果对expression求值为真(非0)，则执行statement，否则就跳过，statement属性与while循环一样
+	if与while区别是，如果满足条件的话，while可以测试和执行多次，if只能测试和执行一次；
+
+	
+7.2	if else 语句
+	
+	简单形式的if语句让程序选择执行一条语句，或者跳过这条语句，if else可以让程序在两条语句之间做选择；
+	
+		if(expression)
+			statement1
+		else
+			statement2
+
+7.21	字符输入输出：getchar()和putchar()
+
+	getchar()函数不带任何参数，它从输入队列中返回下一个字符；例如
+
+	ch=getchar();	效果等同于	scanf_s("%c",&ch);
+
+	putchar()函数打印它的参数；
+	
+	putchar(ch);	效果等同于	printf("%c",ch);
+
+	由于这些函数只处理字符，所以它们比通用的scanf_s()和printf()函数更快更简洁；且不需要转换说明
+	这两个函数定义在stdio.h头文件中；
+
+	#include<stdio.h>
+	#define space ' '
+	int main(void)
+	{
+		char ch;
+		ch = getchar();
+		while (ch != '\n')
+		{
+			if (ch == space)
+				putchar(ch);
+			else
+				putchar(ch + 1);
+			ch = getchar();
+		}
+		return 0;
+	}
+
+
+7.2.2	ctype.h系列的字符函数
+	
+	C有一系列专门处理字符的函数，ctype.h头文件包含了这些函数的原型
+	
+	#include<stdio.h>
+	#include<ctype.h>	//包含了sialpha()的函数原型
+	int main(void)
+	{
+		char ch;
+		while ((ch = getchar())!= '\n')
+		{
+			if (isalpha(ch))		// ch为纯字母；
+				putchar(ch + 1);
+			else
+				putchar(ch);
+		}
+		putchar(ch);
+		return 0;
+	}
+	
+	
+
+
+	ctype.h头文件中的字符测试函数：
+	
+	isalnum()		字母或数字
+	isalpha()		字母
+	isblank()		空白字符
+	iscntrl()		控制字符
+	isdigit()		数字
+	isgraph()		除空格之外的任意可打印字符
+	islower()		小写字母
+	isprint()		可打印字符
+	ispunct()		标点符号
+	isspace()		空白字符(空格、换行符、换页符、回车符、垂直制表符、水平制表符或其他本地化指定)
+	isupper()		大写字母
+	isxdigit()		十六进制数字符
+	wolower()		大写转小写
+	toupper		小写转大写
+
+
+
+7.2.3	多重选择 else if
+
+	例如电力公司电费按照使用量的分段计费：
+	首360kwh		$0.13230/kwh
+	续108kwh		$0.15040/kwh
+	续252kwh		$0.30025/kwh
+	超720kwh		$0.34025/kwh
+	写一个程序计算电费：
+	
+	#include<stdio.h>
+	#define rate1 0.13230	//费率1
+	#define rate2 0.15040	//费率2
+	#define rate3 0.30025	//费率3
+	#define rate4 0.34025	//费率4
+	#define break1 360.0	//分界点1
+	#define break2 468.0	//分界点2
+	#define break3 720.0	//分界点3
+	#define pay1 (rate1*break1)			//一段完全费用
+	#define pay2 (pay1+rate2*(break2-break1))	//二段完全费用
+	#define pay3 (pay1+pay2+rate3*(break3-break2))	//三段完全费用
+
+	int main(void)
+	{
+		double kwh;	//总用量
+		double bill;	//电费
+		printf("Please enter the kwh used.\n");
+		scanf_s("%f", &kwh);
+		if (kwh <= break1)				//一段内计费；
+			bill = pay1 * kwh;			
+		else if (kwh <= break2)			//二段计费
+			bill = pay1 + (rate2*(kwh - break1));
+		else if (kwh <= break3)			//三段计费
+			bill = pay2 + (rate3*(kwh - break2));
+		else					//四段计费
+			bill = pay3 + (rate4*(kwh - break3));
+		printf("The charge for %.1f kwh is $ %1.2f.\n", kwh, bill);
+		return 0;
+	}
+	
+
+
+7.2.4	else与if配对
+
+	测试下面两个程序的结果差异；
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int number;
+		scanf_s("%d", &number);
+		if (number > 6)
+		{
+			if (number < 12)
+				printf("you're close!\n");
+		}
+		else
+			printf("sorry,you lose a turn!\n");
+		return 0;
+	}
+
+
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int number;
+		scanf_s("%d", &number);
+		if (number > 6)
+			if (number < 12)
+				printf("you're close!\n");		
+		else
+			printf("sorry,you lose a turn!\n");
+		return 0;
+	}
+
+
+
+	
+	如果没有花括号，else与离它最近的if匹配；
+
+
+7.2.5	多层嵌套的if语句
+
+	设计一个程序，给定一个整数，显示所有能整除它的约数，如果没有约数，就报告该数是一个素数
+	开发程序模型：
+	
+	提示用户输入数字
+	当scanf()返回值为1
+		分析该数并报告结果
+		提示用户继续输入
+	
+	设计如何找出约数；最直接的方法：
+	for(i=2;i<num;i++)
+		if(num%i==0)
+			printf("%d is divisible by %d.\n",num,i);
+	循环检查2~num之间的所有数字，测试它们是否能被整除，但是会有点浪费时间；
+	比如16，按照程序会输出 2*8	4*4	8*2；
+	在得到4*4之后，又开始得到已经找到的约数(只是次序相反)；因此，循环不用到达num，只要到它的平方根就可以
+
+	for(i=2;（i*i）<num;i++)
+		if(num%i==0)
+			printf("%d is divisible by %d and %d.\n",num,i,num/i);
+	
+	不使用平方根而用这样的测试条件，1因为整数乘法比求平方根快；2教材还没介绍到平方根函数(真实)
+
+	然而还需要解决两个问题才能开始编程：
+	1.如果待测试数是完整的平方数怎么办?
+	如16，可以被4*4；解决方法：嵌套一个if语句比较i和num/i是否相等，如果是，程序只输出一个约数；
+	
+	for(i=2;（i*i）<num;i++)
+		if(num%i==0)
+			if(i*i!=num)
+				printf("%d is divisible by %d and %d.\n",num,i,num/i);	
+			else
+				printf("%d is divisible by %d.\n",num,i);
+
+	2.如何知道一个数字是素数？如果num是素数，程序流不会进入if语句
+	解决办法：在外循环把一个变量设置为某个值1，然后在if语句中把该值重新设置为0；
+	循环完成后，检查该变量是否是1，如果是说明没有进入if语句，该数字就是素数；
+	这样的变量通常被称为标记(flag)
+
+	一直以来，C都习惯用int作为标记类型，其实新增的_Bool类型更合适；
+	另外头文件stdbool.h下bool类型可替代_Bool类型，用true和false分别替代1和0；
+
+	
+	#include<stdio.h>
+	#include<stdbool.h>
+	int main(void)
+	{
+		unsigned long num;	//待测试数
+		unsigned long n;	//约数
+		bool prime;	//素数标记
+
+		printf("Please enter an integer for analysis.\n");
+		printf("Enter q to quit.\n");
+
+		while (scanf_s("%lu", &num,1) == 1)
+		{
+			for (n = 2,prime=true; (n*n) <= num; n++)
+			{
+				if (num%n == 0) 
+				{
+					if ((n*n)!=num )
+						printf("%lu is divisible by %d and %d.\n", num, n, num / n);
+					else
+						printf("%lu is divisible by %d.\n", num, n);
+					prime = false;		//该数不是素数
+				}
+			}
+			if (prime)
+				printf("%lu is prime.\n",num);
+			printf("\nPlease enter another integer for analysis.\n");
+			printf("Enter q to quit.\n");
+		}
+		printf("Byebye\n");
+		return 0;
+	}
+
+
+
+	小结：if else
+	一般注解：
+	形式1：如果expression为真，执行statement部分；
+	if(expression)
+		statement
+	
+	形式2：如果expression为真，执行statement1部分，否则执行statement2部分
+	if(expression)
+		statement1
+	else
+		statement2
+
+	形式3：如果expression1为真，执行statement1部分，如果expression2为真，执行statement2部分；
+	否则执行statement3部分
+	if(expression1)
+		statement1
+	else is(express2)
+		statement2
+	else
+		statement3
+
+	
+7.3	逻辑运算符
+
+	if和while语句通常使用关系表达式作为测试条件，有时候多个关系表达式组合起来会很有用
+	例如：编写一个程序计算输入一行句子中除了单引号和双引号以外其他字符的数量：
+	这种情况下可以使用逻辑运算符，并使用句点（.）标识句子的末尾
+
+	
+	#include<stdio.h>
+	#define end '.'
+	int main(void)
+	{
+		char ch;
+		int m = 0;
+		while ((ch=getchar()) != end)
+		{
+			if (ch != '"'&&ch != '\'')
+				m = m + 1;
+		}
+		printf("There are %d non-quote characters.\n",m);
+		return 0;
+	}
+
+
+	逻辑运算符
+	&&	与
+	||	或
+	！	非
+
+	exp1和exp2为两个简单的关系表达式，则
+	1.当且仅当exp1和exp2两个都为真时，exp1 && exp2才为真
+	2.如果exp1或者exp2为真，则exp1||exp2为真；
+	3.如果exp1为假，则!exp为真；反之亦然；
+
+	
+7.3.1	备选拼写：iso646.h头文件
+
+	&&	and
+	||	or
+	!	not
+
+7.3.2	优先级
+	！运算符优先级很高，比乘法运算符还高与递增运算符的优先级相同，只比圆括号的优先级低
+	&&优先级比||高，两者优先级都比关系运算符低，比赋值运算符高；因此
+	表达式：	a>b&&b>c||b>d
+	相当于	(a>b)&&(b>c)||(b>d)
+	
+7.3.3	求值顺序
+
+	除了两个运算符共享一个运算对象情况外，C通常不保证先对复杂表达式中哪部分求值，比如
+	m=(5+3)*(9+6);可能是先求值5+3，也可能先计算9+6；
+
+	C把先计算哪部分的决定权留给编译器的设计者，以便对特定系统优化设计；
+	但是对于逻辑运算符是个例外，C保证逻辑表达式的求值顺序是从左往右；
+	&&和||运算符都是序列点，所以程序从一个运算对象执行到下一个运算对象之前，所有副作用都会生效；
+	C保证一旦发现某个元素让整个表达式无效，便立即停止求值；
+	正是由于这些规定，才能写出这样结构的代码：
+	while((c=getchar()) != ' ' && c !='\n')
+	如上：读取字符直到遇到第一个空格或换行符，第一个式子把读取的值赋给c，后面表达式会用到c的值
+	还如：
+	if(number!=0&&12/number==2)
+		printf("the number is 5 or 6.\n");
+	如果number的值是0，那么第一个子表达式为假，且不再对关系表达式求值，这样避免了把0作为除数
+
+	while(x++<10&&x+y<20)
+	实际上，&&是一个序列点，保证了在对右侧表达式求值之前，已经递增了x
+
+
+7.3.4	范围
+	&&运算符可以用于测试范围，例如要测试是否在10~100范围内，可以这样写：
+	if(range>=90&&range<=100)
+		printf("good show.\n");
+
+	而不能写成if(90<=range<=100)		
+	//错误写法，语义错误，而不是语法错误；
+	编译器不会捕捉这样的问题，会继续执行为 (90<=range)<=100;
+	对子表达式90<=range求值，要么是真(1)，要么是假(0)，这两个值都小于100；
+	所以不管range值是多少，此表达式都恒为真
+
+	许多代码都用范围测试来确定一个字符是否是小写字母
+	if(ch>='a'&&ch<='z')
+	但仅对ASCII这样的字符编码有效，但对EBCDIC这样的代码就没用了，移植方法是用ctype.h
+	if(islower(ch))
+
+	
+7.4	一个统计单词的程序
+	编写一个程序读取并报告单词的数量，该程序还可以计算字符和行数；伪代码
+	①	读取一个字符
+	②	当有更多输入时
+	③		递增字符计数
+	④		如果读完一个单词，递增单词计数
+	⑤		如果读完一行，递增行数计数
+	⑥		读取下一个字符
+	
+	②输入循环模型
+	while((ch=getchar())!=stop){…}	这里stop标识输入末尾，可暂时选择文本中不常用字符比如(|)标记
+	⑤统计行数：检查换行字符
+	④最棘手部分，首先程序需要定义什么是该程序识别的单词；
+		用相对简单的方法，把一个单词定义为一个不含空白(没有空格、制表符、换行符)的字符序列
+		因此程序读取的第一个非空白字符就是单词的头，到空白字符时候结束；
+	判断非空白字符表达式：	c != ' ' && c !='\n' && c != '\t'
+	检测空白字符表达式：	c==' ' || c == '\n' || c == 't'
+	然而使用ctype.h头文件函数issoace()更简单；isspace(c)为真是空白字符，非空白字符时候!isspace(c)为真
+	
+	要查找一个单词里是否有某个字符，可以在程序中输入单词的首字符时把一个标记(inword)设置为1，
+	可以在此时递增单词计数，然后只要inword为1后续的非空白字符都不记为单词的开始，
+	直到下一个空白字符，必须重置标记为0，然后程序准备好读取下一个单词；伪代码：
+		如果c不是空白字符，且inword为假
+			设置inword为真，并给单词计数
+		如果c是空白字符，且inword为真
+			设置inword为假
+
+	如果使用布尔类型（_Bool）的变量，通常习惯把变量自身作为测试条件
+	用if(inword)代替if(inword==true)
+	用if(!inword)代替if(inword==false)
+	
+
+	完整代码：
+	#include<stdio.h>
+	#include<ctype.h>	//为isspace()函数提供原型
+	#include<stdbool.h>	//为bool、true、false提供定义
+	#define stop '|'	//结束标记符
+	int main(vodi)
+	{
+		char c;				//读入字符
+		char prev;			//读入的前一个字符
+		int n=0;				//字符数
+		int m=0;				//单词数
+		int l=0;				//行数
+		int pline = 0;			//不完整的行数
+		bool inword = false;	//单词标记
+		printf("Enter text to be analyzed(| to terminate):\n");
+		prev = '\n';//用于识别完整的行
+		while ((c = getchar()) != stop)
+		{
+			n++;//统计字符
+			if (c == '\n')
+				l++;	//统计行数
+			if (!isspace && !inword)
+			{
+				inword = true;
+				m++;	//统计单词数
+			}
+			if (isspace && inword)
+				inword = false;
+			prev = c;	//保存字符的值
+		}
+		if (prev != '\n')
+			pline = 1;
+		printf("characters=%d,words=%d,lines=%d.\n", n, m, l);
+		printf("partial lines=%d.\n", pline);
+		return 0;
+	}
+
+
+7.5	条件运算符 ?:
+
+	条件表达式作为if else语句的一种便捷方式，如：
+	
+	x=(y<0)?-y:y;
+
+	在=和；之间的内容就是条件表达式，该语句的意思是：
+	如果y<0，那么x=-y;否则x=y
+	
+	用if else表达式为：
+	
+	if(y<0)
+		x=-y;
+	else
+		x=y;
+
+
+	条件表达式的通用形式如下：
+	expression1？expression2：expression3
+
+	如果exp1为真，那么整个表达式的值与exp2的值相同；
+	如果exp1为假，那么整个表达式的值与exp3的值相同；
+
+	需要把两个值中的一个赋给变量是，就可以用条件表达式，
+	典型的例子是，把两个值中最大值赋给变量：
+	
+	max=(a>b)?a:b;
+
+	通常条件运算符完成的任务if else也能完成，但是条件运算符代码更简洁紧凑
+
+	示例程序：该程序计算刷给定面积需要多少罐油漆
+	基本算法：用总面积除以每罐油漆能刷的面积，但是商店只卖整罐油漆，不会拆分来卖
+	所以如果计算结果是1.7，就需要2罐，
+	因此，该程序得到带小数的结果时应该进1
+	条件运算符常用于这种情况，而且根据单复数分别打印can和cans
+
+	#include<stdio.h>
+	#define cover 350	//每罐可刷面积
+	int main(void)
+	{
+		int sq;
+		int cans;
+
+		printf("Enter number of square feet to be painted:\n");
+		while (scanf_s("%d", &sq) == 1)
+		{
+			cans = sq / cover;
+			cans = cans + ((sq%cover == 0) ? 0 : 1);
+			printf("you need %d %s of paint.\n", cans, cans == 1 ? "can" : "cans");
+			printf("Enter next square (q to quit):\n");
+		}
+		return 0;
+	}
+
+
+
+7.6	循环辅助：continue和break
+
+	一般而言，程序进入循环后，在下一次循环测试之前会执行完循环体中所有的语句
+	continue和break语句可以根据循环中的测试结果来忽略一部分循环内容，甚至结束循环
+
+
+7.6.1	continue语句
+
+	3种循环都可以使用continue语句
+	执行到该语句时，会跳过本次迭代的剩余部分，并开始下一轮迭代。
+	如果continue语句在嵌套循环内，则只会影响包含该语句的内层循环；
+	示例：
+
+	#include<stdio.h>
+	int main(void)
+	{
+		const float MIN = 0.0f;	//最低分边界点
+		const float MAX = 100.0f;	//最高分边界点
+
+		float score;		//得分
+		float total = 0.0f;		//总分
+		int n = 0;			//计数器
+		float min = MAX;		//最低分
+		float max = MIN;		//最高分
+
+		printf("Enter the first score(q to quit):\n");
+		while (scanf_s("%f", &score) == 1)		//输入成绩float类型；非匹配数据退出；
+		{
+			if (score<MIN || score>MAX)		//输入得分在边界范围外；无效数；
+			{
+				printf("%0.1f is an invalid value.try again:", score);
+				continue;//跳转至while循环的测试条件
+			}
+			printf("Accepting %0.1f:\n", score);	//显示本次接收数据
+			min = (score < min) ? score : min;	//刷新最低分
+			max = (score > max) ? score : max;	//刷新最高分	
+			total += score;			//计算总得分；用来计算平均分
+			n++;				//计数器累计
+			printf("Enter next score(q to quit):\n");
+			if (n > 0)				//有效记分时输出成绩：
+			{
+				printf("average of %d score is %0.1f.\n", n, total / n);
+				printf("Low=%0.1f,high=%0.1f.\n", min, max);
+			}
+			else
+				printf("No valid score were entered.\n");
+		}
+		return 0;
+	}
+	
+		
+	
+
+	continue部分：筛选出无效的分数，让程序跳过处理有效输入部分的代码，对无效输入不做处理；
+	continue该情况下替代了原来的方法：
+	①
+	if(score<0||score>100)
+		{……}
+	else
+	{……}
+	
+	②
+	if(score>=0&&score<=100){……}
+	
+	这种情况下，使用continue的好处是减少主语句组中的一级缩进，当语句很长或嵌套多的时候紧凑简洁
+	continue还可以用作占位符；如下面的循环读取并丢弃输入的数据，直到读到行末尾：
+	while(getchar()!='\n')
+		;
+	当程序已经读取一行中的某些内容，要跳到下一行开始处时，这种用法很方便，问题是一般很难注意到一个单独分号
+	如果使用continue，可读性会更高：
+	
+	while(getchar()!='\n')
+		continue;
+
+	相反的如果用了continue没有简化代码反而更复杂，就不要使用；例如：
+	
+	while((ch=getchar())!='\n')
+	{
+		if(ch=='\t')
+			continue;
+		putchar();
+	}
+	该循环跳过制表符，并在读到换行符时退出循环，此时不用continue
+	更简洁的方法是把if条件反过来使用即可：
+	
+	while((ch=getchar())!='\n')
+	{
+		if(ch!='\t')
+			putchar();
+	}
+
+	
+	
+
+
+7.6.2	break语句
+	程序执行到循环中的break语句时，会终止包含它的循环，并继续执行下一阶段
+
+	#include<stdio.h>
+	int main(void)
+	{
+		float length, width;
+		printf("Enter the length of the rectangle:\n");
+		while (scanf_s("%f", &length, 1) == 1)
+		{
+			printf("length=%0.2f:\n",length);
+			printf("Enter its width:\n");
+			if (scanf_s("%f", &width, 1) != 1)
+				break;
+			printf("width =%0.2f:\n",width);
+			printf("area=%0.2f:\n", length*width);
+			printf("Enter the length of the rectangle:\n");
+		}
+		printf("Done.\n");
+		return 0;
+	}
+
+
+	在for循环中的break，在执行完break语句后会直接执行循环后面的第一条语句，连更新部分也跳过
+	嵌套在内层的break只会跳出包含它的当前循环，要跳出外层循环还需要一个break
+
+	
+	
+	
+7.7	多重选择：switch和break
+	
+	使用条件运算符和if else语句很容易编写二选一的程序
+	然而程序有时候需要在多个选项中进行选择，可以用if else if……else来完成
+	但是使用switch语句就可以更方便的解决这个问题
+	示例：该程序读入一个字母，然后打印出与该字母开头的动物名
+
+	
+	#include<stdio.h>
+	#include<ctype.h>
+	int main(void)
+	{
+		char ch;
+		printf("Give me a letter of the alphabet,and i'll give an animal name beginning with that letter.\n");
+		printf("Please type in a letter;type # to end my ect.\n");
+		while ((ch = getchar()) != '#')
+		{
+			if ('\n' == ch)
+				continue;
+			if (islower(ch))
+				switch (ch)
+				{
+				case 'a':
+					printf("argali,a wild sheep of Asia.\n");
+					break;
+				case 'b':
+					printf("babirusa,a wild pig of Malay.\n");
+					break;
+				case 'c':
+					printf("coati,racoon like mammal.\n");
+					break;
+				default:
+					printf("that's a stumper!\n");
+				}
+			else
+				printf("I recognize only lowercase letters.\n");
+			while (getchar() != '\n')	//跳过输入行的其余部分只读取首字母
+				continue;
+			printf("Please type another letter or a #.\n");
+		
+		}
+		printf("bye!\n");
+		return 0;
+	}
+
+
+
+7.7.1	switch语句
+
+	按照示例分析switch工作原理：
+	对紧跟在关键字switch后圆括号中的表达式求值（ch）
+	然后程序扫描标签（case 'a':等等）列表，直到发现一个匹配值为止，程序转至那一行
+	如果没有匹配的标签怎么办？如果有default标签行，就转到该行，没有就继续执行switch后面的语句。
+	break语句在其中起什么作用？
+	它让程序离开switch语句，跳到switch语句后面的下一条语句。
+	如果没有break语句，就会从匹配标签开始执行到switch末尾。（即从匹配标签开始把后续标签都执行一遍）
+	
+	break语句可用于循环和switch语句中，但是continue只能用于循环中；
+	尽管如此，如果switch语句在一个循环中，continue便可以作为switch语句的一部分；
+	这种情况下就像其他循环中一样，continue让程序跳出循环的剩余部分，包括switch语句的其他部分
+
+	一般C语言的case一般都指定一个值，不能使用一个范围
+	switch在圆括号中的测试表达式的值应该是一个整数值，包括char类型；
+	case标签必须是整数类型(包括char类型)的常量或整形常量表达式，不能用变量作为case标签
+
+	switch构造如下：
+	
+	switch(整形表达式)
+	{
+		case 常量1：
+			语句
+		case 常量2：
+			语句
+		default：
+			语句
+	}
+
+
+7.7.3	多重标签
+
+	
+	switch(ch)
+	{
+		case 'a':
+		case 'A':
+			a++;
+			break;
+		case 'b':
+		case 'B':
+			b++;
+			break;
+		default:
+			break;
+	}
+	
+
+	假设ch是字母b，switch语句会转到标签为case 'b'的位置；
+	由于该标签没有关联break语句，所以程序流直接执行下一条语句，即b++;
+	如果ch字母是B，程序流直接定位到case'B',
+	本质上两个标签指的都是相同的语句。
+	
+	严格地说，case 'B'语句下的break并不重要，因为即使删除这条break程序流会接着执行default：break；
+	但是从习惯上建议保留这条break，方便以后再添加新的case，防止遗漏break；
+
+	在该例中，如果使用ctype.h系列的toupper()函数就可以避免使用多重标签，在测试前把字母转换成大写
+	如：
+	ch=toupper(ch);
+	或者
+	
+	switch(toupper(ch));
+
+	
+7.7.4	switch和 if else
+
+	如果是浮点类型的变量或表达式来进行选择，就无法使用switch
+	如果根据变量在某范围内决定程序流的去向，switch也很麻烦，这种时候用if更方便
+	
+	
+7.8	goto 语句
+
+	goto语句有两部分：goto和标签名
+	标签的命名遵循变量命名规则，如：
+	goto part2；
+	要让这条语句正常工作，函数还必须包含另一条标为part2的语句，该语句标签名后紧跟一个冒号开始
+	part2：printf("done.\n");
+
+7.8.1	避免使用goto
+	原则上，根本不用在C程序中使用goto语句	
+
+
+
+
+
+
+
+
+
 
 
 
