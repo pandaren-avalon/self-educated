@@ -4949,6 +4949,315 @@ ctype.h 头文件提供的字符分析函数系列
 
 
 
+7.9	关键概念
+	if  、if else和switch，以及条件运算符(?:)实现智能选择；
+	if、if else语句使用测试条件来判断执行哪些语句。所有非零值都被视为true，零视为false
+	测试通常涉及关系表达式(比较两个值)、逻辑表达式(用逻辑运算符或更改其他表达式)
+	通用原则：如果要测试两个条件，应该用逻辑运算符把两个完整的测试表达式组合起来
+
+	
+7.11	复习题
+	
+	1.判断下列表达式是true还是false
+	①100>3&&'a'>'c'	//false
+	②100>3||'a'>'c'	//true
+	③!(100>3)		//false
+	
+	2.根据下列描述的条件，分别构造一个表达式：
+	①number等于或大于90，但是小于100
+	number>=90&&number<100;
+	
+	②ch不是字符q或k
+	ch!='q'&&ch!='k';
+	
+	③number 在1~9之间(包括1、9)，但不是5
+	（number>=1&&number<=9）&&number!=5;
+
+	④number不在1~9之间
+	number<1||number>9;
+
+	3.下面的程序关系表达式过于复杂，而且还有些错误，请简化并改正
+
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int weight, height;//weight以磅为单位 height以英寸为单位
+		scanf_s("%d%d", &weight, &height);
+		if (weight < 100 && height>64)
+		{
+			if (height >= 72)
+				printf("You are very tall for your weight.\n");
+			else
+				printf("You are tall for your weight.\n");
+		}
+		else if (weight > 100 && height < 48)
+			printf("You are quite short for your weight.\n");
+		else
+			printf("Your weight is ideal.\n");		
+		return 0;
+	}
+
+
+
+	4.下列各表达式的值是多少？
+	①5>2			//1
+	②3+4>2&&3<2		//0
+	③x>=y||y>x		//1
+	④d=5+(6>2)		//d=6
+	⑤'x'>'T'?10:5		//10
+	⑥x>y?y>x:x>y		//0
+
+
+	5.下面的程序将打印什么？
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int num;
+		for (num = 1; num <= 11; num++)
+		{
+			if (num % 3 == 0)
+				putchar('$');
+			else
+				putchar('*');
+			putchar('#');
+			putchar('%');
+		}
+		putchar('\n');
+		return 0;
+	}
+		
+	//当num从1-11；每次输出*#%，当num=3/6/9的时候把*换成$,最后回车
+	*#%*#%$#%*#%*#%$#%*#%*#%$#%*#%*#%[\n]
+
+	
+
+	6.下面的程序将打印什么
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int i = 0;
+		while (i < 3)
+		{
+			switch (i++) 
+			{
+			case 0:printf("fat ");
+			case 1:printf("hat ");
+			case 2:printf("cat ");
+			default:printf("Oh no!");
+			}
+			putchar('\n');
+		}
+		return 0;
+	}
+
+	//	i=0;switch(0);输出：fat hat cat Oh no![\n]
+	//	i=1;swithc(1);输出：hat cat Oh no![\n]
+	//	i=2;swithc(2);输出：cat Oh no![\n]
+	//	i=3.不进入while循环；return0；
+
+	7.下面的程序有哪些错误？
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		int lc = 0;//统计小写字母
+		int uc = 0;//统计大写字母
+		int oc = 0;//统计其他字母
+
+		while ((ch = getchar()) != '#')
+		{
+			if (ch <= 'z'&&ch >= 'a')
+				lc++;
+			else if (ch <= 'Z'&&ch >= 'A')
+				uc++;
+			else
+				oc++;
+		}
+		printf("%d lowercase,%d uppercase,%d other.\n", lc, uc, oc+1);
+		return 0;
+	}
+
+
+	8.下面程序将输出什么？
+	#include<stdio.h>
+	int main(void)
+	{
+		int age = 20;
+		while (age++ <= 65)
+		{
+			if ((age % 20) == 0)
+				printf("You are %d.Here is a raise.\n", age);
+			if (age = 65)					//***
+				printf("You are %d.Here is your gold watch.\n", age);
+		}
+		return 0;
+	}
+
+	//=不是==；当age=20测试完成，age=21，age在第二个if被赋值成65，进入下一个循环后一直被重置；
+	输出：重复输出65那一句；
+
+
+
+	9.给定下面的输入时，以下程序将打印什么？
+
+	q
+	c
+	h
+	b
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		while ((ch = getchar()) != '#')
+		{
+			if (ch == '\n')
+				continue;
+			printf("Step 1\n");
+			if (ch == 'c')
+				continue;
+			else if (ch == 'b')
+				break;
+			else if (ch == 'h')
+				goto laststep;
+			printf("Step 2\n");
+		laststep:printf("Step 3\n");
+		}
+		printf("Done!\n");
+		return 0;
+	}
+
+
+	//q:	Step 1[\n]Step 2[\n]Step 3[\n]
+	//c:	Step 1[\n]
+	//h:	Step 1[\n]Step 3[\n]
+	//b:	Step 1[\n]Done![\n]
+
+	10.重写练习题9，不使用continue和goto语句
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+
+		while ((ch = getchar()) != '#')
+		{
+			if (ch != '\n')
+			{
+				printf("Step 1\n");
+				if (ch == 'b')
+					break;
+				switch (ch)
+				{			
+				default:printf("Step 2\n");
+				case 'h':printf("Step 3\n");
+				case 'c':;			
+				}			
+				ch = getchar();				
+			}
+			else
+				ch = getchar();
+		}
+		printf("Done!\n");
+		return 0;
+	}
+
+
+
+
+7.12	编程练习
+
+	1.编写一个程序读取输入，读到#字符停止，然后报告读取的空格数、换行符数和其他字符的数量
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		int k=0;//空格数量
+		int h=0;//换行符数量
+		int q=0;//其他字符数量
+
+		while ((ch = getchar()) != '#')
+		{
+			if (ch == ' ')
+				k++;
+			else if (ch == '\t')
+				h++;
+			else
+				q++;	
+		}
+		printf("%d space,%d tab,%d other.\n", k, h, q+1);
+		return 0;
+	}
+
+
+	2.编写一个程序读取输入，读到#字符停止。程序要打印每个输入的字符以及对应的ASCII编码
+	一行打印8个字符，建议使用字符计数和求模运算符%在每8个循环周期时打印一个换行符
+	
+	//此程序无法包含回车[\n]
+
+	#include<stdio.h>
+	int main(void)
+	{
+		int n=0;//计数器；
+		char ch;
+		while ((ch = getchar()) != '#')
+		{		
+			if (ch == '\n')
+				continue;
+			if (n % 8 == 0)
+				printf("\n");		
+			printf("%c-%d	", ch, ch);
+			n++;
+		}
+		return 0;
+	}
+		
+	
+
+	3.编写一个程序，读取整数直到用户输入0，输入结束后，程序应报告用户输入的偶数(不含0)个数；
+	以及这些偶数的平均值、输入的奇数及其奇数的平均值.
+
+	#include<stdio.h>
+	#include<ctype.h>
+	int main(void)
+	{
+		int num;
+		int n=0, m=0;
+		float tn=0,tm=0;
+		while ((scanf_s("%d", &num) == 1) && num != 0)
+		{
+			if (num % 2 == 0)
+			{
+				tn = tn + num;
+				n++;
+			}
+			if (num % 2 != 0)
+			{
+				tm = tm + num;
+				m++;
+			}
+		}
+		printf("odd number=%d,average=%.2f.\n",m,tm/m);
+		printf("even number=%d,average=%.2f.\n",n,tn/n);
+		return 0;
+	}
+
+
+
+
+	
+	
+
+
+
+
+
+
 
 
 
