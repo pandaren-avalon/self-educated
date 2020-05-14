@@ -5885,6 +5885,843 @@ int main(void)
 	C提供了大量的工具让输入更顺畅，处理过程更顺利
 	本节的目标是，指导读者解决这些问题并创建更友好的用户界面，让交换数据输入更方便，减少错误输入的影响
 
+8.5.1	使用缓冲输入
+	缓冲输入让用户在把输入发给程序之前，可以编辑输入；
+	缺点是缓冲输入要求用户输入回车键发送输入，这一动作也chuan'gei传送了换行符，程序必须处理这个换行符
+	示例程序：
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		int guess = 1;
+		printf("Pick an integer from 1 to 100.I will try to guss it.\n");
+		printf("Respond with a y if my guess is right and with n if ti's wrong.\n");
+		printf("Uh...is your number %d?.\n", guess);
+		while (getchar() != 'y')
+			printf("Well,then,is it %d?\n", ++guess);
+		printf("I knew I could do it!\n");
+		return 0;
+	}
+
+
+	注意：每次输入n时候，程序会打印两条guess，
+	由于程序读取n作为用户否定了数字1，然后还读取了一个换行符否定了数字2
+	一个解决方案是，使用while循环丢弃输入行最后剩余的内容，包括换行符
+	这种方法的优点是，能把no和no way这样的响应视为简单的n；下面用循环修正这个问题
+	while (getchar() != 'y')
+	{
+		printf("Well,then,is it %d?\n", ++guess);
+		while (getchar() != '\n')
+			continue;
+	}	
+
+	这次解决了换行符的问题，但是程序会把其他非法输入的字母视为n；
+	我们用if语句筛选其他响应
+	首先添加一个char类型的变量储存响应
+	char response;
+	修改循环如下：
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char response;
+		int guess = 1;
+		printf("Pick an integer from 1 to 100.I will try to guss it.\n");
+		printf("Respond with a y if my guess is right and with n if ti's wrong.\n");
+		printf("Uh...is your number %d?.\n", guess);
+		while ((response=getchar()) != 'y')//输入不是y时候循环
+		{		
+			if (response == 'n')//如果输入n,继续猜
+				printf("Well,then,is it %d?\n", ++guess);
+			else				//如果是非法输入其他字母
+				printf("Sorry,I understand only y or n.\n");
+			while (getchar() != '\n')//跳过回车键
+				continue;
+		}	
+		printf("I knew I could do it!\n");
+		return 0;
+	}
+
+	当然无论你的提示写的多么清楚，总会有人误解，然后抱怨这个程序设计的多么糟糕，
+	（确实很糟糕，输入两次回车后就废了）
+
+	#include<stdio.h>
+	int main(void)
+	{
+		char response;
+		int guess = 1;
+		printf("Pick an integer from 1 to 100.I will try to guss it.\n");
+		printf("Respond with a y if my guess is right and with n if ti's wrong.\n");
+		printf("Uh...is your number %d?.\n", guess);
+		while ((response = getchar()) != 'y')//输入不是y时候循环
+		{
+			if (response == 'n')//如果输入n,继续猜
+				printf("Well,then,is it %d?\n", ++guess);
+			else				//如果是非法输入其他字母
+				printf("Sorry,I understand only y or n.\n");
+			if (response == '\n')
+				;
+			else 
+			{
+				while (getchar() != '\n')//跳过回车键
+					continue;
+			}
+		}
+		printf("I knew I could do it!\n");
+		return 0;
+	}
+
+
+8.5.2	混合数值和字符输入
+
+	假设程序要求用getchar()处理字符输入，用scanf()处理数值输入，这两个函数都能很好的完成任务
+	但是不能把它们混用；
+	getchar()读取每个字符，包括空格、制表符和换行符
+	scanf()在读取数字时候则会跳过空格、制表符和换行符
+
+	下面用示例程序解释这种情况导致的问题
+	程序读入一个字符和两个数字，然后根据输入的两个数字指定的行数和列数打印该字符
+
+	#include<stdio.h>
+	void display(char cr, int lines, int width);
+	int main(void)
+	{
+		int ch;			//待打印字符
+		int rows, cols;	//列和行
+		printf("Enter a character and tow integers:\n");
+		while ((ch = getchar()) != '\n')
+		{
+			scanf_s("%d %d", &rows, &cols);
+			display(ch, rows, cols);
+			printf("Enter another character and two integers:\n");
+			printf("Enter a newline to quit.\n");
+		}
+		printf("bye.\n");
+		return 0;
+	}
+	void display(char cr, int lines, int width)
+	{
+		int row, col;
+		for (row = 1; row <= lines; row++)
+		{
+			for (col = 1; col <= width; col++)
+				putchar(cr);
+			putchar('\n');
+		}
+	}
+
+
+	运行程序后发现只能执行一次输出，等第二次循环还未开始就直接结束了
+	原因是第一次输入的结尾输入回车后，回车被getchar()读取了，进行下一轮迭代
+	因为输入是回车，不会进入while循环，直接进入程序终止；输出Bye.
+
+	要解决这个问题，程序要跳过一轮输入结束与下一轮开始之间所有的换行符或者空格
+	另外，如果该程序不在getchar()测试时，而是在scanf()阶段终止程序会更好，下面是修复后：
+
+	#include<stdio.h>
+	void display(char cr, int lines, int width);
+	int main(void)
+	{
+		int ch;			//待打印字符
+		int rows, cols;	//列和行
+		printf("Enter a character and tow integers:\n");
+		while ((ch = getchar()) != '\n')
+		{
+			if (scanf_s("%d %d", &rows, &cols) != 2)
+				break;		
+			display(ch, rows, cols);
+			while (getchar() != '\n')
+				continue;
+			printf("Enter another character and two integers:\n");
+			printf("Enter a newline to quit.\n");
+		}
+		printf("bye.\n");
+		return 0;
+	}
+	void display(char cr, int lines, int width)
+	{
+		int row, col;
+		for (row = 1; row <= lines; row++)
+		{
+			for (col = 1; col <= width; col++)
+				putchar(cr);
+			putchar('\n');
+		}
+	}
+
+
+
+
+8.6	输入验证
+
+	在实际应用中，用户不一定会按照程序的指令行事；用户的输入和程序期望的不匹配时常发生；
+	作为程序猿，除了完成编程的本职，还要事先预料一些可能的输入错误，检测并处理这些问题
+
+	例如你编写了一个处理非负数整数的循环，但用户很可能输入一个负数；可用关系表达式来排除
+	long n;
+	scanf_s("%ld",&n);
+	while(n>=0)
+	{
+		******
+		scanf_s("%ld",&n);
+	}
+
+	另一类潜在的陷阱是，用户可能输入错误类型的值，如字符q
+	这种情况的排除方法是检车scanf()函数的返回值；
+	
+	long n;	
+	while（(scanf_s("%ld",&n)==1）&&n>=0)
+	{
+		******
+		scanf_s("%ld",&n);
+	}
+
+	当用户输入错误类型的值时，程序结束；
+	如果需要做到不退出而继续让用户再次输入正确的值，需要处理有问题的输入
+	如果scanf()没有成功读取，就会将其留在输入队列中；
+	这里要明确，输入实际上是字符流，可以使用getchar()函数逐字符的读取输入；
+	甚至可以把这些想法都结合在一个函数中，如下：
+	#include<stdio.h>
+	long get_long(int m);
+	int main(void)
+	{
+		long n;
+		scanf_s("%ld", &n);
+		get_long(n);
+		printf("done!");
+		return 0;
+	}
+	long get_long(int m)
+	{
+		long input;
+		char ch;
+		while (scanf_s("%ld", &input) != 1)	//如果是非法输入(非整数)
+		{
+			while ((ch = getchar()) != '\n')	//当非法输入不是回车的时候
+				putchar(ch);//处理错误的输入
+			printf(" is not an integer.\n");	//提示
+			printf("Please enter an integer value.\n");	//提示
+		}
+		return input;
+	}
+
+
+	该函数要把一个int类型的值读入变量input中，如果读取失败，函数进入外层while循环
+	然后内层循环逐字符的读取错误输入；注意：该函数丢弃该输入行的所有剩余内容；
+	还有一个方法是，只丢弃下一个字符或单词，然后该函数提示用户再次输入；
+	外层循环重复运行，直到用户成功输入整数，此时scanf()的返回值为1
+	*********************************************************************************
+	该程序有bug：如输入11.25，程序会舍弃.25，但是此时11仍然留在输入流里，
+	程序继续提示输入，如此时输入12；程序正常运行；如把子函数返回给主函数，
+	并输出input；此时输出input的值为11，而不是12；
+	*********************************************************************************
+
+
+	在用户输入整数后，程序可以检查该值是否有效；
+	考虑一个例子，要求用户输入一个上限和一个下限来定义值的范围
+	你可能希望程序检查第一个值是否大于第二个值(假设第一个值是较小的那个)
+	除此之外还要检查这些值是否在允许范围内
+	例如当前的档案查找一般不接受1958年以前和2014年以后的查询任务，这个限制可以在一个函数中实现
+
+	假设程序中包含了stdbool.h头文件
+	如果当前系统不允许使用_Bool，把bool替换成int，把true替换成1，false替换成0即可
+	注意，如果输入无效，该函数返回true，所以函数名为bad_limits():
+	bool bad_limits(long begin, long end, long low, long high)
+	{
+		bool not_good = false;
+		if (begin > end)
+		{
+			printf("%ld isn't smaller than %ld.\n", begin, end);
+			not_good = true;
+		}
+		if (begin < low || end < low)
+		{
+			printf("values must be %ld or greater.\n",low);
+			not_good = true;
+		}
+		if (begin > high || end > high)
+		{
+			printf("value must be %ld or less.\n", high);
+			not_good = true;
+		}
+		return not_good;
+	}
+
+
+	下面的程序使用了上面两个子函数来为一个进行算术运算的函数提供整数，
+	该函数计算特定范围内所有整数的平方和；限制上下限是-10000000到+10000000
+
+
+#include<stdio.h>
+#include<stdbool.h>
+long get_long(void);//验证输入是一个整数
+bool bad_limits(long begin, long end, long low, long high);//验证范围是否有效
+double sum_squares(long a, long b);//计算a-b之间的整数平方和
+
+int main(void)
+{
+	const long MIN = -10000000L;//范围下限
+	const long MAX = +10000000L;//范围上限
+	long start;					//用户指定的范围最小值
+	long stop;					//用户指定的范围最大值
+	double answer;
+	printf("This program computes the sum of the squares of integer in a range.\n");
+	printf("The lower bound should not be less than -10000000\n");
+	printf("And the upper bound should not be more than +10000000\n");
+	printf("Enter the limits(enter 0 for bouth limits to quit):\n");
+	printf("lower limit: ");
+	start = get_long();
+	printf("upper limit: ");
+	stop = get_long();
+	while (start != 0 || stop != 0)//上下限同时为0退出
+	{
+		if (bad_limits(start, stop, MIN, MAX))
+			printf("Please try again.\n");
+		else
+		{
+			answer = sum_squares(start, stop);
+			printf("The sum of the squares of the integers from %ld to %ld is %g\n", 
+				start, stop, answer);
+		}
+		printf("Enter the limits(enter 0 for bouth limits to quit):\n");
+		printf("lower limit: ");
+		start = get_long();
+		printf("upper limit: ");
+		stop = get_long();
+	}
+	printf("Done!\n");
+	return 0;
+}
+long get_long(void)
+{
+	long input;
+	char ch;
+	while (scanf_s("%ld", &input) != 1)
+	{
+		while ((ch = getchar()) != '\n')
+			putchar(ch);
+		printf(" is not an integer.\n");
+		printf("Please enter an integeer value.\n");
+	}
+	return input;
+}
+double sum_squares(long a, long b)
+{
+	double total = 0;
+	long i;
+	for (i = a; i <= b; i++)
+		total += (double)i*(double)i;
+	return total;
+}
+bool bad_limits(long begin, long end, long low, long high)
+{
+	bool not_good = false;
+	if (begin > end)
+	{
+		printf("%ld isn't smaller than %ld.\n", begin, end);
+		not_good = true;
+	}
+	if (begin < low || end < low)
+	{
+		printf("values must be %ld or greater.\n",low);
+		not_good = true;
+	}
+	if (begin > high || end > high)
+	{
+		printf("value must be %ld or less.\n", high);
+		not_good = true;
+	}
+	return not_good;
+}
+
+
+	//long get_long(void)子函数存在如11.5这样的输入误差无法擦除11这样的bug
+
+
+
+
+8.6.1	分析程序
+
+	程序应遵循模块化的编程思想，使用独立函数(模块)来验证输入和管理显示
+	程序越大使用模块化编程就越重要
+	
+	main()函数管理程序流，为其他函数委派任务；它用：
+	get_long()获取值、
+	while循环处理值、
+	bad_limits()函数检查值是否有效、
+	sum_squares函数处理实际计算；
+
+	
+8.6.2	输入流和数字
+	在编写处理错误输入的代码时，应该清楚C是如何处理输入的，如：
+	is 28 12.4
+	对我们而言，这就像是一个由字符、整数和浮点数组成的字符串
+	但对于C而言这是一个字节流。
+	第1个字节：i
+	第2个字节：s
+	第3个字节：空格
+	第4个字节：2
+	……
+
+	所以如果get_long()函数处理这一行输入，
+	第一个字符是非数字，那么整行输入都被丢弃，包括其中的数字；
+	
+	虽然输入流由字符组成，但是也可以设置scanf()函数把它们转换成数值，例如：
+	42
+	①如果使用%c转换说明，它只会读取字符4并且将其储存在char类型的变量中
+	②如果使用%s转换说明，它会读取字符4和2这两个字符，并将其储存在字符数组中
+	③如果使用%d转换说明，scanf()同样会读取两个字符，但是随后会计算出它们对应的整数值：
+		4*10+2；即42，然后将表示该整数的二进制数存储在int类型的变量中
+	④如果使用%f转换说明，scanf()也会读取两个字符，计算出它们对应的数值42.0，存储在float变量中
+	
+	简而言之，输入由字符组成，但是scanf()可以把输入转换成整数值或浮点数值
+	使用转换说明限制了可接受输入的字符类型，而getchar()和使用%c的scanf()接受所有字符
+
+	
+8.7	菜单浏览
+	许多计算机程序都把菜单作为用户界面的一部分
+	菜单给用户提供方便的同时，却给程序员带来了一些麻烦
+	我们看看其中涉及了哪些问题
+
+	菜单给用户提供了一份响应程序的选项；假设：
+	Enter the letter of your choice:
+	a.advice	b.bell
+	c.count	d.quit
+	
+	理想状态是，用户输入程序所列选项之一，然后程序根据输入选择完成任务；
+	目标1：用户遵循指令时程序顺利运行
+	目标2：当用户没有遵循指令，程序也能顺利运行
+	
+	显而易见，目标2实现难度大，因为很难预料用户在程序使用时所有错误情况
+
+	现在的应用程序通常使用图形界面，可以点击按钮、查看对话框、触摸图标，
+	而不是我们示例中的命令行模式；
+	但是两者的处理过程大致相同：给用户提供选项，检查并执行用户的响应
+	保护程序不受误操作的影响；
+	除了界面不同，它们底层的程序结构也几乎相同
+	但是，使用图形界面更容易通过限制选项控制输入
+
+	
+8.7.1	任务
+
+	我们来更具体地分析一个菜单程序需要执行哪些任务
+	它需要获取用户的响应，根据响应来执行动作
+	另外程序应该提供返回菜单的选项
+	switch是根据选项决定行为的好工具，while语句可以实现重复访问菜单
+	因此我们写出以下伪代码：
+		获取选项
+		当选项不是'q'时
+			转至相应的选项并执行
+			获取下一个选项
+
+8.7.2	使执行更顺利
+
+	当你决定实现这个程序时，就要开始考虑如何让程序顺利运行
+	(处理正确输入和错误输入时都能顺利运行)
+	例如你做的时让获取选项部分的代码筛选掉不合适的响应，只把正确的响应传入switch
+	这表明需要为输入过程提供一个只返回正确响应的函数，程序结构如下：
+
+	#include<stdio.h>
+	char get_choice(void);
+	void count(void);
+	int main(void)
+	{
+		int choice;
+		while((choice = get_choice()) != 'q')
+		{
+			switch (choice)
+			{
+				case 'a':printf("Buy low,sell high.\n");
+					break;
+				case 'b':putchar("\a");
+					break;
+				case 'c':count();
+					break;
+				default:printf("Program error!\n");
+					break;
+			}
+		}
+		return 0;
+	}
+	定义函数getchar()只能返回abc和q，下面是一个简单笨拙的方法：
+	
+	char get_choice(void)
+	{
+		int ch;
+		printf("Enter the letter of your choice:\n");
+		printf("a.advice	b.bell\nc.count	q.quit\n");
+		ch = getchar();
+		while ((ch<'a' || ch>'c') && ch != 'q')
+		{
+			printf("Please respond with a,b,c,or q.\n");	
+			ch = getchar();		
+		}
+		return ch;
+	}
+
+	
+	缓冲输入依旧带来麻烦，程序每次把用户输入的回车键产生的换行符视为错误响应
+	为了让程序的界面更流畅，该函数应该跳过这些换行符
+	这类问题有多种解决方案
+	一种是用名为get_first()的新函数替换getchar()函数，读取一行的第一个字符并丢弃剩余字符
+	这种方法的优点是，把类似act这样的输入视为简单的a，不会把act中的c继续视为下一个响应
+	修改如下：
+	#include<stdio.h>
+	char get_choice(void);
+	void count(void);
+	char get_first(void);
+	int main(void)
+	{
+		int choice;
+		while((choice = get_choice()) != 'q')
+		{
+			switch (choice)
+			{
+				case 'a':printf("Buy low,sell high.\n");
+					break;
+				case 'b':putchar("\a");
+					break;
+				case 'c':count();
+					break;
+				default:printf("Program error!\n");
+					break;
+			}
+		}
+		return 0;
+	}
+	char get_choice(void)
+	{
+		int ch;
+		printf("Enter the letter of your choice:\n");
+		printf("a.advice	b.bell\nc.count	q.quit\n");
+		ch = get_first();
+		while ((ch<'a' || ch>'c') && ch != 'q')
+		{
+			printf("Please respond with a,b,c,or q.\n");	
+			ch = get_first();		
+		}
+		return ch;
+	}
+	char get_first(void)
+	{
+		int ch;
+		ch = getchar();
+		while (getchar() != '\n')
+			continue;
+		return ch;
+	}
+
+	
+8.7.3	混合字符和数值输入
+
+	前面分析过混合字符和数值输入会产生一些问题，创建菜单也有这样的问题
+	例如，假设count()函数的代码如下：
+	
+	#include<stdio.h>
+char get_choice(void);
+void count(void);
+char get_first(void);
+int main(void)
+{
+	int choice;
+	while((choice = get_choice()) != 'q')
+	{
+		switch (choice)
+		{
+			case 'a':printf("Buy low,sell high.\n");
+				break;
+			case 'b':putchar("\a");
+				break;
+			case 'c':count();
+				break;
+			default:printf("Program error!\n");
+				break;
+		}
+	}
+	return 0;
+}
+char get_choice(void)
+{
+	int ch;
+	printf("Enter the letter of your choice:\n");
+	printf("a.advice	b.bell\nc.count		q.quit\n");
+	ch = get_first();
+	while ((ch<'a' || ch>'c') && ch != 'q')
+	{
+		printf("Please respond with a,b,c,or q.\n");	
+		ch = get_first();		
+	}
+	return ch;
+}
+char get_first(void)
+{
+	int ch;
+	ch = getchar();
+	while (getchar() != '\n')
+		continue;
+	return ch;
+}
+void count(void)
+{
+	int n, i;
+	printf("Count how far?Enter an integer:\n");
+	scanf_s("%d", &n);
+	for (i = 1; i <= n; i++)
+		printf("%d\n", i);
+	while (getchar() != '\n')
+		continue;
+}
+	
+	
+
+	最后菜单程序：
+
+	#include<stdio.h>
+char get_choice(void);
+void count(void);
+char get_first(void);
+int get_int(void);
+int main(void)
+{
+	int choice;
+	void count(void);
+	while((choice = get_choice()) != 'q')
+	{
+		switch (choice)
+		{
+			case 'a':printf("Buy low,sell high.\n");
+				break;
+			case 'b':putchar("\a");
+				break;
+			case 'c':count();
+				break;
+			default:printf("Program error!\n");
+				break;
+		}
+	}	
+	return 0;
+}
+void count(void)
+{
+	int n, i;
+	printf("Count how far?Enter an integer:\n");
+	n = get_int();	
+	for (i = 1; i <= n; i++)
+		printf("%d\n", i);
+	while (getchar() != '\n')
+		continue;
+}
+char get_choice(void)
+{
+	int ch;
+	printf("Enter the letter of your choice:\n");
+	printf("a.advice	b.bell\nc.count		q.quit\n");
+	ch = get_first();
+	while ((ch<'a' || ch>'c') && ch != 'q')
+	{
+		printf("Please respond with a,b,c,or q.\n");	
+		ch = get_first();		
+	}
+	return ch;
+}
+char get_first(void)
+{
+	int ch;
+	ch = getchar();
+	while (getchar() != '\n')
+		continue;
+	return ch;
+}
+int get_int(void)
+{
+	int input;
+	char ch;
+	while (scanf_s("%d", &input) != 1)
+	{
+		while ((ch = getchar()) != '\n')
+			putchar(ch);
+		printf(" is not an integer.\n");
+		printf("Please enter an integer.\n");
+	}
+	return input;
+}
+
+	
+
+
+
+8.8	关键概念
+	C程序把输入作为传入的字节流
+	getchar()把每一个字符解释成一个字符编码
+	scanf()韩式以同样的方式看待输入，可根据转换说明，转化成数值
+	许多操作系统都提供重定向，允许文件替代键盘输入，用文件替代显示器输出
+
+	程序通常接受特殊形式的输入，可以在设计程序时考虑用户在输入时可能犯的错
+	在输入验证部分处理这些错误情况，让程序更强健更友好
+	
+	对于一个小程序，输入验证可能是代码中最复杂的部分，这类问题有多种方案处理
+	如可以终止程序，也可以给用户提供多次或无限次机会重新输入
+
+8.9	本章小结
+	
+8.10	复习题
+
+	1.putchar(getchar())是一个有效表达式，它能实现什么功能？getchar(putchar())是否也是有效表达方式？
+	//输出读取到的字符包括空格制表回车；getchar(putchar())不是有效表达式,putchar()内缺少参数；
+	getchar(putchar(getchar()))
+	
+	2.下面的语句分别完成什么任务？
+	a.putchar('H');	//输出字符 H
+	b.putchar('\007');	//如果系统使用ASCII，发处一声警报，
+	c.putchar('\n')	//输出换行符
+	d.putchar('\b')	//退后一格
+
+	3.假设有一个名为count的可执行程序，用于统计输入的字符数
+	设计一个使用count程序统计essay文件中字符数的命令行
+	并把统计结果保存在essayct文件中	
+	count<essay>essayct
+	
+	4.给定复习题3中的程序和文件，下面哪一条是有效的命令？
+	a.essayct<essay	//有效
+	b.count essay
+	c.esay>count
+	
+	5.EOF是什么？//文件结尾标记
+	
+	6.对于给定的输出(ch 是int类型，而且是缓冲输入)，下面各段程序的输出分别是？
+	a.	输入如下：
+		If you quit,i will.[enter]
+		程序段如下：
+		while((ch=getchar())!='i')
+			putchar(ch);
+		//If you qu
+
+	b.	输入如下：
+		Harhar[enter]
+		程序段如下
+		while((ch=getchar())!='\n')
+		{	
+			putchar(ch++);
+			putchar(++ch);
+		}
+
+		HJacrthjacrt
+
+	7.C如何处理不同计算机系统中的不同文件和换行约定？
+	8.在使用缓冲输入的系统中，把数值和字符混合输入会遇到什么潜在问题？
+
+	
+8.11	编程练习
+	下面的一些程序要求输入以EOF终止
+	如果你的操作系统很难或根本无法使用重定向，请使用一些其他测试来终止输入
+	
+	1.设计一个程序，统计在读到文件结尾之前读取的字符数
+	#include<stdio.h>
+	int main(void)
+	{
+		char ch;
+		int n=0;
+		while ((ch = getchar()) != EOF)		
+			n++;
+		printf("%d",n);	
+		return 0;
+	}
+	
+	2.编写一个程序，在遇到EOF之前，把输入作为字符流读取。
+	程序要打印每个输入的字符及其相应的ASCII十进制值；
+	tips：空格符前面的字符都是非打印字符，要特殊处理
+	如果非打印字符是换行符或制表符，则分别打印\n或\t
+	否则，使用控制字符表示法，例如：
+	ASCII的1是ctrl+A,可显示为^A
+	注意A的ASCII值是ctrl+A的值加上64
+	其他非打印字符也有类似关系；
+	除每次遇到换行符打印新的一行以外，每行打印10对值
+	
+
+#include<stdio.h>
+int main(void)
+{
+	char ch;
+	int n,i,k;
+	i=0;
+	while ((ch = getchar()) !=EOF)
+	{
+		n = (int)ch;
+		if (n < 32) 
+		{
+			if (ch == 10)
+			{
+				printf("\\n--%d	\n", n);
+				i = -1;
+			}
+			else if (ch == 9)
+			{
+				printf("\\t--%d	", n);
+			}
+			else
+			{
+				k = n + 64;
+				printf("%c%c--%d	", 94, k,n);
+			}
+		}
+		else
+		{
+			putchar(ch);
+			printf("--%d	", n);
+		}
+		i++;	
+		while (i%10==0)
+		{
+			printf("\n");
+			break;
+		}
+	}
+	return 0;
+}
+	
+	
+
+	3.编写一个程序，在遇到EOF之前，把输入作为字符流读取。
+	该程序要报告输入中的大写字母和小写字母个数；
+	假设大小写字母数值是连续的，或者使用ctype.h库中的分类函数
+	#include<stdio.h>
+	#include<ctype.h>
+	int main(void)
+	{
+		char ch;
+		int up=0,low=0,n=0;
+		while ((ch = getchar()) != EOF)
+		{
+			if (isupper(ch))
+				up++;
+			else if (islower(ch))
+				low++;
+			else
+				n++;
+		}
+		printf("upper:%d\nlower:%d\n", up, low);		
+		return;
+	}
+	
+
+	
+
+	4.编写一个程序，在遇到EOF之前，把输入作为字符流读取
+	该程序要报告平均每个单词的字母数
+	不要把空白统计为单词的字母，实际上标点符号也不应该统计
+	(考虑使用ctype.h的ispunct()函数：标点符号)
+
+	
+
+	
+
+
+
+
+
+
+
+
 
 	
 	
