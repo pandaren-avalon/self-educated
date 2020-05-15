@@ -6711,14 +6711,195 @@ int main(void)
 	不要把空白统计为单词的字母，实际上标点符号也不应该统计
 	(考虑使用ctype.h的ispunct()函数：标点符号)
 
-	
+#include<stdio.h>
+#include<ctype.h>
+int main(void)
+{
+	char ch;
+	int n=0, m=0, k=0;//单词数量，字母数量，标记
+	double average;	
+	while ((ch = getchar()) != EOF)
+	{
+		while (ch != '\n'&&ch != '\t'&&ch != ' ' && !ispunct(ch))
+		{
+			if (k == 0)
+			{m++; n++;k = 1; break;}
+			else
+			{m++;k = 1; break;}
+		}
+		if (ch == '\n' || ch == '\t' || ch == ' ' || ispunct(ch))
+			k = 0;
+	}
+	average = (double)m / (double)n;
+	printf("%d	%d	%.2f", m, n, average);
+	return 0;	
+}
 
 	
 
 
+	5.修改猜字数游戏，使用更智能的猜测策略，例如程序最初猜50；询问用户大了还是小了
+	如果猜小了，那么下一次猜测的值应该是50和100的中值，也就是75；
+	如果这次猜大了，那么下一次猜测的值应该是50和75的中值，等等
+	使用二分查找策略，如果用户没有欺骗程序，那么程序很快就会猜到正确答案
+#include<stdio.h>
+#define start 50
+int main(void)
+{
+	char response;
+	int guess = start;
+	int big=101, small=0;
+	printf("Pick an integer from %d to %d.I will try to guss it.\n",small+1,big-1);
+	printf("Respond with a y if my guess is right and with n if ti's wrong.\n");
+	printf("Respond with s if ti's small.\n");	//猜小了，往大猜
+	printf("Respond with b if ti's big.\n");	//猜大了，往小猜
+	printf("Uh...is your number %d?.\n", guess);
+	while ((response = getchar()) != 'y')//输入不是y时候循环
+	{
+		if (response == 'b')//猜大了，往小猜
+		{
+			big = guess;
+			guess = (guess+small)/2;
+			printf("Well,then,is it %d?\n",guess);
+		}
+		else if(response=='s')//猜小了，往大猜
+		{
+			small = guess;
+			guess = (guess + big) / 2;
+			printf("Well,then is it %d?\n", guess);
+		}
+		else				//如果是非法输入其他字母
+			printf("Sorry,I understand only 'y' or 's' or 'b'.\n");
+		if (response == '\n')
+			;
+		else
+		{
+			while (getchar() != '\n')//跳过回车键
+				continue;
+		}
+	}
+	printf("I knew I could do it!\n");
+	return 0;
+}
+	
 
 
 
+	6.修改程序8.8中的get_first()函数，让该函数返回读取的第一个非空白字符
+	并在一个简单的程序中测试
+
+#include<stdio.h>
+char get_first(void);
+int main(void)
+{	
+	char m;
+	m = get_first();
+	putchar(m);
+	return 0;
+}
+char get_first(void)
+{
+	int ch;
+	ch = getchar();	
+	while (1) 
+	{
+		if (ch == ' ' || ch == '\n' || ch == '\t')
+		{
+			ch = getchar();
+			continue;
+		}
+		else
+			break;
+	}
+	return ch;
+}
+
+
+
+
+	8.编写一个程序，显示一个提供加减乘除法的菜单，获得用户选择的选项后，
+	程序提示用户输入两个数字，然后执行用户刚才选择的操作。
+	该程序只接受菜单提供的选项
+	程序使用float类型的变量存储用户输入的数字，如果用户输入失败，允许再次输入
+	除法计算时如果用户输入第二个数0，提示用户重新输入一个新值
+	该程序的一个运行示例如下：
+	Enter the operation of your choice:
+	a.  add		s.subtract
+	m. multiply 	d.divide
+	q.  quit
+	a//输入a
+	Enter first number:22.4//输入22.4
+	Enter second number:one//输入one
+	one is not an number.
+	Please enter a number,such as 2.5 -1.78E8,or 3:1//输入1
+	22.4+1=23.4
+	Enter the operation of your choice:
+	a.  add		s.subtract
+	m. multiply 	d.divide
+	q.  quit
+	d//输入d
+	Enter first number:18.4//输入18.4
+	Enter second number:0//输入0
+	Enter a number other than 0:0.2//输入0.2
+	18.4/0.2=92
+	Enter the operation of your choice:
+	a.  add		s.subtract
+	m. multiply 	d.divide
+	q.  quit
+	q//输入q
+	Bye.
+
+	
+
+#include<stdio.h>
+float add(add1,add2);		//加法子函数
+float subtract(sub1,sub2);	//减法子函数
+float multiply(mul1,mul2);	//乘法子函数
+float divide(div1,div2);	//除法子函数
+char menu(void);			//菜单
+float input(put);			//输入
+int main(void)
+{
+	char ch;
+	float num1=0,num2=0;
+	menu();
+	while((ch=getchar())!='q')
+	{
+		if (ch == '\n' || ch == '\t' || ch == ' ')
+			continue;
+		switch (ch)
+		{
+		case 'a':add(num1,num2);
+		}
+	}
+
+	return 0;
+}
+
+char menu(void)
+{
+	printf("Enter the operation of your choice:\n");
+	printf("a.add		s.subtract\nm.multiply	d.divide\nq.quit\n");	
+	return 0;
+}
+float add(float add1, float add2)
+{	
+	printf("Enter first number:");
+	input(add1);
+	printf("Enter second number:");
+	input(add2);
+	printf("%f+%f=%.2f\n", add1, add2, add1 + add2);	
+	return 0;
+}
+float input(float put)
+{	
+	if ((scanf_s("%f", &put)) == 1);
+	else
+		putchar(put);
+		printf("%s is not an number.\n", put);
+		printf("Please enter a number,such as 2.5,-1.78E8,or 3:");
+	return 0;
+}
 
 
 
