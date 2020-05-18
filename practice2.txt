@@ -6849,69 +6849,460 @@ char get_first(void)
 	q//输入q
 	Bye.
 
-	
-
 #include<stdio.h>
-float add(add1,add2);		//加法子函数
-float subtract(sub1,sub2);	//减法子函数
-float multiply(mul1,mul2);	//乘法子函数
-float divide(div1,div2);	//除法子函数
-char menu(void);			//菜单
-float input(put);			//输入
+void add(float add1, float add2);	//加法子函数
+void subtract(float sub1, float sub2);	//减法子函数
+void multiply(float mul1, float mul2);	//乘法子函数
+void divide(float div1, float div2);	//除法子函数
+void menu(void);		//菜单
+float input(void);		//输入
+char getfirst(void);	//首字母选项
 int main(void)
 {
 	char ch;
-	float num1=0,num2=0;
+	float num1 = 0, num2 = 0;
 	menu();
-	while((ch=getchar())!='q')
+	while ((ch = getfirst()) != 'q')
 	{
-		if (ch == '\n' || ch == '\t' || ch == ' ')
-			continue;
 		switch (ch)
 		{
-		case 'a':add(num1,num2);
+		case 'a':add(num1, num2); menu(); getchar(); continue;
+		case 's':subtract(num1, num2); menu(); getchar(); continue;
+		case 'm':multiply(num1, num2); menu(); getchar(); continue;
+		case 'd':divide(num1, num2); menu(); getchar(); continue;
+		default:printf("please enter a,s,m,d or q to quit.\ntry again.\n"); continue;
 		}
 	}
-
+	printf("Bye.");
 	return 0;
 }
-
-char menu(void)
+void menu(void)
 {
 	printf("Enter the operation of your choice:\n");
-	printf("a.add		s.subtract\nm.multiply	d.divide\nq.quit\n");	
-	return 0;
+	printf("a.add		s.subtract\nm.multiply	d.divide\nq.quit\n");
 }
-float add(float add1, float add2)
-{	
-	printf("Enter first number:");
-	input(add1);
-	printf("Enter second number:");
-	input(add2);
-	printf("%f+%f=%.2f\n", add1, add2, add1 + add2);	
-	return 0;
-}
-float input(float put)
-{	
-	if ((scanf_s("%f", &put)) == 1);
-	else
-		putchar(put);
-		printf("%s is not an number.\n", put);
+float input(void)
+{
+	float put;
+	char ch;
+	while ((scanf_s("%f", &put)) != 1)
+	{
+		while ((ch = getchar()) != '\n')
+			putchar(ch);
+		printf(" is not an number.\n");
 		printf("Please enter a number,such as 2.5,-1.78E8,or 3:");
-	return 0;
+	}
+	return put;
+}
+char getfirst(void)
+{
+	char first;
+	first = getchar();
+	while (getchar() != '\n')
+		continue;
+	return first;
+}
+void add(float add1, float add2)
+{
+	printf("Enter first number:");
+	add1 = input();
+	printf("Enter second number:");
+	add2 = input();
+	printf("%g+%g=%g\n", add1, add2, add1 + add2);	
+}
+void subtract(float sub1, float sub2)
+{
+	printf("Enter first number:");
+	sub1 = input();
+	printf("Enter second number:");
+	sub2 = input();
+	printf("%g-%g=%g\n", sub1, sub2, sub1 - sub2);
+	
+}
+void multiply(float mul1, float mul2)
+{
+	printf("Enter first number:");
+	mul1 = input();
+	printf("Enter second number:");
+	mul2 = input();
+	printf("%g*%g=%g\n", mul1, mul2, mul1*mul2);	
+}
+void divide(float div1, float div2)
+{
+	printf("Enter first number:");
+	div1 = input();
+	printf("Enter second number:");
+	div2 = input();
+	if (div2 == 0)
+	{
+		printf("Enter a number other than 0:");
+		div2 = input();
+	}
+	printf("%g/%g=%g\n", div1, div2, div1 / div2);	
 }
 
 
+【第九章】	函数
+	
+	关键字：return
+	运算符：*(一元)、&(一元)
+	函数及其定义方式
+	如何使用参数和返回值
+	如何把指针变量用作函数参数
+	函数类型
+	ANSI C原型
+	递归
+
+	
+	
+9.1	复习函数
+	函数概念
+	如何组织程序？C的设计思想是，把函数用作结构件块，我们已经用过C标准库的函数
+	如printf() scanf() getchar() putchar()和strlen()；
+	函数是完成特定任务的独立程序代码单元，语法规则定义了函数的结构和使用方式
+	
+	为什么要使用函数？首先，可以省去编写重复代码的苦差。其次，让程序更加模块化
+	提高代码可读性，方便后期修改、完善
+
+	例如编写一个程序完成以下任务：
+	*读入一些列数字
+	*分类这些数字
+	*找出这些数字的平均值；
+	*打印一份柱状图
+
+	可以使用下面的程序
+
+	#include<stdio.h>
+	#define SIZE 50
+	int main(void)
+	{
+		float list[SIZE];
+		readlist(list SIZE);
+		sort(list SIZE);
+		average(list SIZE);
+		bargraph(list SIZE);
+		return 0;
+	}
+	当然还要编写四个函数readlist();sort();average();bargraph()来实现细节
+	
+	描述性函数名能清楚地表达函数的用途和组织，然后单独设计和测试每个函数，直到完成任务
+	如果这些函数能够通用，还可以用于其他程序
+
+	许多程序员喜欢把函数看作是根据传入信息(输入)及其生成的值或响应的动作(输出)来定义的“黑盒”
+	如果不是自己编写的函数，根本不用关心黑盒的内部行为
+	例如使用printf()时，只需知道给该函数传入格式字符串或一些参数以及它生成的输出，无需了解内部代码
+	以这种方式看待函数有助于集中注意力在程序的整体设计，而不是函数的实现细节上
+	因此，在动手编写代码之前，仔细考虑一下函数应该完成什么任务，以及函数和程序整体的关系
+
+	如何了解函数？
+	①如何定义函数
+	②如何调用函数
+	③如何建立函数间的通信
+	
+
+9.1.1	创建并使用简单函数
+	示例：
+	创建一个在一行打印40个星号的函数，并在一个打印表头的程序中使用该函数
+
+#include<stdio.h>
+#define NAME "GIGATHINK,INC."
+#define ADDRESS "101 Megabuck Plaza"
+#define PLACE "Megapolis,CA 94904"
+#define WIDTH 40
+
+void starbar(void);//函数原型
+int main(void)
+{
+	starbar();//调用函数
+	printf("%s\n", NAME);
+	printf("%s\n", ADDRESS);
+	printf("%s\n", PLACE);
+	starbar();
+	return 0;
+}
+void starbar(void)//定义函数
+{
+	int count;
+	for (count = 1; count <= WIDTH; count++)	
+		putchar('*');
+	putchar('\n');
+}
+
+	程序输出如下
+	**********************************
+	GIGATHINK,INC.
+	101 Megabuck Plaza
+	Megapolis,CA 94904	
+	**********************************
+
+	
+9.1.2	分析程序
+	该程序要注意以下几点
+	1.程序在3处使用了starbar标识符：
+		函数原型：告诉编译器函数starbar()的类型
+		函数调用：表明此处执行函数
+		函数定义：明确地指定了函数要做什么
+
+	2.函数和变量一样，有多种类型，任何程序在使用函数之前都要声明该函数的类型
+	因此在main()函数定义的前面出现了ANSI C风格的函数原型
+	void starbar(void);
+	()圆括号表明starbar是一个函数名；
+	第一个void是函数类型，void类型表明函数没有返回值
+	第二个void表明该函数不带参数；
+	分号表明这是在声明函数，不是定义函数
+
+	也就是说，这行声明了程序将使用一个名为starbar()，没有返回值，没有参数的函数
+	并告诉编译器在别处查找该函数的定义；
+	
+	3.一般而言，函数原型指明了函数的返回值类型和函数接受的参数类型，这些信息称为该函数的签名
+	对于starbar()函数而言，其签名是该函数没有返回值，没有参数。
+
+	4.程序把starbar()原型置于main()的前面，当然也可以放在main()里面的声明变量处，两处都可以
+	
+	5.在main()中，执行了下面的语句时调用了starbar()函数；
+		starbar()；
+	这是调用void类型函数的一种形式；当计算机执行到这一语句时候，会找到该函数的定义并执行其中内容
+	执行完starbar()中的代码后，计算机返回主调函数main()继续执行下一行；
+
+	6.程序把starbar()和main()放在一个文件中，当然也可以把他们放在两个文件中。
+	把函数都放在一个文件中的单文件形式比较容易编译，而使用多个文件方便在不同程序中使用同一个函数
+	如果把函数放在一个单独的文件中，要把#define和#include指令也放入该文件
+
+	7.starbar()函数中的count是局部变量，意思是该变量只属于starbar()函数
+	可以在程序中其他地方包括main()中也是用count，这不会引起名称冲突，他们是同名的不同变量
+
+	如果把starbar()看作是一个黑盒子，那么它的行为是打印一行星号；
+	不用给该函数提供任何输入，因为调用它不需要其他信息，而且它没有返回值，所以也不会给main()提供任何信息
+	简而言之，starbar()不需要与主调函数通信；
+	
+	接下来看一个函数间需要通信的例子
+
+9.1.3	函数参数
+
+	上一个示例中，如果文字能居中会更加美观，可以通过打印文字之前打印一定数量的空格来实现
+	这与打印一定数量的*类似，只不过是打印的是一定数量的空格
+	虽然这是两个任务，但是任务非常相似，与其为他们各编写一个函数，不然写一个更通用的函数
+	我们设计一个新函数show_n_char()；
+	唯一要改变的是使用内置的值来显示字符和重复的次数，这通过使用函数参数来传递这些值
+
+	具体分析：
+	假设可用的空间是40个字符宽，调用show_n_char('*',40)应该正好打印一行40个星号，
+	就像starbar()之前做的那样
+	第二行GIGATHINK,INT.的空格怎么处理？这是15个字符宽，所以有25个空格，左侧应该留14个空格
+	因此可调用show_n_char('*',12)。
+	
+#include<stdio.h>
+#include<string.h>					//为strlen()提供原型
+#define NAME "GIGATHINK,INC."
+#define ADDRESS "101 Megabuck Plaza"
+#define PLACE "Megapolis,CA 94904"
+#define WIDTH 40
+#define SPACE ' '
+
+void show_n_char(char ch,int num);//函数原型
+int main(void)
+{
+	int spaces;
+	show_n_char('*', WIDTH);
+	putchar('\n');
+	show_n_char(SPACE,12);
+	printf("%s\n", NAME);
+	spaces = (WIDTH - strlen(ADDRESS)) / 2;
+	show_n_char(SPACE,spaces);
+	printf("%s\n", ADDRESS);	
+	show_n_char(SPACE, (WIDTH - strlen(PLACE)) / 2);
+	printf("%s\n", PLACE);
+	show_n_char('*', WIDTH);
+	putchar('\n');
+	return 0;
+}
+void show_n_char(char ch, int num)//定义函数
+{
+	int count;
+	for (count = 1; count <= num; count++)	
+		putchar(ch);	
+}
 
 
+9.1.4	定义带形式参数的函数
+
+	函数定义从下面的ANSI C风格的函数头开始：
+	void show_n_char(char ch,int num);
+	该行告知编译器void show_n_char()使用两个参数ch和num，ch是char类型，num是int类型
+	这两个变量被称为形式参数，简称形参；
+	和定义在函数中变量一样，形参也是局部变量，属于该函数私有。
+	这意味着在其他函数中使用同名变量不会引起名称冲突；
+	每次调用函数，就会给这些变量赋值
+	
+	注意，ANSI C要求在每个变量前面都声明类型，如：
+	void dibs(int x,y,z);		//无效的函数头
+	void dibs(int x,int y, int z);	//有效的函数头
+	
+	void show_n_char(ch,num)
+	char ch;
+	int num;
+	
+	void dibs(x,y,z)
+	int x,y,z;
+	
+	这些ANSI C之前的形式正在逐渐淘汰
+
+	
+	虽然show_n_char()接受来自main()的值，但是它没有返回值，因此它的类型是void；
+	
+	
+9.1.5 	声明带形式参数函数的原型
+
+	在使用函数之前，要用ANSC形式声明原型：
+	void show_n_char(char ch,int num);
+	当函数接受参数时，函数原型用逗号分隔的列表指明参数的数量和类型；
+	根据个人喜好，也可以省略成变量名：
+	void show_n_char(char,int);
+
+9.1.6	调用带实际参数的函数
+	
+	在函数调用中，实际参数提供了ch和num的值
+	show_n_char(SPACE,12);
+	实际参数是空格字符和12，这两个值被赋给show_n_char()中相应的形参ch和num
+	简而言之：
+	形参是被调函数中的变量，实际参数是主调函数赋给被调函数的具体值
+	如上所示，实际参数可以是常量、变量甚至是更复杂的表达式
+	无论实际参数是何种形式被求值，最后该值被拷贝给被调函数相应的形式参数
+	show_n_char(SPACE, (WIDTH - strlen(PLACE)) / 2);
+	构成该函数第二个实际参数的是一个很长的表达式，对该表达式求值为10，然后10被赋给变量num
+	被调函数不知道也不关心传入的值是来自常量变量还是表达式
+	再次强调，实际参数是具体的值，该值要被赋给作为形参的变量
+	因为被调函数使用的值是从主调函数中拷贝而来，所以无论被调函数对拷贝数据进行什么操作，
+	都不会影响主调函数中的原始数据。
+
+
+9.1.7	黑盒视角
+	从黑盒子视角看show_n_char()，待显示的字符和显示的次数是输入(ch,num)；
+	执行后的打印结果是打印指定数量的字符；
+	输入以参数的形式被传递给函数，这些信息清楚的表明了如何在main()中使用该函数；
+	黑盒子的核心部分是：ch、num和count都是show_n_char()私有的局部变量
+	也就是说如果main()有一个count变量那么改变它的值不会改变show_n_char()中的count
+	反之亦然，黑盒子发生了什么对主调函数是不可见的；
+
+9.1.8	使用return从函数中返回值
+	
+	前面介绍了如何把信息从主调函数传递给被调函数，反过来，函数的返回值可以把信息从被调函数传回主调函数
+	我们创建一个返回两个参数中较小值的函数；
+	由于函数被设计用来处理int类型的值，所以被命名为imin()，
+	另外创建一个简单的main()用于检查imin()是否正常工作；
+	这种被设计用于检测函数的程序有时被称为驱动程序，该驱动程序调用一个函数，如果函数成功通过了测试，
+	就可以安装在一个更重要的程序中使用。
+	代码：
+	
+#include<stdio.h>
+int imin(int, int);
+int main(void)
+{
+	int a, b;
+	printf("Enter a pair of integers(q to quit):\n");
+	while (scanf_s("%d%d", &a, &b) == 2)
+	{
+		printf("The lesser of %d and %d is %d.\n", a, b, imin(a, b));
+		printf("Enter a pair of integers(q to quit):\n");
+	}
+	printf("Bye.\n");
+	return 0;
+}
+int imin(int n, int m)
+{
+	int min;
+	if (n < m)
+		min = n;
+	else
+		min = m;
+	return min;
+}
+
+
+	scanf()返回成功读取数据的个数，如果输入不是两个整数会导致循环结束；
+	如果输入三个整数，则第三个会留在输入流里成为下一次输入的第一个参数；
+
+	关键字return后面的表达式的值就是函数的返回值；
+	变量min属于imin()函数私有，但是return语句把min的值传回了主调函数；
+	下面这条语句的作用是把min的值赋给lesser：
+	lesser=imin(n,m);
+	而不能写成：
+	imin(n,m);
+	lesser=min;
+	因为主调函数甚至不知道min的存在；记住，imin()中的变量是imin()的局部变量
+	函数调用imin(a,b)只是把两个变量的值拷贝了一份；
+	
+	返回值不仅可以赋给变量，也可以被用作表达式的一部分，例如可以这样：
+	answer=2*imin(z,zstar)+25;
+	printf("%d\n",imin(-32+answer,LIMIT));
+	返回值不一定是变量的值，也可以是任意表达式的值，例如：
+	imin(int n,int m)
+	{
+		return (n<m)?n:m;
+	}
+	条件表达式的值是n和m中的较小者，该值要被返回给主调函数；
+	
+	如果函数返回值的类型与函数声明的类型不匹配会怎样？
+	int what_if(int n)
+	{
+		double z=100.0/(double)n;
+		return z;
+	}
+	
+	实际得到的返回值相当于把函数中指定的返回值给与函数类型相同的变量所得到的值
+	因此在本例中，相当于把z的值赋给int类型的变量，然后返回给int类型变量的值；
+	例如，有下面的函数调用：
+	result=whta_if(64);
+	虽然在whta_if()函数中赋给z的值是1.5625，但是return语句返回确却是int类型的值1
+
+	使用return语句的另一个作用是，种植函数把控制返回给主调函数的下一条语句；
+	因此可以这样写imin():
+	imin(int n,intm)
+	{
+		if(n<m)
+			return n;
+		else
+			return m;
+	}
+
+	许多C程序员认为只在函数末尾使用一次return语句比较好，这样更方便浏览程序的人理解函数的控制流
+	但是在函数中使用多个return语句也没有错；
+
+	对用户而言，这三个版本的函数用起来都一样，因为所有的输入和输出都完全相同，
+	不同的只是函数内部的实现细节，下面的版本也没问题：
+	imin(int n,intm)
+	{
+		if(n<m)
+			return n;
+		else
+			return m;
+		printf("well,done.\n")
+	}
+	return 语句导致printf()语句永远不会被执行；
+
+
+	另外还可以这样使用return：
+	return；
+	这条语句会导致终止函数，并把控制返回给主调函数，因为return没有任何表达式，所有没有返回值；
+	只有在void函数中才会用到这种形式
+
+9.1.9	函数类型
+
+	声明函数时候必须声明函数类型，带返回值的函数类型应该与其返回值类型相同，
+	没有返回值的函数应声明为void类型；
+	如果没有声明函数的类型，旧版本的C编译器会假定函数的类型是int，C99不再支持这种假定
+
+	类型声明式函数定义的一部分，要记住，函数类型指的是返回值的类型，不是函数参数的类型；
+	比如：
+	double klink(int a,int b)
+	定义了一个带有两个int类型参数的函数，其返回值是double类型；
+
 	
 	
 	
 	
 	
 
-
-		
 
 
 
