@@ -7297,6 +7297,520 @@ int imin(int n, int m)
 	double klink(int a,int b)
 	定义了一个带有两个int类型参数的函数，其返回值是double类型；
 
+	要正确的使用函数，程序在第一次使用函数之前必须知道函数的类型；
+	方法之一是，把完整的函数定义放在第一次调用函数的前面，然而这种方法增加了程序的阅读难度
+	而且，要使用的函数可能在C库或其他文件中，因此，通常做法是提前声明函数，
+	函数声明可以放在主调函数外，也可以放在主调函数内，但一定要在使用该函数之前声明；
+
+	ANSI C标准库中，函数被分成了多个系列，每一个系列都有各自的头文件
+	这些头文件中除了其他内容，还包含了本系列所有函数的声明；
+	不要混淆函数的声明和定义，声明是告知编译器函数的类型，定义则提供实际代码；
+
+9.2	ANSI C函数原型
+
+	在ANSI C标准之前，声明函数的方案有缺陷，因为只需要声明函数的类型，不声明任何参数；
+	我们看一下使用旧式的函数声明会导致什么问题
+	int imin();
+	以上函数声明并未给出函数的参数个数和类型，
+	因此如果调用该函数时使用的参数个数不对或类型不匹配，编译器根本不会察觉出来；
+	#include<stdio.h>
+	int imax();
+	int main(void)
+	{
+		printf("the maximum of %d and %d is %d.\n", 3, 5, imax(3));
+		printf("The maximum of %d and %d is %d.\n", 3, 5, imax(3.0, 5.0));
+		return 0;
+	}
+	int imax(n, m)
+	{
+		return(n > m ? n : m);
+	}
+	
+	输出结果 529219；1074266112；
+	第1次调用时省略了imax的一个参数，第2次调用时两个浮点参数不是整形参数；
+	
+	主调函数把它的参数储存在被称为栈的临适储存区，被调函数从栈中读取这些参数；
+	对于该例，这俩个过程并未相互协调；主调函数根据函数调用中的实际参数决定传递的类型；
+	而被调参数根据它的形式参数读取数值，
+	因此，函数调用imax(3)把一个整数放在栈中，当iman()函数开始执行时，它从栈中读取两个整数
+	而实际上栈中只存放了一个带读取的整数，所以读取的第二个值是当时恰好在栈中的其他值
+	第2次调用imax()函数时，它传递的是float类型的值，这次把两个double类型的值放在栈中
+	在我们的系统中，两个double类型的值就是两个64位的值，所以128位的数据被存放在栈中
+	当imax()从栈中读取两个int类型的值时，它从栈中读取前64位（每个int变量占32位）；
+	这些数据对应两个整数，其中较大的被输出为结果；
+
+	
+9.2.2	ANSI的解决方案
+	
+	针对参数不匹配问题，ANSI C标准要求在函数声明时还要声明变量的类型，
+	即使用函数原型来声明函数的返回类型、参数的数量和每个参数的类型；如
+	int imax(int,int);或
+	int imax(int a,int b);
+	第1种形式使用逗号分隔的类型列表
+	第2种形式在后面添加了变量名，这里的变量名时假名，不必与函数定义的形式参数名一致；
+
+	有了这些信息，编译器可以检查函数调用是否匹配函数原型，参数数量类型是否匹配；
+	例如上例中imax(3.0,5.0)会被转换成imax(3,5)；
+
+	#include<stdio.h>
+	int imax(int,int);
+	int main(void)
+	{
+		printf("the maximum of %d and %d is %d.\n", 3, 5, imax(3));
+		printf("The maximum of %d and %d is %d.\n", 3, 5, imax(3.0, 5.0));
+		return 0;
+	}
+	int imax(int n,int m)
+	{
+		return(n > m ? n : m);
+	}
+	
+	运行后编译器会警告第一次调用函数参数太少的错误信息，换成imax(3,5)后编译正常；
+	第二次调用虽然没有错误消息，但是编译器还是会给出警告：double转换成int可能会丢失数据
+	例如：
+	imax(3.9,5.4)相当于imax(3,5)
+
+	错误和警告的区别是：错误无法编译，而警告仍然允许编译；
+	一些编译器在进行类似的类型转换时不会通知用户，因为C标准对此未作要求；
+	
+9.2.3	无参数和未指定参数
+
+	假设有下面的函数原型：
+	void print_name();
+	一个支持ANSI C的编译器会假定用户没有用函数原型来声明函数，它将不会检查参数
+	为了表明函数确实没有参数，应在圆括号中使用void关键字：
+	void print_name(void);
+	
+	编译器解释为print_name()不接受任何参数，然后在调用函数时，编译器会检查以确保没有使用参数
+	
+	一些函数接受许多参数，例如对于printf()，第1个参数是字符串，但是其余的参数的类型和数量都不固定的情况；
+	ANSI C 允许使用部分原型；例如使用下面的原型：
+	int printf(const char *,...);
+	这种原型表明，第1个参数是一个字符串，可能还有其他未指定的参数；
+	C库通过stdarg.h头文件提供了一个定义这类形参数量不固定的函数的标准方法；16章节会介绍
+
+9.2.4	函数原型的优点
+	
+	函数原型是C语言的一个强有力的工具
+	它让编译器捕获在使用函数时可能出现的许多错误和疏漏；
+	如果编译器没有发现这些问题，就很难察觉出来，是否必须使用函数原型？不一定，但是这样弊大于利；
+	
+	有一种方法可以省略函数原型却保留函数原型的优点，就是把整个函数定义放在第一次调用函数之前；效果相同
+	int imax(int a,int b){return a>b?a:b;}
+	int main(void)
+	{
+		int z;	
+		z=imax(10,5);
+		return 0
+	}
+	此时函数定义也相当于函数原型，对于较小的函数，这种用法也很普遍；
+
+
+9.3	递归
+	
+	C允许函数调用它自己，这种调用过程称为递归；
+	递归有时难以捉摸，有时却很方便实用；
+	结束递归是使用递归的难点，如果递归代码中没有终止递归的条件测试部分，会无限递归；
+	
+	可以使用循环的地方通常都可以使用递归，有时用循环有时用递归更好；
+	递归方案更简洁，但效率却没有循环高；
+
+9.3.1	演示递归
+	
+	我们通过一个程序示例，来学习什么是递归
+	
+	#include<stdio.h>
+	void up_and_down(int);
+	int main(void)
+	{
+		up_and_down(1);
+		return 0;
+	}
+	void up_and_down(int n)
+	{
+		printf("Level %d:n location %p\n", n, &n);//1#
+		if (n < 4)
+			up_and_down(n + 1);
+		printf("LEVEL %d:n location %p\n", n, &n);//2#
+	}
+
+	分析代码：
+	①首先，主调函数main()调用了带参数1的up_and_down()函数，进入被调函数：
+	执行结果是up_and_down()的形参数值是1，所以打印出1# level 1；
+
+	②执行if语句，n<4成立，被调函数再调用二级的up_and_down()，n=2,输出1# level 2
+	依次类推下面两次调用打印分别是1# level 3,和1# level 4
+	
+	③当执行到第4级时，n的值是4，if 测试条件为假，up_and_down(n+1)停止调用自己；
+	跳过if语句并打印下一行2# LEVEL 4，第4级调用结束，控制被传回它的主调函数第3级调用
+	
+	③在第3级调用中，执行的最后一条语句是if语句，返回后继续执行if语句后面的，输出2# LEVEL3
+	
+	④依次类推，逐级返回控制输出2# LEVEL 2和2# LEVEL 1
+	
+	注意，每级递归的变量n都属于本级递归私有，
+	这从程序输出的地址值(&n)可以看出，level 1和LEVEL 1变量n都是n=1,所以地址值相同；
+
+9.3.2	递归的基本原理
+
+	第1，每级函数调用都有自己的变量，也就是说第1级n和第2级n的值不同，所以程序创建了4个单独的变量
+	每个变量的名称都是n，但是它们的值不相同，当程序返回up_and_down()第1级调用时，n值仍是初值1
+
+	递归中的变量n演变如下：
+	
+	变量		n	n	n	n
+	1级调用后		1
+	2级调用后		1	2
+	3级调用后		1	2	3
+	4级调用后		1	2	3	4
+	从4级调用返回后	1	2	3
+	从3级调用返回后	1	2	
+	从2级调用返回后	1
+		
+	从1级调用返回main()后结束全部
+
+	
+	第2，每次函数调用都会返回一次，当函数执行完毕后，控制权被传回上一级递归；
+	程序必须按顺序逐级返回递归，从某一级返回上一级，不能跳级到main()函数中的一级调用；
+	
+	第3，递归函数中位于递归调用之前的语句，均按被调函数的顺序执行，例如1#位于递归调用之前
+	它按照递归的顺序：第1级、第2级、第3级、第4级，被执行了4次；
+	
+	第4，递归函数中位于递归调用之后的语句，均按照被调函数相反的顺序执行，例如2#位于递归后
+	其执行顺序是：第4级、第3级、第2级、第1级，也被执行了4次；
+	递归调用这种特性在解决涉及相反顺序的编程问题时很有用；
+
+	第5，虽然每级递归都有自己的变量，但是并没有拷贝函数的代码；
+	程序按照顺序执行函数中的代码，而递归调用就相当于又从头开始执行函数的代码，每次为递调用创建变量
+	
+	最后，递归函数必须包含能让递归调用停止的语句；
+	通常用if或其他等价的测试条件在函数形参等于某特定值时终止递归，为此每次递归调用的形参都要使用不同值
+	例如示范程序up_and_down(n)调用up_and_down(n+1)，最终实际参数等于4的时候if的测试条件(n<4)为假；
+
+9.3.3	尾递归
+	
+	最简单的递归形式是把递归调用置于函数的末尾，即正好在return语句之前，这种形式被称为尾递归；
+	尾递归是最简单的递归形式，相当于循环
+	
+	下面介绍的示例程序，分别用循环和尾递归计算阶乘；
+	一个正整数的阶乘是从1到该数的所有整数的乘积，例如3的阶乘写作3！，是1*2*3，另外0！等于1；符数没有阶乘
+	
+#include<stdio.h>
+long fact(int n);
+long rfact(int n);
+int main(void)
+{
+	int num;
+	printf("This program calculates factorials.\n");
+	printf("Enter a value in the range 0-12(q to quit):\n");
+	while ((scanf_s("%d", &num)) == 1)
+	{
+		if (num < 0)
+		printf("No negative numbers,please.\n");
+		else if (num > 12)
+			printf("Please input under 13.\n");
+		else
+		{
+			printf("loop:%d factorial=%d\n",num,fact(num));
+			printf("recursion:%d factorial=%d\n", num, rfact(num));
+		}
+		printf("Enter a value in the range 0-12(q to qiut):\n");
+	}
+	printf("Bye.\n");
+	return 0;
+}
+long fact(int n)
+{
+	long m;
+	for (m = 1; n > 1; n--)
+		m = m * n;
+	return m;
+}
+long rfact(int n)
+{
+	long m;
+	if (n > 0)
+		m = n * rfact(n - 1);
+	else
+		m = 1;
+	return m;	
+}
+
+
+
+
+
+	
+9.3.4	递归和倒序计算
+	
+	递归在处理倒序时非常方便(在解决这类问题中，递归比循环简单)
+	编写一个函数，打印一个整数的二进制数；二进制表示法根据2的幂来表示数字；
+	例如234=2*10^2+3*10^1+4*10^0,
+	我们要设计一个以二进制形式表示整数的方法或算法。
+	
+	①	例如十进制5，在二级制中，奇数的末尾一定时1，偶数末尾一定是0，通过5%2即可确定，
+	二进制的最后一位是1还是0；
+	一般而言，对于数字n，二进制的最后一位是n%2；
+	因此，计算的第一位数字实际上是待输出二进制数的最后一位；这一规律提示我们：
+	在递归函数的递归调用之前计算n%2;在递归之后打印计算结果；
+	这样，计算的第1个值正好是最后一个打印的值；
+
+	②要获得下一位数字，继续把原数除以2，如果是偶数那么二进制下一位数就是0，奇数就是1；
+	只要结果大于2，就说明还有二进制位；
+
+#include<stdio.h>
+void to_binary(unsigned long n);
+int main(void)
+{
+	unsigned long num;
+	printf("Enter an integer(q to qiut):\n");
+	while ((scanf_s("%lu", &num)) == 1)
+	{
+		printf("Binary equivalent:");
+		to_binary(num);
+		putchar('\n');
+		printf("Enter an integer(q to qiut):\n");
+	}
+	printf("Done.\n");
+	return 0;
+}
+void to_binary(unsigned long n)
+{
+	int m;	
+	if (n >= 2)
+	{
+		m = n % 2;		
+		to_binary(n / 2);
+		printf("%d", m);
+	}
+	else
+		printf("1");
+	return;
+}		
+
+	不用递归，能否实现这种转换？当然可以，但是由于这种算法要首先计算最后一位二进制数，
+	所以在显示结果之前必须把所有的位数都储存在别处（如数组）15章会介绍；
+
+
+9.3.5	递归的优缺点
+	递归既有优点也有缺点，优点是为某些编程问题提供了最简单的解决方案；
+	缺点是一些递归算法会快速消耗计算机的内存资源，另外递归不妨版阅读和维护；
+	例如：
+	斐波那契数列的定义如下：第一个和第二个数字都是1，而后续的每个数字都是前两个数字之和；
+	如该数列的前几个数为：1、1、2、3、5、8、13......
+	下面我们要创建一个函数，接受正整数n，返回相应的斐波那契数值
+	首先来看递归，递归提供一个简单的定义，如果把函数名命名为Fibonacci()，那么如果n是1或2，
+	Fibonacci(n)应返回1；对于其他值，则应返回Fibonacci(n-1)+Fibonacci(n-2);
+
+	unsigned long Fibonacci(unsigned n)
+	{
+		if(n>2)
+			return Fibonacci(n-1)+Fibonacci(n-2);
+		else
+			return 1;
+	}
+
+	这个递归函数只是重述了数学定义的递归。
+	该函数使用了双递归，即函数每一级递归都要调用本身两次，这暴露了一个问题；
+	
+	为了说明这个问题，假设调用Fibonacci(40)；这是第一级递归调用，将创建一个变量n
+	然后在该函数中要调用Fibonacci()两次，在第2级递归中要分别创建两个变量n；
+	到下一级调用又要进行两次调用，由于每一级变量都是上一级递归的2倍，
+	所有变量的数量呈指数增长！
+	在第五章介绍过一个计算小麦粒数的例子，指数增长很快会产生非常大的值，
+	在本例中，指数增长的变量很快就消耗掉计算机的大量内存，很可能导致程序崩溃
+
+	所有的C函数皆平等
+	程序中每个C函数都是平等的，每个函数都可以调用其他函数，也被其他函数调用；
+	main()函数比较特殊，当它与程序中的其他函数放在一起时，最开始执行的是main()函数的第一条语句
+	但它其实也可以被自己或其他函数递归调用——尽管很少这样做。
+
+	
+9.4	编译多源代码文件的程序
+	使用多个函数最简单的方法是把它们都放在同一个文件中，
+	然后像编译只有一个函数的文件那样编译该文件即可，其他方法因操作系统而异；下面举例说明
+
+9.4.1	UNIX
+	假定在NUIX系统安装了UNIX C编译器cc（最初的cc已经停用，但许多NUIX给cc改了名如gcc或clang）
+	假设file1.c和file2.c是两个内含C函数的文件，下面的命令将编译并生成一个名为a.out的可执行文件：
+	cc file1.c file2.c
+	另外，还生成两个名为file1.o和file2.o的目标文件；
+	如果后来改动了file1.c，而file2.c不变，可以使用下面命令编译第一个文件，并与第2个文件的目标代码合并：
+	cc file1.c file2.o
+	UNIX系统的make命令可自动管理多文件程序；
+	注意OS X的Terminal工具可以打开UNIX命令环境但是必须先下载命令行编译器（gcc和clang）
+
+9.4.2	Linux与UNIX相同；
+	假定在Linux系统安装了GUN C编译器gcc
+	假设file1.c和file2.c是两个内含C函数的文件，下面的命令将编译并生成一个名为a.out的可执行文件：
+	gcc file1.c file2.c
+	另外，还生成两个名为file1.o和file2.o的目标文件；
+	如果后来改动了file1.c，而file2.c不变，可以使用下面命令编译第一个文件，并与第2个文件的目标代码合并：
+	gcc file1.c file2.o
+
+9.4.3	DOS命令行编译器
+	绝大多数DOS命令行编译器的工作原理和UNIX的cc命令类似,只不过使用不同的名称而已；
+	其中对象文件的扩展名是.obj,而不是.o
+	一些编译器生成的不是目标代码文件，而是汇编语言或其他特殊代码的中间文件
+
+9.4.4	Windows和苹果的IDE编译器
+	Windows和Macintosh系统使用的集成开发环境中的编译器是面向项目的；
+	项目描述的是特定程序使用的资源，资源包括源代码文件；
+	这种IDE中的编译器要创建项目来运行单文件程序；
+	对于多文件程序，要使用相应的菜单命令，把源代码文件加入一个项目中。
+	要确保所有的源代码文件都在项目列表中列出；
+	许多IDE都不用在项目列表中列出头文件，因为项目只管理使用的源代码文件；
+	源代码文件中的#include指令管理该文件中使用的头文件，但是Xcode要在项目中添加头文件
+
+9.4.5	使用头文件
+	如果把main()放在第1个文件中，把函数定义放在第2个文件中，
+	那么第1个文件仍然要使用函数原型；
+	把函数原型放在头文件中，就不用在每次使用函数文件时都写出函数的原型；
+	C标准库就是这样做的；
+	例如把I/O函数原型放在stdio.h中，把数学函数原型放在math.h中；
+	你也可以用自定义的函数文件；
+
+	另外，程序中经常用C预处理器定义符号常量；这种定义只储存了那些包含#define指令的文件；
+	如果把程序的一个函数放进一个独立的文件中，你也可以使用#define指令访问每个文件；
+	最直接的方法是在每个文件中再次输入指令，但这个方法耗时又容易出错，
+	另外还会有维护的问题：如果修改了#define定义的值，就必须在每个文件中修改；
+
+	更好的做法是，把#define指令放进头文件，然后在每个源文件中使用#include指令包含该文件即可
+
+	总之，把函数原型和已定义的字符常量放在头文件中是一个良好的编程习惯；
+	我们考虑一个例子：
+	假如要管理4加酒店的客房服务，每家酒店的房价不同，但是每家酒店所有房间的折扣价格相同；
+	对于预定住宿多天的客户，第2天房费是第1天的95%，第3天是第2天的95%，以此类推
+	设计一个程序让用户指定酒店和入住天数，然后计算并显示总费用
+	同时，程序要实现一份菜单，允许用户反复输入数据，除非用户选择退出
+
+//usehotel.c
+#include<stdio.h>
+#include"hotel.h"//定义符号常量，声明函数
+
+int main(void)
+{
+	int nights;
+	double hotel_rate;
+	int code;
+
+	while ((code = menu()) != QUIT)
+	{
+		switch (code)
+		{
+		case 1:hotel_rate = HOTEL1;
+			break;
+		case 2:hotel_rate = HOTEL2;
+			break;
+		case 3:hotel_rate = HOTEL3;
+			break;
+		case 4:hotel_rate = HOTEL4;
+			break;
+		default:hotel_rate = 0.0;
+			printf("Oops!\n");
+			break;
+		}
+		nights = getnights();
+		showprice(hotel_rate, nights);
+	}
+	printf("Thank you and goodbye.\n");
+	return 0;
+}
+
+	
+//hotel.c
+#include<stdio.h>
+#include"hotel.h"
+int menu(void)
+{
+	int code, status;
+	printf("\n%s%s\n", STARS, STARS);
+	printf("Enter the number of the desired hotel:\n");
+	printf("1)Fairfield Arms		2)Hotel Olympic\n");
+	printf("3)Chertworthy Plaza		4)The Stockton\n");
+	printf("5)quit\n");
+	printf("%s%s\n", STARS, STARS);
+	while ((status = scanf_s("%d", &code)) != 1 || (code < 1 || code>5))
+	{
+		if (status != 1)
+			scanf_s("%*s");//处理非整数输入
+		printf("Enter an integer from 1 to 5,Please.\n");
+	}
+	return code;
+}
+int getnights(void)
+{
+	int nights;
+	printf("How many nights are needed?\n");
+	while (scanf_s("%d", &nights) != 1)
+	{
+		scanf_s("%*s");
+		printf("Please enter an integer,such as 2.\n");
+	}
+	return nights;
+}
+void showprice(double rate, int nights)
+{
+	int n;
+	double total = 0.0;
+	double factor = 1.0;
+	for (n = 1; n <= nights; n++, factor *= DISCOUNT)
+		total += rate * factor;
+	printf("The total cost will be $%0.2f.\n", total);
+}
+
+
+//hotel.h
+#define QUIT 5
+#define HOTEL1 180.00
+#define HOTEL2 225.00
+#define HOTEL3 255.00
+#define HOTEL4 355.00
+#define DISCOUNT 0.95
+#define STARS "***********************************"
+
+//显示选择列表
+int menu(void);
+
+//返回预定天数
+int getnights(void);
+
+//根据费率、入住天数计算费用，并显示结果
+void showprice(double rate, int nights);
+
+
+
+	第1个程序包含main()函数，提供整个程序的组织结构；
+	第2个程序包含支持的函数，我们将这些函数在独立的文件中；
+	第3个程序列出来一个文件头，包含了该程序所有源文件中使用的自定义符号和函数原型
+	在UNIX和DOS环境中，#include"hotels.h"指令中的双引号表明被包含的文件位于当前目录中
+	如果使用IDE，需要知道如何把头文件合并成一个项目；
+
+	顺带一提，该程序中有几处编写的很巧妙，
+	尤其是menu()和getnights()函数通过测试scanf()的返回值来跳过非数值数据，
+	而且调用scanf("%*s")跳至下一个非空白字符；
+	注意menu()函数中是如何检查非数值输入和超出范围的数据：
+	while ((status = scanf_s("%d", &code)) != 1 || (code < 1 || code>5))
+	以上代码段利用了C语言的两个规则：
+	从左往右对逻辑表达式求值；一旦求职结果为假，立即停止求值；
+	只有scanf()成功读入一个整数值后，才会检查code的值
+
+	用不同的函数处理不同的任务时应检查数据的有效性。
+
+
+
+
+
+
+
+
+
+
+
+		
+
+	
+
 	
 	
 	
