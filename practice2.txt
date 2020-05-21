@@ -7798,16 +7798,753 @@ void showprice(double rate, int nights);
 	用不同的函数处理不同的任务时应检查数据的有效性。
 
 
+9.5	查找地址：&运算符
+
+	指针是C语言最重要的概念之一，用于储存变量的地址，如scanf()函数中就使用地址作为参数
+	概括的说，如果主调函数不使用return返回的值，则必须通过地址才能修改主调函数中的值；
+	一元&运算符给出变量的储存地址；
+	如果pooh是变量名，&pooh就是变量的地址；可以把地址看作是变量在内存中的位置；假设
+	pooh=24
+	假设pooh的储存地址是0B76（PC地址通常用16进制形式表示），那么：
+	printf("%d%p",pooh,&pooh);
+	将输出如下内容：
+	24 0B76
+
+	示例程序使用了地址运算符查看不同函数中的同名变量分别储存在什么位置：
+	#include<stdio.h>
+	void mikado(int);
+	int main(void)
+	{
+		int pooh = 2, bah = 5;//main()函数局部变量
+		printf("In main(),pooh=%d and &pooh =%p\n",pooh,&pooh);
+		printf("In main(),bah=%d and &bah =%p\n",bah,&bah);
+		mikado(bah);	
+		return 0;
+	}
+	void mikado(int bah)
+	{
+		int pooh = 2;//mikado()函数的局部变量
+		printf("In mikado(),pooh=%d and &pooh =%p\n",pooh,&pooh);
+		printf("In mikado(),bah=%d and &bah =%p\n",bah,&bah);
+	}
+
+
+	输出结果：
+	In main(),pooh=2 and &pooh =0000008FBE0FFBE4
+	In main(),bah=5 and &bah =0000008FBE0FFC04
+	In mikado(),pooh=10 and &pooh =0000008FBE0FFAC4
+	In mikado(),bah=2 and &bah =0000008FBE0FFBC0
+	
+	每个十六进制数对应4位，该例显示16个十六进制，对应64位地址；
+	该例说明了什么？
+	①首先，两个pooh的地址不同，两个bah的地址也不同；计算机将它们看出是4个独立的变量；
+	②其次，主调函数调用时候只是把实际参数传递给了被调函数的形参，
+	即main()中的pooh的值2，传递给mikado()中的bah，该传递只传递值2，变量并未改变；
+
+	我们强调第二点是因为这并不是在所有语言中都成立，例如FORTRAN中，子例程会影响主调例程的原始变量
+	子例程的变量名可能与原始变量不同，但是它们的地址相同；
+	但是在C语言中不是这样，每个C函数都有自己的变量，可以防止原始变量被被调函数中的副作用意外修改；
+	然而正如下节所述，这也带来了一些麻烦：
+	
+	
+9.6	更改主调函数中的变量
+	
+	有时候需要在一个函数中更改其他函数的变量。例如普通的排序任务中交换两个变量的值；
+	假设要交换两个变量x和y的值，简单的思路是：
+	x=y;
+	y=x;
+	这完全不起作用，因为执行到第二行时，x的原始值已经被y的原始值替换了，因此要多写一行代码：
+	temp=x;
+	x=y;
+	y=temp;
+	上面3行代码可以实现交换值的功能，可以编写一个函数并构造一个驱动程序来测试；
+
+	#include<stdio.h>
+	void change(int, int);
+	int main(void)
+	{
+		int x, y;
+		x = 10, y = 20;
+		printf("x=%d,y=%d\n",x,y);
+		change(x, y);
+		printf("x=%d,y=%d", x, y);
+		return 0;
+	}
+	void change(int a, int b)
+	{
+		int temp;
+		temp = a;
+		a = b;
+		b = temp;
+		return;
+	}
+	
+	运行结果：
+	x=10,y=20
+	x=10,y=20
+
+	两个变量值按照显示来看并未交换！我们添加一些输出来检查问题出在哪：
+	#include<stdio.h>
+	void change(int, int);
+	int main(void)
+	{
+		int x, y;
+		x = 10, y = 20;
+		printf("x=%d,y=%d\n",x,y);
+		change(x, y);
+		printf("x=%d,y=%d\n", x, y);
+		return 0;
+	}
+	void change(int a, int b)
+	{
+		printf("2#:a=%d,b=%d\n", a, b);//交换前实参传递给形参的值
+		int temp;
+		temp = a;
+		a = b;
+		b = temp;
+		printf("2#:a=%d,b=%d\n", a, b);//交换后返回的值
+		return;
+	}
+
+	
+	运行结果：
+	x=10,y=20
+	2#:a=10,b=20
+	2#:a=20,b=10
+	x=10,y=20
+
+	看来change()没有问题，它交换了a和b的值，
+	问题出在把结果传回main()时，change()使用的变量不是main()的变量
+	因此交换a和b的值对x和y的值没有影响。
+	是否能用return语句把值传回main()？
+	return(a)
+	x=change(x,y);
+	这只能改变x的值，而y的值仍旧没改变，用return语句只能把被调函数中一个值传回主调函数
+	现在要传回两个值，可以使用指针；
+
+9.7	指针简介
+
+	什么是指针？
+	从根本上看，指针是一个值为内存地址的变量(或数据对象)；
+	正如char类型的变量值是字符，int类型的变量值是整数，指针变量的值是地址；
+
+	本章将介绍如何把指针作为函数参数使用，以及为何要这样用
+	假设一个指针变量名是ptr，可以编写如下语句：
+	ptr=&pooh；	//把pooh的地址赋值给ptr
+	
+	对于这条语句，我们说ptr指向pooh；
+	ptr和&pooh的区别是ptr是变量，而&pooh是常量
+	或者，ptr是可修改的左值，而&pooh是右值，还可以吧ptr指向别处：
+	ptr=&bah；	//把ptr指向bah，而不是pooh
+
+	现在ptr的值是bah的地址
+
+	要创建指针变量，先要声明指针变量的类型。假设想把ptr声明为int类型变量地址的指针
+	就要用到下面介绍的新运算符*
+
+9.7.1	间接运算符*
+
+	假设已知ptr指向bah，如下所示:
+	ptr=&bah;
+	然后使用间接运算符*找出储存在bah中的值；
+	该运算有时也称为解引用运算符，不要把间接运算符和二元乘法运算符混淆；
+	虽然它们使用的符号相同，但语法功能不同
+	val=*ptr；	//找出ptr指向的值
+	
+	{ptr=&bah;val=*ptr}两个语句放一起等于
+	val=bah;
+	
+	由此可见，使用地址和间接运算符可以间接完成上面这条语句的功能；
+
+9.7.2	声明指针
+	int * pi		//pi是指向int类型变量的指针
+	char *pc		//pc是指向char类型变量的指针
+	float *pf,*pg;	//pf、pg都是指向float类型变量的指针
+	
+	类型说明符表明了指针所指向对象的类型，星号*表明声明的变量是一个指针；
+	int *pi;声明的意思是pi是一个指针，*pi是int类型
+
+	pc指向的值(*pc)是char类型，pc本身是什么类型？我们描述它的类型是 指向char类型的指针；
+	pc的值是一个地址。在大部分系统内部，该地址由一个无符号整数表示，但是指针不是整数类型；
+	一些处理整数的操作不能用来处理指针，反之亦然。
+	例如可以把两个整数相乘，但是不能把两个指针相乘；
+	所以指针实际上是一个新类型，ANSIC专门为指针提供了%p格式转换说明
+
+9.7.3	使用指针在函数间通信
+
+	本节着重介绍如何使用指针解决函数间的通信问题
+		
+	#include<stdio.h>
+	void change(int *a, int *b);
+	int main(void)
+	{
+		int x, y;
+		x = 10, y = 20;
+		printf("x=%d,y=%d\n",x,y);
+		change(&x, &y);
+		printf("x=%d,y=%d\n", x, y);
+		return 0;
+	}
+	void change(int *a, int *b)
+	{	
+		int temp;
+		temp = *a;
+		*a = *b;
+		*b = temp;	
+		return;
+	}
+
+	分析函数：
+	首先看函数调用
+	change(&x, &y);
+	该函数传递的不是x和y的值，而是它们的地址；
+	因为x、y是整数
+	所以a和b是指向整数的指针，所以其声明如下：
+	void change(int *a, int *b);
+	
+	接下来在函数中声明了一个交换值时必需的临时变量
+	int temp；
+	通过temp=*a把x的值储存在temp中；
+	记住，a的值是&x，所以a指向x，这意味着*a可以表示x的值；
+	所以不要写成temp=a;
+	因为这条语句赋给temp的是x的地址，而不是x的值
+	函数要交换的是x和y的值，而不是它们的地址；
+
+	与此类似，把y的值赋给x；*a=*b;
+	这条语句相当于x=y;
+
+	
+	我们总结一下该程序做了什么
+	我们需要一个函数交换x和y的值；把x和y的地址传递给函数，我们让chang()访问这两个地址；
+	使用指针和*运算符，该函数可以访问储存在这些位置的值并改变它们
+
+	一般而言，可以把变量相关的两类信息传递给函数：
+	①传递值    如	function1(x);
+	②传递地址如	function2(&x);
+
+	第一种形式要求函数定义中的形式参数必须是一个与x的类型相同的变量；function1(int num);
+	第二种形式要求函数定义中的形式参数必须是一个指向正确类型的指针；function2(int *ptr);
+
+	如果要计算或处理值，那么用第一种形式的函数调用
+	如果要在被调函数中改变主调函数的变量，则使用第二种形式的函数调用
+	我们用过的scanf()函数就是这样，当程序要读入一个变量时，调用的是scanf("%d",&num);
+	scanf()读取一个值，然后把该值储存到指定的地址上。
+
+	
+	变量：名称、地址和值
+	变量的名称和变量的值之间关系密切。
+	编写程序时，可以认为变量有两个属性，名称和值；(还有其他性质如类型，暂不讨论)
+	计算机编译和加载程序后，认为变量也有两个属性，地址和值，地址就是变量在计算机内部的名称
+
+	在许多语言中，地址都归计算机管理，对程序员隐藏，然而在C中，
+	①可以通过&运算符访问地址
+	②可以通过*运算符获得地址上的值
+	
+	普通变量把值作为基本量，把地址作为通过&运算符获得的派生量，
+	而指针变量把地址作为基本了，把值通过*运算符获得的派生量；
+
+	使用&和*和指针可以操纵地址和地址上的内容；
+
+	
+	小结：函数
+	①形式：
+
+	典型的ANISC 函数的定义形式为：
+
+	返回类型 名称(形参声明列表)
+	函数体
+
+	形参声明列表是用逗号隔开的一系列变量声明，除形参变量外，函数的其他变量均在函数体花括号内声明
+	示例：
+	int diff(int x,int y)	//形参x,y;待主调函数实参传入
+	{
+		int z;	//声明局部变量
+		z=x-y;
+		return z;	//返回一个值，类型int
+	}
+
+	②传递值：
+	实参用于把值从主调函数传递给被调函数，如果变量a和b的值分别是5和2，那么调用diff(a,b)；
+	把5和2分别传递给变量x和y；
+	5和2称为实际参数，diff()函数定义中的变量x和y称为形式参数；
+	使用关键字return把被调函数中的一个值传回主调函数；
+	被调函数一般不会改变主调函数中的变量，如果要改变，应使用指针作为参数；
+	
+	③函数的返回类型
+	函数返回值的类型；如果返回值与声明的返回类型不匹配，返回值将被转换成函数声明的返回类型
+
+	④函数签名：
+	函数的返回类型和形参列表构成了函数签名；
+	因此函数签名制定了传入函数的值和函数返回值的类型(即规定输入和输出函数的值的类型)
+	
+	
+9.8	关键概念
+	如果让一个函数处理一个任务，程序会更好理解，更方便调试；
+	要理解函数是如何把信息从一个函数传递到另一函数，也就是理解函数参数和返回值的工作原理
+	
+	另外，要明白函数形参和其他局部变量都属于函数私有，因此声明在不同函数中的同名变量是完全不同的变量
+	而且函数无法直接访问其他函数中的变量，这种限制保护了数据的完整性
+	但是当确实需要在函数中访问另一个函数的数据时，可以把指针作为函数的参数；
+
+9.10	复习题
+	1.实际参数和形式参数区别：一个在主调函数，一个在被调函数；实参传递数值给形参；
+
+	2.根据下面各函数的描述，分别编写它们的ANSIC函数头；不需写函数体
+	①double()接受一个int类型的参数，打印若干个(参数指定数目)个0
+		//void double(int);
+	②gear()接受两个int类型的参数，返回int类型的值
+		//int gear(int,int);
+	③guess()不接受参数，返回一个int类型的值
+		//int guess(void);
+	④stuff_it()接受一个double类型的值和double类型的变量地址，把第1个值储存在指定位置
+		//void stuff_it(double n,double *m);
+
+	3.根据下面的描述，分别编写它们ANSIC函数头
+	①n_to_char()接受一个int类型的参数，返回一个char类型的值
+		//char n_to_char(int);
+	②digit()接受一个double类型的参数和一个int类型的参数，返回一个int类型的值
+		//int digit(double,int);
+	③which()接受两个可储存double类型变量的地址，返回一个double类型的地址
+		//double *which(double *n,double *m);
+	④random()不接受参数，返回一个int类型的值
+		//int random(void)
+	
+	4.设计一个函数，返回两个整数之和
+	int backint(int n,int m)
+	{
+		return n+m;
+	}
+	
+	5如果把复习题4改成返回两个double类型的值之和，应该如何修改
+	double backint(double n,double m)
+	{
+		return n+m;
+	}
+			
+	6.设计一个名为alter()的函数，接受两个int类型的变量x和y，把它们的值分别改成之和和之差
+	void alter(int *x,int *y)
+	{
+		int temp;
+		temp=*x;
+		*x=*x+*y;
+		*y=temp-*y;
+		return;
+	}
+	
+	8.编写一个函数，返回3个整数参数中的最大值
+	int imax(int x, int y, int z)
+	{
+		int m;
+		m=(x < y) ? y : x;
+		if (m < z)
+			m = z;
+		return m;
+	}
+	
+	9.给定下面的输出：
+	Please choose one of the following:
+	1)copy files	2)move files
+	3)remove files	4)quit
+	Enter the number of your choice:
+	
+	①编写一个函数，显示一份有4个选项的菜单，提示用户进行选择
+	②编写一个函数，接受两个int类型的参数分别表示上下限；
+	该函数从用户的输入中读取整数，如果整数超出规定上下限，函数再次打印菜单提示用户输入；
+	然后获取一个新值，如果用户输入的整数在规定范围内，该函数则把该整数返回主调函数；
+	如果用户输入一个非整数字符，该函数返回4；
+	③使用上面两个函数编写一个最小型的程序，不需要实现菜单中各选择项的功能，但要获取有效响应；
+
+#include<stdio.h>
+void menu(void);
+int input(int, int);
+int main(void)
+{
+	int a, b,rep;
+	a = 1;
+	b = 4;
+	menu();
+	rep=input(a, b);	
+	while (rep != b)
+	{
+		switch (rep)
+		{
+		case 1:printf("copy files.\n"); menu(); rep = input(a, b); continue;
+		case 2:printf("move files.\n"); menu(); rep = input(a, b); continue;
+		case 3:printf("remove files.\n");menu(); rep = input(a, b); continue;
+		default:printf("Error!\n"); break;
+		}
+	}
+	printf("Bye.\n");
+	return 0;
+}
+void menu(void)
+{
+	printf("Please choose one of the following:\n");
+	printf("1)copy files	2)move files\n3)remove files	4)quit\n");
+	printf("Enter the number of your choice :\n");
+}
+int input(int x, int y)
+{
+	int choice;	
+	while (1) 
+	{
+		if (scanf_s("%d", &choice) != 1)
+		{
+			while (getchar() != '\n')
+				continue;
+			choice = 4;
+			break;
+		}
+		else if (choice < 1 || choice>4)
+		{
+			printf("It's not a ringht choice,try again.\n");			
+			menu();			
+			continue;
+		}
+		else
+			break;
+	}
+	return choice;
+}
+
+	
+	
+	10.编程练习
+	1.设计一个函数min(x,y),返回两个double类型的较小值；并在驱动程序中测试该函数；
+	#include<stdio.h>
+	double min(double x, double y){return (x < y) ? x : y;}
+	int main(void)
+	{
+		double a = 1.25, b = 2.6;
+		printf("%g", min(a, b));
+		return 0;
+	}
+
+	2.设计一个函数chline(ch,i,j),打印指定的字符j行i列，并在驱动程序中测试该函数；
+	#include<stdio.h>
+	void chline(char, int, int);
+	int main(void)
+	{
+		chline('*', 2, 5);
+		return 0;
+	}
+	void chline(char ch, int x, int y)
+	{
+		int i,k;
+		for (i = 0; i < x; i++)
+		{
+			for (k=0;k<y;k++)
+				printf("*");
+			printf("\n");
+		}
+	}
+
+	
+	3.编写一个函数，接受3个参数；一个字符和两个整数。字符参数是待打印字符，
+	第一个整数指定一行中打印字符的次数，第二个整数指定打印行数；
+	编写一个调用该函数的程序；
+	#include<stdio.h>
+	void chline(char, int, int);
+	int main(void)
+	{
+		chline('*', 2, 5);
+		return 0;
+	}
+	void chline(char ch, int x, int y)
+	{
+		int i,k;
+		for (i = 0; i < y; i++)
+		{
+			for (k=0;k<x;k++)
+				printf("*");
+			printf("\n");
+		}
+	}
+
+	
+	4.两数的调和平均数这样计算：
+	先得到两数的倒数，然后计算两个倒数的平均值，最后计算结果的倒数；
+	编写一个函数，接受两个double类型的参数，返回这两个参数的调和平均数
+	#include<stdio.h>
+	double mean(double x, double y);
+	int main(void)
+	{	
+		double a = 10.0;
+		double b = 30.0;	
+		printf("%g", mean(10, 30));
+		return 0;
+	}
+	double mean(double x, double y)
+	{	
+		double result;
+		result = 2 / ((1 / x) + (1 / y));
+		return result;
+	}
+
+	5.编写并测试一个函数，large_of()，该函数把两个double类型变量的值替换成较大的值；
+	例如，large_of(x,y)会把x和y中较大的值重新赋给两个变量。
+
+	#include<stdio.h>
+	double large_of(double, double);
+	int main(void)
+	{	
+		double a = 100.0;
+		double b = 30.0;	
+		a = large_of(a,b);
+		b = large_of(a, b);
+		printf("a=%g,b=%g", a, b);
+		return 0;
+	}
+	double large_of(double x, double y)
+	{		
+		return (x > y) ? x : y;	
+	}
+
+	****************************************************************
+	#include<stdio.h>
+	void large_of(double *x, double *y);
+	int main(void)
+	{	
+		double a = 100.0;
+		double b = 300.0;	
+		large_of(&a, &b);
+		printf("a=%g,b=%g", a, b);
+		return 0;
+	}
+	void large_of(double *x, double *y)
+	{			
+		if (*x > *y)
+			*y = *x;
+		else
+			*x = *y;
+	}
+
+	
+	
+	6.编写并测试一个函数，该函数以3个double变量的地址作为参数，
+	把最小值放入第1个变量，中间值放入第2个变量，最大值放入第3个变量
+#include<stdio.h>
+void sorting(double *x, double *y,double *z);
+int main(void)
+{	
+	double a = 1.0;
+	double b = 3.0;	
+	double c = 2.0;
+	sorting(&a, &b,&c);
+	printf("a=%g,b=%g,c=%g", a, b,c);
+	return 0;
+}
+void sorting(double *x, double *y,double *z)
+{			
+	double max,mid,min;
+	if (*x > *y)
+	{
+		max = *x;
+		if (*y > *z)
+		{
+			mid = *y;
+			min = *z;
+		}
+		else
+		{
+			mid = *z;
+			min = *y;
+		}
+	}
+	else
+	{
+		max = *y;
+		if (*x > *z)
+		{
+			mid = *x;
+			min = *z;
+		}
+		else
+		{
+			mid = *z;
+			min = *x;
+		}
+	}
+	if (*z > max)
+	{
+		max = *z;
+		if (*x > *y)
+		{
+			mid = *x;
+			min = *y;
+		}
+		else
+		{
+			mid = *y;
+			min = *x;
+		}
+	}
+	*x = min;
+	*y = mid;
+	*z = max;
+}
+
+*****************************************************
+#include<stdio.h>
+void sorting(double *x, double *y,double *z);
+int main(void)
+{	
+	double a = 3.0;
+	double b = 2.0;	
+	double c = 1.0;
+	sorting(&a, &b,&c);
+	printf("a=%g,b=%g,c=%g", a, b,c);
+	return 0;
+}
+void sorting(double *x, double *y,double *z)
+{			
+	double max,mid,min;
+	if (*x >= *y&&*x >= *z)
+	{
+		max = *x;
+		mid = (*y > *z) ? *y : *z;
+		min = (*y > *z) ? *z : *y;
+	}
+	if (*y >= *x&&*y >= *z)
+	{
+		max = *y;
+		mid = (*x > *z) ? *x : *z;
+		min = (*x > *z) ? *z : *x;
+	}
+	if (*z >= *x&&*z >= *y)
+	{
+		max = *z;
+		mid = (*x > *y) ? *x : *y;
+		min = (*x > *y) ? *y : *x;
+	}
+	*x = min;
+	*y = mid;
+	*z = max;
+}
+
+
+
+	7.编写一个函数，从标准输入中读取字符，直到遇到文件结尾。程序要报告每个字符是否是字母。
+	如果是，还要报告该字母在字母表中的数值位置，例如，c和C在字母表中的位置都是3.
+	合并一个函数，以一个字符作为参数，如果该字符是一个字母则返回一个数值位置，否则返沪-1
+
+#include<stdio.h>
+#include<ctype.h>
+char input(void);
+void rep(char);
+int main(void)
+{
+	input();
+	return 0;
+}
+char input(void)
+{
+	char ch;	
+	while ((ch = getchar()) != EOF)
+	{			
+		if (ch == ' ' || ch == '\t' || ch == '\n')
+			continue;
+		if ((isupper(ch) == 1))
+		{
+			putchar(ch);
+			printf(" is a alpha.\n");
+			printf("in the alphabet,the number is %d.\n", ch - 64);
+		}
+		else if ((islower(ch) == 2))
+		{
+			putchar(ch);
+			printf(" is a alpha.\n");
+			printf("in the alphabet,the number is %d.\n", ch - 96);
+		}
+		else
+		{
+			putchar(ch);
+			printf(" is not a alpha.\n");
+		}
+		rep(ch);
+	}
+	return 0;
+}
+void rep(char ch)
+{
+	if ((isalpha(ch)) != 0)
+		printf("And it's ASCII number is:%d\n", ch);
+	else
+		printf("-1\n");
+}
+
+
+
+	8.在第六章的程序清单6.20中，pow()函数返回一个double类型的正整数次幂，改进该函数，
+	使其能正确计算负幂，另外函数需要处理0的任何次幂都是0，任何数的0次幂都为1
+	（函数应报告0的0次幂未定义，因此把该值处理为1）
+	要使用一个循环，并在程序中测试该函数
+
+#include<stdio.h>
+double power(double n, int p);	
+int main(void)
+{
+	double x, xpow;
+	int exp;
+	printf("Enter a number and the positive integer power");
+	printf("to which\nthe number will be raised.(q to quit).\n");
+	while (scanf_s("%lf %d", &x, &exp) == 2)
+	{
+		if (x == 0&&exp==0)
+		{
+			printf("it's undefined,the value is treated as 1\n");
+			printf("Enter next pair of numbers or q to quit.\n");
+			continue;
+		}
+		xpow = power(x, exp);
+		printf("%.3g to the power %d is %.5g\n", x, exp, xpow);
+		
+		printf("Enter next pair of numbers or q to quit.\n");
+	}
+	printf("hope you enjoyed this power trip--bye!\n");
+	return 0;
+}
+double power(double n, int p)	
+{
+	double pow = 1;	
+	int i;	
+	for (i = 1; i <= p; i++)
+		pow *= n;
+	if (p < 0)
+		pow = pow / power(n, -p);		
+	return pow;
+}
+
+
+
+	9.使用递归函数重写练习8
+	
+	double power(double n, int p)
+	{
+		double pow=1;
+		if(p>0)
+			pow=n*power(n, p-1);	
+		if(p<0)
+			pow = 1 / power(n, -p);		
+		return pow;
+	}
+
+	
+	
 
 
 
 
+	
+	
+	
 
-
+	
 
 
 
 		
+
 
 	
 
