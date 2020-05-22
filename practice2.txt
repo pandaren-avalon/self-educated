@@ -7584,7 +7584,7 @@ void to_binary(unsigned long n)
 		printf("%d", m);
 	}
 	else
-		printf("1");
+		printf("%d",n);
 	return;
 }		
 
@@ -8531,24 +8531,404 @@ double power(double n, int p)
 
 	
 	
+	10.为了让程序9.8中的to_binary函数更通用，编写一个to_base_n()函数；
+	该函数接受两个在2-10进制范围内的参数，然后以第二个参数中指定的进制打印第一个参数的值
+	例如to_base_n(129,8)显示的结果为201，也就是129的八进制数；并测试该函数。
+
+#include<stdio.h>
+void to_base_n(unsigned long n,int m);
+void to_binary(unsigned long n);	
+int main(void)
+{
+	unsigned long num;
+	int base;
+	printf("Enter an integer,and the number of base(2.8.10.16).(q to qiut):\n");
+	while ((scanf_s("%lu%d", &num,&base)) == 2)
+	{
+		printf("Binary equivalent:");
+		to_base_n(num,base);
+		putchar('\n');
+		printf("Enter an integer(q to qiut):\n");
+	}
+	printf("Done.\n");
+	return 0;
+}
+void to_binary(unsigned long n)
+{
+	int m;
+	if (n >= 2)
+	{
+		m = n % 2;
+		to_binary(n / 2);
+		printf("%d", m);
+	}
+	else
+		printf("%d",n);
+	return;
+}
+void to_base_n(unsigned long n, int m)
+{
+	switch (m)
+	{
+	case 2:to_binary(n); return;
+	case 8:printf("%o", n); return;
+	case 10:printf("%d", n); return;
+	case 16:printf("%x", n); return;
+	default:printf("unsupported,try again.\n"); return;
+	}
+}
+
+************************************************************************
+#include<stdio.h>
+void to_binary(unsigned long n,int m);	
+int main(void)
+{
+	unsigned long num;
+	int base;
+	printf("Enter an integer,and the number of base(2~10);(q to qiut):\n");
+	while ((scanf_s("%lu%d", &num,&base)) == 2)
+	{
+		printf("Binary equivalent:");
+		to_binary(num,base);
+		putchar('\n');
+		printf("Enter an integer(q to qiut):\n");
+	}
+	printf("Done.\n");
+	return 0;
+}
+void to_binary(unsigned long n,int m)
+{
+	unsigned temp;
+	if (n >= m)
+	{
+		temp = n % m;
+		to_binary(n / m,m);
+		printf("%d", temp);
+	}
+	else
+		printf("%d",n);
+	return;
+}
 
 
 
 
+
+	11.编写并测试Fibonacci()函数，该函数用循环替代递归计算斐波那契数列；	
+	1，1，2，3，5，8，13，21......
+
+#include<stdio.h>
+void Fibonacci(void);
+int main(void)
+{
+	Fibonacci();
+	printf("Bye.\n");
+	return 0;
+}
+void Fibonacci(void)
+{
+	unsigned long n, i, sum, k, m;
+	printf("Enter the digit number of Fibonacci.\n");
+	printf("Enter q to quit\n");
+	while ((scanf_s("%d", &n) > 0))
+	{
+		sum = 0;
+		k = 1;
+		m = 0;
+		if (n > 1)
+			for (i = 1; i < n; i++)
+			{
+				sum = sum + k;
+				k = k + m;
+				m = sum - k;
+			}
+		if (n == 1)
+			sum = 1;
+		if (n == 0)
+		{
+			printf("wrong number.try again.\n");
+			continue;
+		};
+		printf("the Fibonacci number is:%lu\n", sum);
+		printf("Enter the digit number of Fibonacci.\n");
+		printf("Enter q to quit\n");
+		continue;
+	}
+	return;
+}
+
+********************************************************************************
+#include<stdio.h>
+unsigned long Fibonacci(unsigned long);
+int main(void)
+{
+	unsigned long num,result;
+	printf("Enter the digit number of Fibonacci.\n");
+	printf("Enter q to quit\n");
+	while ((scanf_s("%lu", &num)) == 1)
+	{
+		if (num == 0) 
+		{ 
+			printf("wrong number.try again.\n");
+			continue;
+		}			
+		result = Fibonacci(num);		
+		printf("the Fibonacci number is:%lu\n", result);
+		printf("Enter the digit number of Fibonacci.\n");
+		printf("Enter q to quit\n");
+		continue;
+	}	
+	printf("Bye.\n");
+	return 0;
+}
+unsigned long Fibonacci(unsigned long n)
+{
+	unsigned long i, sum, k, m;	
+		sum = 0;
+		k = 1;
+		m = 0;
+		if (n > 1)
+			for (i = 1; i < n; i++)
+			{
+				sum = sum + k;
+				k = k + m;
+				m = sum - k;
+			}
+		else
+			sum = 1;		
+		return sum;
+}
 	
 	
-	
-
-	
-
-
-
 		
-
-
+	
 	
 
+
+【第10章】数组和指针
+	关键字 static
+	运算符 & *(一元)
+	如何创建并初始化数组
+	指针和数组的关系
+	编写处理数组的函数
+	二维数组
+
 	
+10.1	数组
+	数组由数据类型相同的一系列元素组成；
+	需要使用数组时，通过声明告诉编译器数组内含多少元素及元素类型
+	编译器根据这些信息正确的创建数组；普通变量可以使用的类型，数组元素都可以用，如：
+	float candy[365];	//内含365个float类型元素的数组
+	char code[12];	//内含12个char类型元素的数组
+	int states[50];	//内含50个int类型元素的数组
+
+	[]方括号表明candy、code和states都是数组，方括号中的数字表明数组中的元素个数；
+	要访问数组中的元素，通过使用数组下标(索引)表示数组中的各元素；
+	数组元素的编号从0开始，所以candy[0]表示candy数组的第1个元素，candy[364]表示最后一个元素；
+	
+	
+10.1.1	初始化数组
+	数组通常被用来储存程序需要的数据，例如一个内含12个整数元素的数组可以储存12个月的天数；
+	在这种情况下，在程序一开始就初始化数组比较好；下面介绍初始化数组的方法
+
+	只储存单个值的变量，有时也称为标量变量；如
+	int a=1;
+	C使用新的语法来初始化数组，如下所示：
+	int powers[8]={1,2,4,6,8,16,32,64};
+	
+	如上所示，用以逗号分隔的值列表(用花括号括起来)来初始化数组，各值之间用逗号分隔。
+	在逗号和值之间可以使用空格。
+	有时需要把数组设置为只读，这样程序只能从数组中检索值，不能把新值写入数组，
+	要创建只读数组，应该用const声明和初始化数组，如：
+	const int days[3]={31,28,26};
+	这样修改后程序在运行过程中就不能修改该数组中的内容；
+	和普通变量一样，应该使用声明来初始化const数据，因为一旦声明为const，便不能再给它赋值。
+
+	使用数组前必须先初始化它。与普通变量类似，在使用数组元素之前，必须先给它赋初值。
+	编译器使用的值是内存相应位置上现有的值。
+	
+	储存类别警告
+	数组和其他变量类似，可以把数组创建成不同的储存类别
+	本章描述的数组属于自动存储类别；
+	意思是这些数组在函数内部声明，且声明时未使用关键字static。
+	不同的储存类别有不同的属性，对于一些其他储存类别的变量和数组，如果在声明时未初始化，
+	编译器会自动把它们的值设置为0；
+
+	初始化列表中的项数与数组的大小一致，如果不一致会怎样？
+	①部分初始化：
+	当初始化列表中的值少于数组元素个数时，编译器会把剩余的元素都初始化为0；
+	如果不初始化数组，数组元素和未初始化的普通变量一样，其中储存的都是垃圾值；
+	但是如果部分初始化数组，剩余的元素会被初始化为0
+	
+	②自动计数匹配：
+	当初始化列表的项数多余数组元素个数，编译器会将它视为错误；
+	其实可以省略方括号内的数字，让编译器自动匹配数组大小和初始化列表中的项数：
+
+	#include<stdio.h>
+	int main(void)
+	{
+		const int days[] = { 31,28,31,30 };
+		int i;
+		for (i = 0; i < sizeof days / sizeof days[0]; i++)
+			printf("month %d has %d days.\n", i + 1, days[i]);
+		return 0;
+	}
+	
+	运行结果：
+	month 1 has 31 days.
+	month 2 has 28 days.
+	month 3 has 31 days.
+	month 4 has 30 days.
+	
+	如果初始化数组时省略方括号中的数字，编译器会根据初始化列表中的项数来确定数组的大小
+	注意for循环中的测试条件；
+	由于人工计算容易出错，所以让计算机来计算数组的大小。
+	sizeof运算符给出它的运算对象的大小(以字节为单位)，所以sizeof days是整个数组的字节大小；
+	而sizeof day[0]是数组中一个元素的字节大小，整个数组字节大小除以单个元素的字节大小就是元素个数
+	(前提是每个元素字节大小一致，但是数组在分配同类型元素时分配的内存空间，每个元素是一致的)
+	自动计数的弊端：无法察觉初始化列表中的项数是否有遗漏。只按照现有元素统计元素个数；	
+
+10.1.2	指定初始化器
+	C99增加了一个新特性，指定初始化器
+	利用该特性可以初始化指定的数组元素，例如只初始化数组中的最后一个元素：
+	传统的语法必须初始化最后一个元素之前的所有元素才能初始化它：
+	int art[6]={0,0,0,0,0,212};
+	指定初始化器可以在初始化列表中使用带方括号的下标指明待初始化的元素：
+	int art[6]={[5]=212};	
+	对于一般的初始化，在初始化一个元素后，未初始化的元素都会被设置为0；
+
+	#include<stdio.h>
+	#define months 12
+	int main(void)
+	{
+		int days[months] = { 31,28,[4]=31,30,31,[1]=29 };
+		int i;
+		for (i = 0; i < months; i++)
+			printf("%2d	%2d\n", i + 1, days[i]);
+		return 0;
+	}
+	
+	运行结果如下：
+
+	 1      31
+	 2      29	//初始化中days[1]=28;又被指定初始化器初始化为[1]=29②
+	 3       0
+	 4       0
+	 5      31	//days[4]=31
+	 6      30	//指定初始化[4]=31后面跟的第1个元素①
+	 7      31	//指定初始化[4]=31后面跟的第2个元素①
+	 8       0
+	 9       0
+	10       0
+	11       0
+	12       0
+
+	以上输出揭示了指定初始化器的两个重要特性：
+	①如果指定初始化器后面有更多的值，那么这些值被用于指定初始化元素后面的元素；
+	②如果再次初始化指定的元素，那么最后的初始化将会取代之前的初始化。
+	
+	如果未指定元素大小会怎么样？
+	int stuff[]={1,[6]=23};		//=stuff[7]
+	int stuff[]={1,[6]=4,9,10};	//=stuff[9]
+
+	
+10.1.3	给数组元素赋值
+	声明数组后，可以借助数组下标给数组元素赋值：
+	
+	#include<stdio.h>
+	#define size 50
+	int main(void)
+	{
+		int i,evens[size];	
+		for (i = 0; i < size; i++)
+		{
+			evens[i] = 2 * i;
+			printf("%d\n", evens[i]);
+		}
+		return 0;
+	}
+
+	示例程序中使用循环给数组的元素依次赋值；
+	C不允许把数组作为一个单元赋值给另一个数组；除初始化外也不允许使用花括号列表的形式赋值
+	#include<stdio.h>
+	#define size 5
+	int main(void)
+	{
+		int oxen[size] = { 5,3,2,8 };	//初始化没问题
+		int yaks[size];
+		yaks = oxen;		//不允许
+		yaks[size] = oxen[size];	//数字下标越界*
+		yaks[size] = { 5,3,2,8 };	//不起作用
+		return 0;
+	}
+	
+	oxen数组的最后一个元素是oxen[size-1],所以yaks[size] 和 oxen[size]都超出了两个数组的末尾；
+	
+	
+	
+10.1.4	数组边界
+	在使用数组时，要防止数组下标超出边界，也就是说必须确保下标时有效值；例如
+	int doofi[20];
+	那么在使用该数组时，要确保程序中使用的数组下标在0-19的范围内，因为编译器不会检查出这种错误。
+	使用越界的数组下标会导致程序改变其他变量的值，有些还会导致程序异常终止。
+	数组元素的编号从0开始，最好是在声明数组时使用符号常量来表示数组的大小
+	#include<stdio.h>
+	#define size 4
+	int main(void)
+	{
+		int i,arr[size];
+		for(i=0;i<size;i++)
+		......
+	}
+	
+	这样做能确保整个程序中的数组大小始终一致。
+
+
+10.1.5	指定数组的大小
+	
+	#define size 4
+	int main(void)
+	{
+		int i,arr[size];	//整数符号常量
+		double lost[144];	//整数字面常量
+	......
+	}
+	
+	声明数组时只能在方括号中使用整型常量表达式；就是由整型常量构成的表达式；
+	sizeof表达式被视为整型常量，但是const值不是，另外表达式的值必须大于0；
+
+	int n=5,m=8;
+	float a1[5];		//可以
+	float a2[5*2+1];		//可以
+	float a3[sizeof(int)+1];	//可以
+	float a4[-4];		//不可以，数组大小必须大于0
+	float a5[0];		//不可以，同上
+	float a6[2.5];		//不可以，数组大小必须时整数
+	float a7[(int)2.5];		//可以，已被强制转换为整型常量
+	float a8[n];		//C99之前不允许，变长数组
+	float a9[m];		//同上；
+
+	边长数组VLA，声明VLA时不能进行初始化，以后会介绍，先略过；
+
+	
+10.2	多维数组
+	
+	某气象研究员要分析5年内每个月的降水量数据，首先要解决的是如何表示数据；
+	一个方案是创建60个变量，每个变量储存一个数据；	//过于笨拙，放弃
+	使用一个内含60个元素的数组；			//比60个变量要好
+	创建5个数组，每个数组12个元素			//能把每年的数据分开储存
+	但是如果要研究50年的降水量呢？，是否要创建50个数组？是否还有更好的方案？
+
+	处理这种情况应该使用数组的数组，主数组有5个元素(每年)，每个元素是内含12个元素的数组(每月)
+	float rain[5][12];	//内含5个数组元素的数组，每个数组元素内含12个float类型的元素；
+	
+	理解该声明的一种方法是，先查看中间部分，再看声明的其余部分；
+	rain[5] 	//是一个内含5个元素的数组
+	float...[12]	//一个内含12个float类型元素的数组
+
+	也就是说每个元素的类型是 float[12],也就是说rain的每个元素本身都是一个内含12个float类型值的数组
+
+ 
 	
 	
 	
