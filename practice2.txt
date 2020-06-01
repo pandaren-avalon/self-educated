@@ -10353,14 +10353,11 @@ int main(void)
 		{7.6,5.6,3.8,2.8,3.8,0.2,0.0,0.0,0.0,1.3,2.6,5.2}
 	};
 	int year, month;
-	float subtot, total;
-	float (*rpt)[months];
-	rpt = rain;
-
+	float subtot, total;	
 	for (year = 0, total = 0; year < years; year++)//每一年，各月的降水量总和
 	{
 		for (month = 0, subtot = 0; month < months; month++)
-			subtot += *(*(rpt+year)+month);
+			subtot += *(*(rain + year) + month);
 		printf("%5d %15.1f\n", 2010 + year, subtot);
 		total += subtot;//5年总降水量
 	}
@@ -10370,7 +10367,7 @@ int main(void)
 	for (month = 0; month < months; month++)//每个月，5年的降水总量
 	{
 		for (year = 0, subtot = 0; year < years; year++)
-			subtot += *(*(rpt + year) + month);
+			subtot += *(*(rain + year) + month);
 		printf("%4.1f	", subtot / years);
 	}
 	printf("\n");
@@ -10640,12 +10637,207 @@ void copy_ptrs(double ar[], double cr[], double *cr1)
 	
 	10.编写一个函数，把两个数组中相对应的元素相加，然后把结果储存到第三个数组中；
 	函数接受3个数组名和一个数组大小，在一个简单的程序中测试该函数。
+#include<stdio.h>
+#define x 4
+#define y 5
+#define z 5	//(x>y)?x:y;
+void sum(int ar[], int cr1[], int cr2[], int n);
+int main(void)
+{
+	int exp1[x] = { 2,4,5,8 };
+	int exp2[y] = { 1,0,4,6,2};
+	int ptr[z];
+	int i;	
+	sum(ptr, exp1, exp2, z);	
+	for (i = 0; i < z; i++)
+		printf("%d, ", *(ptr+i));	
+	return 0;
+}
+void sum(int ar[], int cr1[], int cr2[], int n)
+{
+	int i;
+	if (x >= y)
+	{
+		for (i = 0; i < z; i++)
+		{
+			if(i < y)			
+				*(ar + i) = *(cr1 + i) + *(cr2 + i);			
+			else		
+				*(ar + i) = *(cr1 + i);	
+		}
+	}
+	else
+	{
+		for (i = 0; i < z; i++)
+		{
+			if (i < x)			
+				*(ar + i) = *(cr1 + i) + *(cr2 + i);			
+			else		
+				*(ar + i) = *(cr2 + i);	
+		}
+	}
+}
 	
+
+	11.编写一个程序，声明一个int类型的3*5二维数组，并用合适的值初始化它；
+	该程序打印数组中的值，然后各值翻倍，并显示出各元素的新值。
+	编写一个函数显示数组的内容，再编写一个函数把各元素的值翻倍
+	这两个函数都以函数名和行数作为参考；
+
+#include<stdio.h>
+#define m 5
+void show(int ar[][m], int n);
+void add(int ar[][m], int n);
+int main(void)
+{
+	int exp[3][m] = { {1,2,3,4,5},{6,7,8,9,10},{11,12,13,14,15} };
+	show(exp, 3);
+	add(exp, 3);
+	show(exp, 3);
+	return 0;
+}
+void show(int ar[][m], int n)
+{
+	int i;	
+	for (i = 0; i < n*m; i++)
+		printf("%2d, ", *(*ar+i));
+	putchar('\n\n');	
+}
+void add(int ar[][m], int n)
+{
+	int i;
+	for (i = 0; i < n*m; i++)		
+			*(*ar+i) *= 2;
+}
+
+	12.重新写程序清单10.7的rain.c程序，把main()中的主要任务都改用函数来完成；
 	
+#include<stdio.h>
+#define months 12
+#define years 5
+void permonth(float ar[][months], int n);
+void peryear(float ar[][months], int n);
+int main(void)
+{
+	const float rain[years][months] =
+	{
+		{4.3,4.3,4.3,3.0,2.0,1.2,0.2,0.2,0.4,2.4,3.5,6.6},
+		{8.5,8.2,1.2,1.6,2.4,0.0,5.2,0.9,0.3,0.9,1.4,7.3},
+		{9.1,8.5,6.7,4.3,2.1,0.8,0.2,0.2,1.1,2.3,6.1,8.4},
+		{7.2,9.9,8.4,3.3,1.2,0.8,0.4,0.0,0.6,1.7,4.3,6.2},
+		{7.6,5.6,3.8,2.8,3.8,0.2,0.0,0.0,0.0,1.3,2.6,5.2}
+	};	
+	peryear(rain, years);
+	permonth(rain, years);
+	return 0;
+}
+void permonth(float ar[][months], int n)
+{
+	int m,y;
+	float total;
+	printf("Months:	Averages:\n");
+	for (m = 0; m < months; m++)
+	{
+		for (total=0,y = 0; y < years; y++)
+			total += ar[y][m];
+		printf("%2d:	%.1f\n", m+1, total/years);
+	}
+	return;
+}
+void peryear(float ar[][months], int n)
+{
+	int m, y;
+	float total,all;
+	all = 0;
+	printf("Years:	Averages:\n");
+	for (y = 0; y < years; y++)
+	{
+		for (total = 0, m = 0; m < months; m++)		
+			total += ar[y][m];
+		all += total;		
+		printf("%4d:	%.1f\n", y + 2010, total);
+	}
+	printf("\nThe yearly average is %.1f inches.\n\n", all / years);
+	return;
+}
 
 
+	13.编写一个程序，提示用户输入3组数，每组包含5个double类型的数据(假设无非法输入)
+	程序应完成下列任务：
+	①把用户输入的数据储存在3*5的数值中
+	②计算每组(5个)数据的平均值
+	③计算所有数据的平均值
+	④找出这15个数据中的最大值
+	⑤打印结果
+	每个任务都要使用单独的函数来完成；
+	完成任务②，要编写一个计算并返回一维数组平均值的函数；利用循环调用该函数3次；
+	对于其他任务，应该把整个数组作为参数；完成②③的函数应该把结果返回主调函数；
 
-
+#include<stdio.h>
+#define q 3	//数组第一个下标
+#define m 5	//数组第二个下标
+void input(double ar[][m], int a, int b);
+double ave1(double ar[][m], int a);
+double ave2(double ar[][m], int a,int b);
+double max(double ar[][m], int a,int b);
+void show(void);
+int main(void)
+{	
+	show();
+	return 0;		
+}
+void input(double ar[][m], int a, int b)
+{
+	int i, k;	
+	for (i = 0; i < a; i++)
+		for (k = 0; k < b; k++)
+			scanf_s("%lf", &ar[i][k]);			
+}
+double ave1(double ar[][m], int a)
+{
+	int i;
+	double total;
+	for(total=0,i=0;i<m;i++)	
+		total += ar[a][i];	
+	return total / m;
+}
+double ave2(double ar[][m], int a, int b)
+{
+	int i,k;
+	double total = 0;
+	for(k=0;k<q;k++)
+		for ( i = 0; i < m; i++)
+			total += ar[k][i];
+	return total / (q*m);
+}
+double max(double ar[][m], int a, int b)
+{
+	int i, k;
+	double max;
+	max = ar[0][0];
+	for (i = 0; i < a; i++)
+		for (k = 0; k < b; k++)		
+			if (ar[i][k] >= ar[0][0])
+				max = ar[i][k];
+	return max;		
+}
+void show(void)
+{
+	int i, k;
+	double exp[q][m];
+	input(exp, q, m);
+	for (i = 0; i < q; i++)
+	{
+		for (k = 0; k < m; k++)
+			printf("exp[%d][%d]=%g,	", i, k, exp[i][k]);
+		putchar('\n');
+	}
+	for (i = 0; i < 3; i++)
+		printf("row: %d, average:%g\n", i + 1, ave1(exp, i));
+	printf("The total average value:%g\n", ave2(exp, q, m));
+	printf("The max value is:%g\n", max(exp, q, m));
+	return;
+}
 
 
 
