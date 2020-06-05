@@ -12319,8 +12319,8 @@ char *s_gets(char *st, int n)
 	⑤int strcmp(const char *s1,const char *s2);
 	strcmp：如果s1字符串在机器排序序列中位于s2的后面，返回正数，否则返回负数，相等返回0；
 
-	 ⑥int strcmp(const char *s1,const char *s2，size_t n);
-	strcmp：该函数与strcmp类似，在比较n个字符后或遇到第一个空字符时停止比较；
+	 ⑥int strncmp(const char *s1,const char *s2，size_t n);
+	strcnmp：该函数与strcmp类似，在比较n个字符后或遇到第一个空字符时停止比较；
 
 	⑦char *strchr(const char *s,int c);
 	strchr：如果s字符串包含c字符，该函数返回指向s字符串中第1个c字符位置的指针，
@@ -12379,9 +12379,287 @@ char *s_gets(char *st, int n)
 	如果strchr()未找到换行符，fgets()在达到行末尾之前就达到了它能读取的最大字符数，给if添加一个else处理该情况；
 
 	
-	
-	
+11.6	字符串示例：字符串排序
 
+	程序主要用strcmp函数来确定两个字符串的顺序；
+	一般做法是读取字符串函数，排序字符串打印出来；程序如下:
+	
+#include<stdio.h>
+#include<string.h>
+#define SIZE 81	//限制字符串长度，包括\0
+#define LIM 20	//可读入的最多行数
+#define HALT ""	//空字符串停止输入
+void stsrt(char *strings[], int num);//字符串排序函数
+char *s_gets(char *st, int n);
+int main(void)
+{
+	char input[LIM][SIZE];	//储存输入的数组
+	char *ptstr[LIM];		//内含指针变量的数组
+	int ct = 0;				//输入计数器
+	int k;					//输出计数器
+
+	printf("Input up to %d lines,and i will sort them.\n", LIM);
+	printf("To stop,press the Enter key at a line's start.\n");
+	while (ct < LIM&&s_gets(input[ct], SIZE) != NULL && input[ct][0] != '\0')
+	{
+		ptstr[ct] = input[ct];	//设置指针指向字符串
+		ct++;
+	}
+	stsrt(ptstr, ct);			//字符串排序
+	puts("\nHere's the sorted list:\n");
+	for (k = 0; k < ct; k++)
+		puts(ptstr[k]);			//排序后的指针
+	return 0;
+}
+void stsrt(char *strings[], int num)
+{
+	char *temp;
+	int top, seek;
+	for(top=0;top<num-1;top++)
+		for(seek=top+1;seek<num;seek++)
+			if (strcmp(strings[top], strings[seek]) > 0)
+			{
+				temp = strings[top];
+				strings[top] = strings[seek];
+				strings[seek] = temp;
+			}
+}
+char *s_gets(char *st, int n)
+{
+	char*ret_val;
+	int i = 0;
+	ret_val = fgets(st, n, stdin);
+	if (ret_val)
+	{
+		while (st[i] != '\n'&&st[i] != '\0')	
+			i++;			
+		if (st[i] == '\n')			
+			st[i] = '\0';
+		else				
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
+
+	运行结果：
+
+	Input up to 20 lines,and i will sort them.
+	To stop,press the Enter key at a line's start.
+	Oh,that i was where i would be,	//输入①
+	Then would i be where i am not;	//输入②
+	But where i am i must be,		//输入③
+	And where i would be i can not.	//输入④
+					//输入⑤回车
+					
+	Here's the sorted list:
+					//输出①
+	And where i would be i can not.	//输出②
+	But where i am i must be,		//输出③
+	Oh,that i was where i would be,	//输出④
+	Then would i be where i am not;	//输出⑤
+		
+	
+11.6.1	排序指针而非字符串
+	该程序巧妙之处在于排序的是指向字符串的指针，而不是字符串本身；我们来分析以下怎么做：
+	①最初，ptrst[0]被设置为input[0],ptrst[1]被设置程input[1]，以此类推，ptrst[ct]=input[ct];
+	这意味着指针ptrst[i]指向数组input[i]的首字符，每个input[i]都是一个内含81个元素的数组；
+	每个ptrst[i]都是一个单独的变量；
+	②排序过程把ptrst重新排列，并未改变input；
+	例如按字母顺序，input[1]在input[0]前面，程序便交换指向它们的指针
+	(即：ptrst[0]指向input[1]的首字符地址，ptrst[1]指向input[0]的首字符地址)；
+	这样做比strcpy()交换两个input字符串的内容简单得多，而且还保留了input数组中的原始顺序；
+	
+	
+11.6.2	选择排序算法
+	我们采用的是选择排序算法来排序指针，具体做法是，利用for循环依次把每个元素与首元素比较；
+	如果待比较的元素在当前元素的前面，则两者交换；循环结束时，首元素包含的指针指向机器排序序列最靠前的字符串；
+	然后外层for循环重复这一过程，这次从input的第二个元素开始；
+	当内层循环执行完毕时，ptrst中的第2个元素指向排在第2的字符串，这一过程持续到所有元素都已排序完毕；
+	伪代码
+	for n=首元素至n=倒数第2个元素，
+		找出剩余元素中的最大值，并将其放在第n个元素中
+	for n的后一个元素至最后一个元素
+		比较第n个元素与后1个元素，如果第n个元素更大，交换这两个元素的值
+
+	外层循环指明正在处理数组的哪一个元素，内层循环找出应储存在该元素的值；两者结合就是该排序算法；
+	C库中有一个更高级的排序函数：qsort()，该函数使用一个指向函数的指针进行排序比较，16章介绍；
+
+	
+11.7	ctype.h字符函数和字符串
+	ctype.h系列函数虽然不能处理字符串，但是可以处理字符串中的字符；如下面示例程序：
+	用toupper()函数将字符串转换成大写，用ispunct()统计标点符号，strchr()处理fgets()读入字符串的换行符；
+
+
+#include<stdio.h>
+#include<string.h>
+#include<ctype.h>
+#define LIMIT 81
+void to_upper(char *);
+int punctcount(const char *);
+int main(void)
+{
+	char line[LIMIT];
+	char *find;
+	
+	puts("Please enter a line:");
+	fgets(line, LIMIT, stdin);
+	find = strchr(line, '\n');
+	if (find)
+		*find = '\0';
+	to_upper(line);
+	puts(line);
+	printf("That line has %d punctuation characters.\n", punctcount(line));
+	return 0;
+}
+void to_upper(char *str)
+{
+	while (*str)
+	{
+		*str = toupper(*str);
+		str++;
+	}
+}
+int punctcount(const char *str)
+{
+	int ct = 0;
+	while (*str)
+	{
+		if (ispunct(*str))
+			ct++;
+		str++;
+	}
+	return ct;
+}
+
+	运行结果：
+	Please enter a line:
+	can you hear me? tell me,please.	//输入
+	CAN YOU HEAR ME? TELL ME,PLEASE.
+	That line has 3 punctuation characters.
+
+	***********************************************************
+	分析：	
+	while (*str)循环处理str指向的字符串中的每一个字符，直到遇到空字符；此时*str的值为0，循环条件为假，结束循环；
+	to_upper()函数利用toupper()处理字符串中的每一个字符；
+	根据ANSIC中的定义，tuupper()函数只改变小写字符，但是一些很旧的C实现不自动检查大小写，所以可以这样写：
+	if(islower(*str))
+		*str=toupper(*str);
+	顺带一提，ctype.h中的函数通常作为宏来处理，这些C预处理宏的作用很像函数，但是两者有区别，16章介绍；
+	该程序使用fgets()和strchr()组合，读取一行输入并把换行符替换成空字符；
+	这种方法与s_gets()的区别是，后者会处理剩余的字符(如果有的话)，为下一次输入做好准备；
+	而本例只有一条输入语句；就没必要进行多余步骤；
+
+	
+11.8	命令行参数
+	在图形界面普及之前都使用命令行界面，命令行是在命令行环境中，用户为运行程序输入命令的行；
+	假设有一个文件中有一个名为fuss的程序，在UNIX环境中运行该程序的命令行是
+	$ fuss
+	或者在Windows命令提示模式下是：
+	c>fuss
+	命令行参数是同一行的附加项，如：
+	c>fuss -r Ginger
+	一个C程序可以读取并使用这些附加项；如下示例：该程序通过main()的参数读取这些附加项
+	
+	#include<stdio.h>
+	int main(int argc, char *argv[])
+	{
+		int count;
+		printf("The command line has %d argumants:\n", argc - 1);
+		for (count = 1; count < argc; count++)
+			printf("%d:%s\n", count, argv[count]);
+		printf("\n");
+		return 0;
+	}
+
+	运行结果：
+	C:\>repeat good game. have fun.	//C:\> 程序repeat.exe文件存放位置
+	The command line has 4 argumants:
+	1:good
+	2:game.
+	3:have
+	4:fun.
+	
+	下面我们解释下它的运行原理：
+	C编译器允许main()没有参数或者有2个参数(一些实现允许main()有更多参数，属于对标准的扩展)；
+	main()有两个参数时，第一个参数是命令行中的字符串数量；
+	过去，这个int类型的参数被称为argc(表示参数计数argument count)；
+	系统用空格表示一个字符串的结束和下一个字符串的开始；
+	因此 上面的repeat示例中包括命令名共有5个字符串，其中后4个供repeat使用；
+	该程序把命令行字符串储存在内存中，并把每个字符串的地址储存在指针数组中；
+	而该数组的地址则被储存在main()的第二个参数中；
+	
+	按照惯例，这个指向指针的指针名为argv(argument value)；
+	如果系统允许(一些操作系统不允许)，就把程序本身的名称赋给argv[0],然后把随后的第一个字符串赋给argv[1]
+	以此类推：
+	argv[0]指向repeat(对大部分系统而言)
+	argv[1]指向good
+	argv[2]指向game.
+	argv[3]指向have
+	argv[4]指向fun.
+
+	程序通过一个for循环打印每个字符串，printf()中的%s转换说明表明，要提供一个字符串的地址作为参数
+	而指针数组中的每个元素(argv[0]、argv[1]等)都是这样的地址
+	
+	main()中的形参形式与其他带形参的函数相同，许多程序员用不同的形式声明argv:
+	int main(int argc,char **argv)
+	char **argv与char *argv[]等价。
+	也就是说，argv是一个指向指针的指针，它所指向的指针指向char；
+	
+	因此，即使在原始定义中，argv也是指向指针的指针，两种形式都可以用，第一种更行出地表明argv表示一系列字符串
+	顺带一提，许多环境(UNIX DOS)都允许用双引号把多个单词括起来形成一个参数，例如：
+	repeat "i am hungray" now
+	这行命令把字符串"i am hungray"赋给argv[1],把“now”赋给argv[2]
+
+	
+11.8.1	集成环境中的命令行参数
+	Windows集成环境（如Xcode、Microsoft Visual C++、Embarcadero C++ Builder）都不用命令行运行程序；
+	有些环境中有项目对话框，为特定项目指定命令行参数；
+	其他环境中，可以在IDE中编译程序，然后打开MS-DOS窗口命令行模式中运行程序；
+	但是，如果你的系统有一个运行命令行的编译器(如GCC)会更简单；
+
+11.8.2	Macintosh中的命令行
+	如果使用Xcode 4.6（或类似的版本），可以在Product菜单中选择Scheme选项来提供命令行参数，
+	编辑Scheme，运行。然后选择Argument标签，在Launch的Arguments Pass中输入参数。
+	或者进入Mac的Terminal模式和UNIX的命令行环境。然后，可以找到程序可执行代码的目录（UNIX的文件夹），
+	或者下载命令行工具，使用gcc或clang编译程序。
+
+	
+11.9	把字符串转换为数字
+	
+	数字既能以字符串形式储存，也能以数值形式储存，把数字储存为字符串就是储存数字字符；
+	例如，数字213以'2'、'1'、'3'、'\0'的形式被储存在字符串数组中，以数字形式储存213，储存的是int类型的值
+
+	C要求用数字形式进行数值运算(如加法和比较)，但是在屏幕上显示数字则要求字符串形式；
+	因为屏幕显示的是字符；
+	printf()和sprintf()函数，通过%d和其他转换说明，把数字从数值形式转换为字符串形式，
+	scanf()可以把输入字符串转换为数值形式，C还有一些函数专门用于把字符串形式转换为数值形式；
+
+	假设你编写的程序需要使用数值命令形参，但是命令形参数被读取为字符串。
+	因此，要使用数值必须先把字符串转换为数字。
+	如果需要整数，可以使用atoi（）函数（用于把字母数字转换成整数），
+	该函数接受一个字符串作为参数，返回相应的整数值。演示如下：
+	
+#include<stdio.h>
+#include<stdlib.h>
+int main(int argc, char *argv[])
+{
+	int i,times;
+	if (argc < 2 || (times = atoi(argv[1])) < 1)
+		printf("Usage:%s positive-number\n", argv[0]);
+	else
+		for (i = 0; i < times; i++)
+			puts("Hello,good looking!");
+	return 0;
+}
+	运行结果：
+
+	C:\>call.exe 3
+	Hello,good looking!
+	Hello,good looking!
+	Hello,good looking!
+	
+	
 
 
 
