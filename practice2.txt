@@ -12660,6 +12660,614 @@ int main(int argc, char *argv[])
 	Hello,good looking!
 	
 	
+	ANSIC还提供一套更智能的函数：
+	strtol()把字符串转换成long类型的值；
+	strtoul()把字符串转换成unsigned long 类型的值;
+	strtod()把字符串转换成double类型；
+	这些函数的智能之处在于识别和报告字符串中的首字符是否是数字，而且strtol和strtoul还可以指定数字的进制；
+	
+	下面是strtol()函数示例；函数原型如下：
+	long strtol(const char *restrict nptr, char **restrict endptr,int base);
+	这里，nptr是指向待转换字符的指针，endptr是一个指针的地址，该指针被设置为标识输入数字结束字符的地址；
+	base表示以什么进制写入数字；
+
+#include<stdio.h>
+#include<stdlib.h>
+#define LIM 30
+char * s_gets(char * st, int n);
+int main(void)
+{
+	char number[LIM];
+	char * end;
+	long value;
+
+	puts("Enter a number (empty line to quit):");
+	while (s_gets(number, LIM) && number[0] != '\0')
+	{
+		value = strtol(number, &end, 10);
+		printf("base 10 input,base 10 output:%ld,stopped at %s(%d)\n", value, end, *end);
+		value = strtol(number, &end, 16);
+		printf("base 16 input,base 10 output:%ld,stopped at %s(%d)\n", value, end, *end);
+		puts("Next number");
+	}
+	puts("Bye\n");
+}
+
+char *s_gets(char *st, int n)
+{
+	char*ret_val;
+	int i = 0;
+	ret_val = fgets(st, n, stdin);
+	if (ret_val)
+	{
+		while (st[i] != '\n'&&st[i] != '\0')
+			i++;
+		if (st[i] == '\n')
+			st[i] = '\0';
+		else
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
+
+	
+	运行结果：
+	
+	Enter a number (empty line to quit):
+	10	//输入①
+	base 10 input,base 10 output:10,stopped at (0)
+	base 16 input,base 10 output:16,stopped at (0)
+	Next number
+	10atom	//输入②
+	base 10 input,base 10 output:10,stopped at atom(97)
+	base 16 input,base 10 output:266,stopped at tom(116)
+	Next number
+		//输入③
+	Bye
+
+	①当base分别为10和16时，字符串10分别被转换成数字10和16；
+	如果end指向一个字符，*end就是一个字符；因此第一次转换在读到空字符时结束，此时end指向空字符；
+	打印end会显示一个空字符串，用%d输出*end显示的是空字符的ASCII码(0);
+	
+	②对于此输入字符串，当base为10时，end的值是'a'字符的地址，所以打印end显示的是字符串atom；
+	打印*end显示的是'a'字符的ASCII码，然而当base为16时，'a'被识别为一个有效的十六进制数；
+	strtol()函数把十六进制数10a转换成十进制266；
+	
+	strtol()函数最多可以转换三十六进制，'a'~'z'字符都可以用作数字；
+	strtoul()与该函数类似，但是它把字符串转换成无符号值，strtod()函数只以十进制转换，因此它只需要两个参数；
+
+	许多实现使用itoa()和ftoa()函数分别把正数和浮点数转换成字符串，但是这两个函数并不是C标准库成员，
+	可以用sprintf()函数替代他们，因为sprintf()的兼容性更好；
+
+11.10	关键概念
+
+	字符串，无论是由字符数组、指针还是字符串常量标识，都储存为包含字符编码的一系列字节，并以空字符结尾；
+	尤其需要牢记，使用strcmp()来代替关系运算符，
+	比较字符串时，应使用strcpy()或strncpy()代替赋值运算把字符串赋给字符数组；
+
+11.12	复习题
+	1.下面字符串的声明有什么问题？
+
+	int main(void)
+	{
+		char name[]={'F','e','s','s'};	//缺少字符串结尾'\0'或变成【字符数组】下标来分配储存空间,
+					//赋值动作：'a'是字符，不是字符串，“a”赋值是字符串；
+		......
+	}
+	
+	2.下面的程序将会输出什么？
+	
+	#include<stdio.h>
+	int main(void)
+	{
+		char note[] = "See you at the snack bar.";
+		char *ptr;
+	
+		ptr = note;
+		puts(ptr);			//See you at the snack bar.
+		puts(++ptr);		//ee you at the snack bar.
+		note[7] = '\0';		
+		puts(note);		//See you 
+		puts(++ptr);		//e you 
+		return 0;
+	}
+
+	
+	3.下面的程序会输出什么？
+
+	#include<stdio.h>
+	#include<string.h>
+	int main(void)
+	{
+		char food[] = "Yummy";
+		char *ptr;
+		ptr = food + strlen(food);
+		while (--ptr >= food)
+			puts(ptr);
+		return 0;
+	}
+	
+	Y	u	m	m	y	\0
+	↑food					↑ptr=food+strlen(food)	//指针位置
+
+	输出：
+	y
+	my
+	mmy
+	ummy
+	Yummy
+
+	4.下面程序将输出什么
+	
+	#include<stdio.h>
+	#include<string.h>
+	int main(void)
+	{
+		char goldwyn[40] = "art of it all ";
+		char samuel[40] = "I read p";
+		const char * quote = "the way through.";
+		strcat_s(goldwyn,40, quote);		//art of it all the way through.
+		strcat_s(samuel,40, goldwyn);		//I read part of it all the way through.
+		puts(samuel);			//I read part of it all the way through.
+		return 0;
+	}
+
+	5.下面的练习涉及字符串、循环、指针和递增指针，首先假设定义了下面的函数：
+	#include<stdio.h>
+	char *pr(char *str)
+	{
+		char *pc;
+		pc = str;
+		while (*pc)		//等效于*pc!=0，也就是pc指针指向'\0'时退出循环
+			putchar(*pc++);	//递增指针；输出指针指向的字符；直到指向\0;
+		do { putcahr(*--pc); } 	//do先输出（先递减指针然后解引用输出指针指向的字符）
+		while (pc - str);		//等效于(pc-str)!=0当递增后的指针递减直到回到初始位置前，一直输出；
+		return (pc);		//返回pc指针
+	}
+	
+	考虑下面的函数调用：
+	x=pr("Ho Ho Ho!");
+	
+	①将输出什么？	//Ho Ho Ho!!oH oH oH
+	②x是什么类型？	//x是指向char类型的指针
+	③x的值是什么？	//值是指向字符串常量H的地址；
+	④表达式*--pc是什么意思，与--*pc有何不同？	//递减指针位置；后者为指针的值递减
+	⑤如果将*--pc替换--*pc，会打印什么？		//打印一样，因为char字长为一字节
+	⑥两个while循环用来测试什么？			
+	⑦如果pr()函数的参数是空字符串，会怎样？		x指向NULL;
+	⑧必须在主调函数中做什么，才能让pr()函数正常运行？	//声明x类型；char *x;声明pr的函数原型；
+
+	H	o	(spcace)	H	o	(space)	H	o	!	\0
+	↑pc//传入str的指针初始位置；							pc+9
+
+
+	6.假设有如下声明
+	char sign='$';
+	sign占多少字节的内存？'$'占多数字节内存？"$"占多数字节内存？
+
+	char类型字长为1字节，sign占用1字节，'$'占用1字节,"$"是字符串，等效于"$\0",占用2字节
+
+	7.下面的程序会打印出什么？
+	#include<stdio.h>
+#include<string.h>
+#define M1 "How are ya,sweetie?"
+char M2[40] = "Beat the clock.";
+char *M3 = "chat";
+int main(void)
+{
+	char words[80];
+	printf(M1);					//How are ya,sweetie?\0
+	puts(M1);						//How are ya,sweetie?\0\n
+	puts(M2);						//Beat the clock.\0\n
+	puts(M2 + 1);					//eat the clock.\0\n
+	strcpy_s(words,80, M2);				//words="Beat the clock.\0"
+	strcat_s(words,80, " Win a toy.");			//words="Beat the clock. Win a toy.\0"
+	puts(words);					//Beat the clock. Win a toy.\0\n
+	words[4] = '\0';					//words="Beat\0"
+	puts(words);					//Beat\0\n
+	while (*M3)					
+		puts(M3++);				//chat\0\nhat\0\nat\0\nt\0\n
+	puts(--M3);					//t\0\n
+	puts(--M3);					//at\0\n
+	M3 = M1;						
+	puts(M3);						//How are ya,sweetie?\0\n
+	return 0;
+}
+
+	8.下面的程序会打印出什么？
+	#include<stdio.h>
+	int main(void)
+	{
+		char str1[] = "gawasie";
+		char str2[] = "bletonism";
+		char *ps;
+		int i = 0;
+		for (ps = str1; *ps != '\0'; ps++)
+		{
+			if (*ps == 'a' || *ps == 'e')
+				putchar(*ps);
+			else
+				(*ps)--;
+			putchar(*ps);			//faavaarhee\0
+		}
+		putchar('\n');				
+		while (str2[i] != '\0')
+		{
+			printf("%c", i % 3 ? str2[i] : '*');		//*le*on*sm\0
+			++i;
+		}
+		return 0;
+	}
+
+
+	9.本章定义的s_gets()函数，用指针表示法代替数组表示法可以减少一个变量i，改写该函数
+
+	char *s_gets(char *st, int n)
+	{
+		char*ret_val;		
+		ret_val = fgets(st, n, stdin);
+		if (ret_val)
+		{
+			while (*st != '\n'&&*st != '\0')
+				st++;
+			if (*st == '\n')
+				*st = '\0';
+			else
+				while (getchar() != '\n')
+					continue;
+		}
+		return ret_val;
+	}
+
+
+
+	10.strlen()函数接受一个指向字符串的指针作为参数，并返回该字符串的长度，请编写一个这样的函数。
+
+	#include<stdio.h>
+	#include<string.h>
+	long rstrlen(char *st) 
+	{
+		long count=0;
+		while (*st++)			
+			count++;		
+		return count;
+	}	
+	int main(void)
+	{
+		char *exp = { "hello,world!" };
+		printf("%d", rstrlen(exp));
+		return 0;	
+	}
+	
+	
+	11.本章定义的s_gets()函数，可以用strchr()函数替代其中的while循环来查找换行符，请改写函数；
+
+	char *s_gets(char *st, int n)
+	{
+		char*ret_val;
+		char *find;
+		ret_val = fgets(st, n, stdin);
+		if (ret_val)
+		{
+			find=strchr(st,'\n');		//查找换行符
+			if(find)			//如果地址不是NULL；
+				*find='\0';		//在此处放置一个空字符
+			else
+				while (getchar() != '\n')
+					continue;
+		}
+		return ret_val;
+	}
+
+
+	
+	12.设计一个函数，接受一个指向字符串的指针，返回指向该字符串第1个空格字符的指针，若未找到返回空指针；
+
+	char * rstrchr(const char *str)
+	{
+		char *exp;
+		exp = strchr(str, ' ');
+		return exp;
+	}
+	*********************************************************
+	char *rstrchr(const char *str)
+	{
+		while(*str!=' '&&*str!='\0')
+			str++;
+		if(*str=='\0')
+			return NULL;
+		else
+			return str;
+	}
+
+	
+
+	13.重写程序清单11.21，使用ctype.h头文件中的函数，以便无论用户选择大写还是小写，程序都能正确识别；
+	
+#include <stdio.h>
+#include <string.h>
+#include<ctype.h>
+#define SIZE 40
+#define ANSWER "GRANT"
+char *s_gets(char *st, int n);
+void to_upper(char *str);
+int main(void)
+{	
+	char try[SIZE];		
+	puts("Who is buried n Grant's tomb?");
+	s_gets(try, SIZE);	
+	to_upper(try);
+	while (strcmp(try, ANSWER))
+	{
+		puts("No,that's wrong.try again.");
+		s_gets(try, SIZE);	
+		to_upper(try);
+	}
+	puts("That's right!");
+	return 0;
+}
+void to_upper(char *str)
+{
+	while (*str)
+	{
+		*str = toupper(*str);
+		str++;
+	}
+}
+char *s_gets(char *st, int n)
+	{
+		char*ret_val;
+		char *find;
+		ret_val = fgets(st, n, stdin);
+		if (ret_val)
+		{
+			find=strchr(st,'\n');		//查找换行符
+			if(find)			//如果地址不是NULL；
+				*find='\0';		//在此处放置一个空字符
+			else
+				while (getchar() != '\n')
+					continue;
+		}
+		return ret_val;
+	}
+
+
+11.13	编程练习
+	
+	1.设计并测试一个函数，从输入中获取下n个字符(包括空白、制表符、换行符)，把结果储存在一个数组里；
+	它的地址被传递作为一个参数；
+	#include<stdio.h>
+	#define LIM 20
+	char * getn(char ar[], int n);
+	int main(void)
+	{
+		char exp[LIM*2];
+		getn(exp, LIM);
+		puts(exp);
+		return 0;
+	}
+	char * getn(char ar[], int n)
+	{
+		for (int i = 0; i < n; i++)
+			ar[i] = getchar();
+		ar[n] = '\0';
+		while (getchar()!='\n')
+			continue;
+		return ar;
+	}
+
+
+	2.修改并编程练习1的函数，在n个字符后停止，或在读到第1个空白、制表符或换行符时停止；
+	哪个先遇到哪个停止，不能只使用scanf();
+	
+#include<stdio.h>
+#define LIM 20
+char * getn1(char ar[], int n);
+int main(void)
+{	
+	char exp[LIM*2];	
+	getn1(exp, LIM);
+	puts(exp);
+	return 0;
+}
+char * getn1(char ar[], int n)
+{
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		ar[i] = getchar();
+		if (ar[i] == ' ' || ar[i] == '\t' || ar[i] == '\n')
+		{
+			ar[i] = '\0';
+			while (getchar() != '\n')
+				continue;
+			return ar;
+		}
+	}
+	ar[n] = '\0';
+	while (getchar() != '\n')
+		continue;
+	return ar;
+}
+
+	3.设计并测试一个函数，从一行输入中把一个单词读入一个数组中，并丢弃输入行中的其余字符；
+	该函数应该跳过第1个非空白字符前面的所有空白。将一个单词定义为没有空白、制表符或换行符的字符序列；
+	
+#include<stdio.h>
+#define LIM 20
+char *character(char s[],int n);
+int main(void)
+{	
+	char exp[LIM];
+	char emp[LIM];
+	character(exp,LIM);
+	puts(exp);
+	printf("*************\n");
+	character(emp, LIM);
+	puts(emp);
+	return 0;
+}
+char *character(char s[], int n)
+{
+	int i=0;		
+	while (1) 
+	{
+		s[i] = getchar();
+		if (s[i] != ' ' && s[i] != '\t' && s[i] != '\n')		
+			break;		
+	}
+	for(i=1;i<n;i++)
+	{			
+		s[i] = getchar();
+		if (s[i] == ' ' || s[i] == '\t' || s[i] == '\n')
+		{
+			s[i] = '\0';
+			while (getchar() != '\n')
+				continue;
+			return s;
+		}		
+	}	
+	s[n-1] = '\0';
+	while (getchar() != '\n')
+		continue;
+	return s;
+}	
+
+	4.设计并测试一个函数，它类似编程练习3的描述，只不过它接受第二个参数指明可读取的最大字符数；同上
+
+	5.设计并测试一个函数，搜索第1个函数形参指定的字符串，在其中查找第2个函数形参指定的字符首次出现的位置；
+	如果成功，该函数返回指向该字符的指针，如果未找到，返回NULL；//等于写一个strchr()功能函数；
+	在一个完整的程序中测试该函数；使用一个循环给函数提供输入值；
+	
+	#include<stdio.h>	
+	char * lookup(char *str, int c);
+	int main(void)
+	{
+		char *ar = "hello can you see";	
+		char c = 'l';	
+		printf("%s",(lookup(ar, c)));
+		return 0;
+	}
+	char * lookup(char *str, int c)
+	{		
+		char *ps;
+		ps = str;	
+		while (*ps)
+		{			
+			if (*ps == c)
+				return ps;		
+			else
+				ps++;
+		}	
+		return NULL;
+	}
+
+
+	
+	6.编写一个名为is_within()的函数，接受一个字符和一个指向字符串的指针作为两个函数形参；
+	如果指定字符在字符串中，该函数返回一个非零值，否则返回0；在一个完整的程序中测试该函数；
+	
+	#include<stdio.h>
+	int is_within(int c,char * str);
+	int main(void)
+	{
+		char *ar = "hello can you see";
+		char c = 'h';
+		printf("%d", (is_within(c, ar)));
+		return 0;
+	}
+	int is_within(int c,char * str)
+	{
+		char *ps;
+		ps = str;
+		while (*ps)
+		{
+			if (*ps == c)
+				return 1;
+			else
+				ps++;
+		}
+		return 0;
+	}
+	
+	
+	7.strncpy(s1,s2,n)函数把s2中的n个字符拷贝至s1中，截断s2；或者有必要的话在末尾添加空字符；
+	如果s2的长度是n或多于n，目标字符串不能以空字符结尾，该函数返回s1；
+	自己编写一个这样的函数，名为mystrncpy()，并在一个完整的程序中测试该函数；
+
+#include<stdio.h>
+#define LIM 20
+char * mystrncpy(char *s1, char *s2, int n);
+int main(void)
+{
+	char *exp2 = "can you?";
+	char exp1[2*LIM];
+	mystrncpy(exp1, exp2, LIM);
+	puts(exp1);
+	return 0;
+}
+char * mystrncpy(char *s1, char *s2, int n)
+{
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		*(s1 + i) = *(s2 + i);
+		if (*(s1 + i) == '\0')
+			return s1;
+		else
+			*(s1 + n) = '\0';
+	}
+	return s1;
+}
+	
+
+	8.编写一个名为string_in()函数，接受两个指向字符串的指针作为参数。如果第2个字符串中包含第1个字符串，
+	该函数将返回第1个字符串开始的地址；例如string_in("hats","at")将返回hats中a的地址，否则返回空指针；
+	在一个完整的程序中测试该函数；
+	
+#include<stdio.h>
+char *string_in(char *s2, char *s1);
+int main(void)
+{
+	char *exp;
+	exp=string_in("hats", "at");
+	printf("%s",exp);
+	return 0;
+}
+char *string_in(char *s2, char *s1)
+{
+	int i=0,k=0,flag=0;
+	while (*(s1+k))//s1指针偏移k，直到'\0'结束循环①			
+	{				
+		while (*(s2+i))//s2+i;s2指针偏移i，直到\0结束循环②	
+		{
+			if (*(s2 + i) == *(s1 + k))//查找第一个相同字符
+			{
+				flag = i-k;//返回点标记
+				i++;	//递增i查询s2下一个字符							
+				k++;	//递增K查询s1下一个字符					
+				break;
+			}
+			else
+				i++;	
+		}	
+		while(*(s2+i)==0)
+		return NULL;
+	}
+	return s2+flag;
+}
+	
+	
+
+	9.编写一个函数，把字符串中的内容用其反序字符串代替，在一个完整的程序中测试该函数；
+	
+	
+	
+
+
+
+
 
 
 
