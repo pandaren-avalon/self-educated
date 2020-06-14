@@ -13345,42 +13345,166 @@ void nospace(char *str)
 
 #include<stdio.h>
 #include<string.h>
-#define LIM 4
-#define SIZE 5
+#define LIM 10
+#define SIZE 100
+void menu(void);
+int choice(void);
+void put2(char ar[][SIZE], int n);
+void put3(char ar[][SIZE], int n);
+void put4(char ar[][SIZE], int n);
 int main(void)
 {
-	int i, k;	
-	char ar[LIM][SIZE] = {""};
-	printf("Enter %d strings(less than %d letters):\n",LIM,SIZE);
-	printf("or with EOF to end enterd : \n");	
-	for (i = 0; i < LIM; i++)
+	int i, k, flag;	//计数器
+	int num;		//选择项
+	char ar[LIM][SIZE] = { "" };
+	printf("Enter %d strings(less than %d letters):\n", LIM, SIZE);
+	printf("or with EOF to end enterd : \n");
+	for (i = 0; i < LIM; i++)			//字符串数量
 	{
-		for (k = 0; k < SIZE; k++)
+		for (k = 0; k < SIZE; k++)		//每个字符串字符数量
 		{
-			ar[i][k] = getchar();		//读取字符串
-			if (ar[i][k] == '\n')		//字符串输入结束
+			ar[i][k] = getchar();		//读取字符
+
+			if (ar[i][k] == '\n')		//字符串输入结束标记
 			{
-				ar[i][k] = '\0';		
-				break;					
+				ar[i][k] = '\0';
+				break;
 			}
 			if (ar[i][k] == EOF)		//读到EOF处理
-			{	
-				ar[i][k] = '\n';				
+			{
+				flag = i;
 				goto loop;
 			}
-		}		
-		while (ar[i][SIZE-1])			//输入溢出处理
+		}
+		while (ar[i][SIZE - 1])			//输入溢出处理
 		{
-			ar[i][SIZE - 1] = '\0';			
+			ar[i][SIZE - 1] = '\0';
 			while (getchar() != '\n')
 				continue;
-		}			
-	}	
-	loop:printf("**********\n");
-	for (i = 0; i < LIM; i++)
-		printf("%s\n", ar[i]);
+		}
+		flag = i;
+	}
+loop:menu();
+	while ((num = choice()) != 5)
+	{
+		switch (num)
+		{
+		case 1: {for (i = 0; i < flag; i++)printf("%s\n", ar[i]); menu(); getchar(); continue; }
+		case 2: {put2(ar, flag); menu(); getchar(); continue; }
+		case 3: {put3(ar, flag); menu(); getchar(); continue; }
+		case 4: {put4(ar, flag); menu(); getchar(); continue; }
+		default: {printf("Please enter right number.\n"); menu();
+			while (getchar() != '\n')
+				continue; }
+		}
+	}
+	printf("Bye.\n");
 	return 0;
 }
+void menu(void)
+{
+	printf("************************************\n");
+	printf("1.print the strings as you enterd.\n");
+	printf("2.print the strings as ASCII order.\n");
+	printf("3.print incrementally by string length.\n");
+	printf("4.print the strings as first string length.\n");
+	printf("5.quit.\n");
+	printf("************************************\n");
+	return;
+}
+int choice(void)
+{
+	int n;
+	scanf_s("%d", &n);
+	return n;
+}
+void put2(char ar[][SIZE], int n)
+{
+	int i, top, seek;
+	char *exp[LIM];
+	char *temp;
+	for (i = 0; i < LIM; i++)
+		exp[i] = ar[i];
+	for (top = 0; top < LIM - 1; top++)
+		for (seek = top + 1; seek < LIM; seek++)
+			if (strcmp(exp[top], exp[seek]) > 0)
+			{
+				temp = exp[top];
+				exp[top] = exp[seek];
+				exp[seek] = temp;
+			}
+	for (i = LIM - n - 1; i < LIM; i++)
+	{
+		if (exp[i] != 0)
+		{
+			printf("%s", exp[i]);
+			printf("\n");
+		}
+	}
+}
+void put3(char ar[][SIZE], int n)
+{
+	int i, top, seek;
+	char *exp[LIM];
+	char *temp;
+	for (i = 0; i < LIM; i++)
+		exp[i] = ar[i];
+	for (top = 0; top < LIM - 1; top++)
+		for (seek = top + 1; seek < LIM; seek++)
+			if (strlen(exp[top]) > strlen(exp[seek]))
+			{
+				temp = exp[top];
+				exp[top] = exp[seek];
+				exp[seek] = temp;
+			}
+	for (i = LIM - n - 1; i < LIM; i++)
+	{
+		if (exp[i] != 0)
+		{
+			printf("%s", exp[i]);
+			printf("\n");
+		}
+	}
+}
+void put4(char ar[][SIZE], int n)
+{
+	int i, k,top, seek,p;	
+	char *exp[LIM];
+	char *temp;
+	int lenthl[LIM];
+	for (i = 0; i < LIM; i++)//复制数组
+		exp[i] = ar[i];
+	for (i = 0; i < LIM; i++)
+	{
+		p = 0;
+		for (k = 0; k < SIZE; k++)
+		{			
+			if (exp[i][k] != ' '&&exp[i][k] != '\t'&&exp[i][k] != '\0')
+				p++;
+			else
+				break;
+		}
+		lenthl[i] = p;			
+	}
+	for (top = 0; top < LIM - 1; top++)//排序
+		for (seek = top + 1; seek < LIM; seek++)
+			if (lenthl[top] >= lenthl[seek])
+			{
+				temp = exp[top];
+				exp[top] = exp[seek];
+				exp[seek] = temp;
+			}
+	for (i = 0; i < LIM; i++)
+	{		
+		printf("%s", exp[i]);
+		printf("\n");		
+	}
+}
+
+
+
+
+
 
 
 
