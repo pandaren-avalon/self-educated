@@ -13503,9 +13503,328 @@ void put4(char ar[][SIZE], int n)
 
 
 
+	12.编写一个程序，读取输入，直至读到EOF，报告读入的单词数、大写字母数、小写字母数、
+	标点符号数和数字字符数，使用type.h头文件中的函数；	
+	
+#include<stdio.h>
+#include<ctype.h>
+int main(void)
+{
+	char ch;
+	int words, up, low, mark, num,temp;	
+	words = 0;
+	up = 0;
+	low = 0;
+	mark = 0;
+	num = 0;
+	temp = 1;
+	while ((ch = getchar()) != EOF)
+	{			
+		if (ch == ' ' || ch == '\t' || ch == '\n')
+		{
+			temp = 0;
+			continue;
+		}
+		else
+		{
+			if (temp == 0)
+			{
+				words++;
+				temp = 1;
+			}
+			if (isupper(ch))
+				up++;
+			if (islower(ch))
+				low++;
+			if (ispunct(ch))
+				mark++;
+			if (isdigit(ch))
+				num++;
+		}
+	}
+	printf("Here is the report:\n");
+	printf("The number of words:%d\n", words);
+	printf("The number of uppercase letters:%d\n", up);
+	printf("The number of lowercase letters:%d\n", low);
+	printf("The number of punctuation marks:%d\n", mark);
+	printf("The number of numeric characters:%d\n", num);
+	return 0;
+}
+	
+
+
+
+	13.编写一个程序，反序显示命令行参数的单词，例如命令行参数是see you later,
+	程序应该打印later you see.
+	
+	非命令行模式：
+	***********************************************************************************
+	#include<stdio.h>
+	#define LIM 10
+	#define SIZE 20
+	int main(void)
+	{
+		int i, k;
+		i = 0;
+		k = 0;
+		char ar[LIM][SIZE] = {""};
+		while((ar[i][k] = getchar())!='\n')	//当输入不是回车
+		{		
+			if (ar[i][k] != ' ')		//若输入不是空格	
+				k++;		//递增字符
+			else
+			{			//若输入空格			
+				ar[i][k+1] = '\0';	//空格替换成字符串结尾				
+				i++;		//递增字符串
+				k = 0;		//字符计数器重置
+			}
+		}
+		if (ar[i][k] == '\n')			//读取回车处理
+		{
+			ar[i][k] = ' ';		//回车符替换成字符串结尾
+			ar[i][k + 1] = '\0';			
+		}
+		for (i = k+2; i >= 0; i--)		//输出数组字符串内容
+			printf("%s", ar[i]);
+		return 0;
+	}
+	*****************************************************************************************
+	命令行模式：
+	#include<stdio.h>
+	int main(int argc,char *argv[])
+	{
+		int k;
+		for (k = 1;k < argc; k++)	
+			printf("%s ",argv[argc-k]);
+		printf("\n");	
+		return 0;
+	}
+
+
+	14.编写一个通过命令行运行的程序计算幂，第一个命令行参数是double类型的数，作为幂的底数；
+	第二个参数是正数，作为幂的指数。
+	
+	#include<stdio.h>
+	#include<stdlib.h>
+	int main(int argc, char *argv[])
+	{	
+		int i,n;
+		double m=1.0,k;
+		k = atof(argv[1]);
+		n = atoi(argv[2]);
+		for (i = 0; i <n ; i++)
+			m = m*k;
+		printf("%.2f", m);
+		return 0;
+	}
+
+
+	15.使用字符分类函数实现atoi()函数，如果输入的字符串不是纯数字，该函数返回0；
+	
+#include<stdio.h>
+#include<ctype.h>
+#define LIM 10
+int strtoint(char *str);
+int intmi(int a, int b);
+int main(void)
+{
+	int k;
+	char ar[LIM];
+	scanf_s("%s", ar, LIM);
+	k=strtoint(ar);
+	printf("%d", k);
+	return 0;
+}
+int intmi(int a, int b)
+{
+	int i;
+	int sum=1;
+	for (i = 0; i < b; i++)
+		sum = sum * a;
+	return sum;
+}
+int strtoint(char *str)
+{
+	int i, k,sum;
+	sum = 0;
+	i = 0;
+	while (*(str + i))
+	{		
+		if (isdigit(*(str + i)))
+			i++;
+		else
+			return 0;
+	}
+	printf("i=%d\n", i);
+	for (k = 0; k < i; k++)
+	{
+		sum += intmi(10,i-k-1)*(*(str + k)-48);
+		printf("k=%d,sum=%d,str+k=%d\n",k, sum,*(str+k)-48);
+	}
+	return sum;	
+}
+
+
+	16.编写一个程序读取输入，直到文件结尾，然后把字符串打印出来，该程序识别和实现下面的命令行参数：
+	-p	按原样打印
+	-u	把输入全部转换成大写
+	-l	把输入全部转换成小写
+	如果没有命令行参数，则让程序像是使用了-p参数那样运行。
+
+	
+#include<stdio.h>
+#include<ctype.h>
+#include<string.h>
+int main(int argc, char **argv)
+{	
+	char ch;
+	while ((ch = getchar()) != EOF)
+	{
+		if (argc <= 1)
+			putchar(ch);
+		else
+		{
+			if (strcmp(argv[1], "-p") == 0)
+				putchar(ch);
+			else if (strcmp(argv[1], "-u") == 0)
+			{
+				ch=toupper(ch);
+				putchar(ch);
+			}
+			else if (strcmp(argv[1], "-l") == 0)
+			{
+				ch=tolower(ch);
+				putchar(ch);
+			}
+		}
+	}
+	return 0;	
+}
 
 
 
 
+第十二章	存储类别、链接和内存管理
+	
+	关键字：auto、extern、static、register、const、volatile、restricted、_Thread_local、_Atomic
+	函数：rand()、srand()、time()、malloc()、calloc()、free()
+	如何确定变量的作用域(可见范围)和生命周期(它存在多长时间)
+	设计更复杂的程序
+
+	
+12.1	存储类别
+	C提供了多种不同的模型或存储类别在内存中储存数据。
+
+	从硬件上看，被储存的每一个值都占用一定的物理内存，C把这块内存称为对象；
+	对象可以储存一个或多个值，一个对象可能并未储存实际的值，但是它在储存适当的值时一定具有相应的大小
+	(面向对象编程中的对象指的是类对象，其定义包括数据和允许对数据进行的操作，C不是面向对象编程语言)
+	
+	从软件上看，程序需要一种方法访问对象，这可以通过声明变量来完成:
+	int entity=3;
+	该声明创建了一个名为entity的标识符，标识符是一个名称，可以用来指定特定对象的内容；
+	标识符遵循变量的命名规则；该例中，标识符即是软件指定硬件内存中的对象的方式；该声明还提供了储存在对象中的值
+	
+	变量名不是指定对象的唯一途径；比如：
+	int *pt=&entity;
+	int ranks[10]；
+	在上面声明中，pt是一个标识符，它指定了一个储存地址的对象，但是*pt不是标识符，因为它不是一个名称；
+	然而它确实指定了一个对象，在这种情况下，它与entity指定的对象相同；
+	一般而言，那些指定对象的表达式被称为左值；所以entity既是标识符也是左值；*pt即是表达式也是左值；
+	按照这个思路，rank+2*entity即不是标识符(不是名称),也不是左值(他不指定内存位置上的内容)；
+	但是，表达式*(rank+2*entity)是一个左值，因为它的确指定了特定内存位置的值，即ranks的第7个元素；
+	ranks的声明创建了一个可容纳10个int类型元素的对象，该数组的每个元素也是一个对象；
+
+	所有这些示例中，如果可以使用左值改变对象中的值，该左值就是一个可修改的左值；
+	考虑下面的声明:
+	const char *pc="Behold a string literal!";
+	程序根据该声明把相应的字符串字面量储存在内存中，内含这些字符串的数组就是一个对象；
+	由于数组中的每个字符都能被单独访问，所以每个字符也是一个对象。
+	该声明还创建了一个标识符为pc的对象，储存着字符串的地址；
+	由于可以设置pc重新指向其他字符串，所以标识符pc是一个可修改的左值；
+	const只能保证被pc指向的字符串内容不被修改，但是无法保证pc不指向别的字符串；
+	由于*pc指定了储存'B'字符的数据对象，所以*pc是一个左值，但不是一个可修改的左值，
+	与此类似，因为字符串字面量本身指定了储存字符串的对象，所以也是一个左值，但不是可修改的左值；
+
+	可以用储存期描述对象，储存期是指对象在内存中保留了多长时间；
+	标识符用于访问对象，可以用作用域和链接描述标识符，标识符的作用域和链接表明了程序的哪些部分可以使用它；
+	不同的储存类别具有不同的储存期、作用域和链接；
+
+	标识符可以在源代码的多文件中共享、可用于特定文件的任意函数中、可仅限于特定函数中使用，
+	甚至只在函数中的某部分使用；
+	对象可存在于程序的执行期，也可以仅存在于它所在的函数的执行期；
+	对于并发编程，对象可以在特定线程的执行期存在，可以通过函数调用的方式显示分配和释放内存；
+	
+12.1.1	作用域
+	
+	作用域描述程序中可访问标识符的区域。一个C变量的作用域可以是块\函数\函数原型\文件 作用域。
+	到目前为止，本书程序示例中使用的变量几乎都具有块作用域。
+	块是用一对花括号括起来的代码区域；
+	例如整个函数体是一个块，函数中的任意复合语句也是一个块。
+	定义在块中的变量具有块作用域；块作用域变量的可见范围是从定义处到包含该定义的块的末尾；
+	
+	另外，虽然函数的形参声明在函数的花括号之前，但是它们也具有块作用域，
+	因此下面代码中变量cleo和patrick都有块作用域
+	double blocky(double cleo)
+	{
+		double patrick=0.0;
+		......
+		return patrick;
+	}
+
+	声明在内层块中的变量，其作用域仅局限于该声明所在的块：
+
+	double blocky(double cleo)
+	{
+		double patrick=0.0;
+		int i;
+		for(i=0;i<10;i++)
+		{
+			double q=cleo*i	//q的作用域开始
+			......
+			patrick*=q;
+		}			//q的作用域结束
+		......
+		return patrick;
+	}
+
+	在该例中，q的作用域仅限于内层块，只有内层块中的代码才能访问q；
+
+	以前，具有块作用域的变量都必须声明在块的开头，C99放宽了这限制，允许在块中的任意位置声明变量；
+	因此对于for的循环头可以这样写：
+
+	for(int i=0;i<10;i++)
+		printf("i=%d",i);
+
+	C99把块的概念扩展到for循环、while循环、do while循环和 if语句所控制的代码，
+	即使这些代码没有花括号括起来，也算是块的一部分，
+	所以上面for循环中的变量i视为for循环块的一部分，它的作用域仅限于for循环，离开for循环无法访问i；
+	
+	函数作用域仅用于goto语句的标签。
+	这意味着即使一个标签首次出现在函数的内层块中，它的作用域也延申至整个函数；	
+	如果在两个块中使用相同的标签会很混乱，标签的函数作用域防止了这样的事情发生。//哪里防止了？？？
+
+	函数原型作用域，用于函数原型中的形参名(变量名)，如下所示：
+	int mighty(int mouse,double large);
+	
+	函数原型作用域范围是从形参定义处到原型声明结束；
+	这意味着，编译器在处理函数原型中的形参时只关心它的类型，而形参名(如果有的话)通常无关紧要；
+	而且即使有形参名，也不必与函数定义中的形参名相匹配。只有变长数组中，形参名才有用；
+
+		
+
+	
+	
+	
+
+
+
+
+
+
+
+
+
+	
+	
 
 
