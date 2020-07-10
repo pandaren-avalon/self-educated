@@ -8705,7 +8705,7 @@ unsigned long Fibonacci(unsigned long n)
 	
 
 
-【第10章】数组和指针
+【第十章】数组和指针
 	关键字 static
 	运算符 & *(一元)
 	如何创建并初始化数组
@@ -14274,95 +14274,1717 @@ int main(int argc, char **argv)
 
 	下面是使用了5种存储类别的简单示范：该示例仅为展示5种类别使用方法，并不是设计模型；
 	好的设计可以不需要使用文件作用域变量；
+
+//parta.c	
+
+#include<stdio.h>
+void report_count();
+void accumulate(int k);
+int count = 0;		//文件作用域，外部链接
+int main(void)
+{
+	int value;		//自动变量
+	register int i;	//寄存器变量
+	printf("Enter a positive integer (0 to quit):");
+	while (scanf_s("%d", &value) == 1 && value > 0)
+	{
+		++count;
+		for (i = value; i >= 0; i--)
+			accumulate(i);
+		printf("Enter a positive integer(0 to quit):");
+	}
+	report_count();
+	return 0;
+}
+void report_count()
+{
+	printf("Loop executed %d times\n", count);
+}
+
+
+//partb.c;与parta.c一起编译；
 	
+#include<stdio.h>
+extern int count;		//引用式声明，外部链接
+static int total = 0;		//静态定义，内部链接
+void accumulate(int k);	
+void accumulate(int k)	//k具有块作用域，无链接
+{
+	static int subtotal = 0;	//静态变量，无链接
+	if (k <= 0)
+	{
+		printf("loop cycle:%d\n", count);
+		printf("subtotal:%d;total:%d\n", subtotal, total);
+		subtotal = 0;
+	}
+	else
+	{
+		subtotal += k;
+		total += k;
+	}
+}
+
+
+
+	在改程序中，块作用域的静态变量subtotal统计每次while循环传入accumulate()函数的总数；
+	具有文件作用域、内部链接的变量total统计所有传入accumulate()函数的总数;
+	当传入负值时，accumulate()函数报告total和subtotal的值，并重置subtotal；
+	该函数调用外部变量count 来统计main()中while循环迭代次数，在parta.c和partb.c中共享count；
+
+
+12.1.11	存储类别和函数
+	函数也有存储类别，可以是外部函数(默认)或静态函数，C99新增了第三种类别——内联函数；在16章介绍；
+	外部函数可以被其他文件的函数访问，但是静态函数只能用于其定义所在的文件。假设一文件中包含了如下原型：
+	double gamma(double);	//该函数默认为外部函数；
+	static double beta(int ,int);
+	extern double delta(double,int);
 	
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	在同一个程序中，其他文件的函数可以调用gamma()和delta()，但是不能调用beta()；
+	因为static存储类别说明符创建的函数属于特定模块私有。这样做避免了名称冲突问题；
+	由于beta()受限于它所在的文件，所以其他文件中可以使用与之同名的函数；
+
+	通常的做法是，用extern关键字声明定义在其他文件中的函数。表明当前文件中使用的函数被定义在别处；
+	除非是用static关键字，否则一般函数声明都默认为extern
 
 	
+12.1.12	存储类别的选择
+	保护程序设计的黄金法则是 “按需知道”原则，尽量在函数内部解决该函数的任务，只共享那些需要共享的变量；
+	除自动存储类别外，其他存储类别也很有用，在使用前先考虑下是否有必要这样做；
+
+12.2	随机数函数和静态变量
+	随机数函数rand()
+	ANSIC库提供了rand()函数生成随机数；
+	生成随机数有多种算法；ANSI允许C实现针对特定机器使用最佳算法，ANSIC标准还提供了一个可移植的标准算法；
+	在不同系统中生成相同的随机数。
+	实际上rand()是伪随机数生成器；	意思是可预测生成数字的实际序列，但是数字在其取值范围内均匀分布；
+	
+	为了看清楚程序内部的情况，我们使用可移植的ANSI版本，而不是编译器内置的rand()函数；
+	可移植版本的方案开始于一个种子数字，该函数使用该种子生成新的数，这个新数又称为新的种子；
+	然后新种子可用于生成更新的种子，以此类推；
+	该方案要生效，随机函数必须记录它上一次被调用时所使用的种子，这里需要一个静态变量；
+	下面程序演示了版本0：
+	
+	static unsigned long int next = 1;	//种子
+	unsigned int rand0(void)		//生成伪随机数的魔术公式
+	{
+		next = next * 1103515245 + 12345;
+		return (unsigned int)(next / 65536) % 32768;
+	}			
+	在上面的程序中，静态变量next的初始值是1，其值在每次调用rand0()函数时都会被修改(通过魔术公式)；
+	该函数是用于返回一个0-32767之间的值；注意next是具有内部链接的静态变量(并非无链接)；
+	这是为了方便稍后扩展本例，供同一个文件中的其他函数共享；
+	在驱动程序上运行后，输出5次结果如下：	
+	16838
+	5758
+	10113
+	17515
+	31051
+	多次运行结果相同，因为都开始于相同的种子1；
+	可以引入另一个函数srand1()重置种子来解决这个问题。
+	关键是要让next成为只供rand1()和srand1()访问的内部链接静态变量；下面是修改后的文件：
+	
+	static unsigned long int next = 1;
+	int rand1(void)
+	{
+		next = next * 1103515245 + 12345;
+		return (unsigned int)(next / 65536) % 32768;
+	}
+	void srand1(unsigned int seed)
+	{
+		next = seed;
+	}
+
+	使用简单的驱动程序测试这两个函数：
+	
+#include<stdio.h>
+#include<stdlib.h>
+extern void srand1(unsigned int x);
+extern int rand1(void);
+int main(void)
+{
+	int count;
+	unsigned seed;
+	printf("Please enter your choice for seed.\n");
+	while (scanf_s("%u", &seed) == 1)
+	{
+		srand1(seed);	//重置种子；
+		for (count = 0; count < 5; count++)
+			printf("%d\n", rand1());
+		printf("Please enter next seed(q to quit):\n");
+	}
+	printf("Done\n");
+	return 0;
+}
+
+	每次重置种子后生成结果就不同，相同的种子按照同样的算法会产生固定的结果；
+
+	自动重置种子：
+	C实现允许访问一些可变的量(如时钟系统)，可以用这些值(可能会被截断)初始化种子值。
+	例如ANSIC有一个time()函数返回系统时间，
+	虽然时间单元因系统而异，但是重点是该返回值是一个可进行运算的类型；且其值随着时间变化而变化；
+	time()返回值的类型名是time_t，具体类型与系统有关，我们可以使用强制类型转换：
+
+	#include<time.h>		//提供time()的ANSI原型	
+	srand1((unsigned int)time(0));	//初始化种子
+	
+	一般而言，time()接受的参数是一个time_t类型对象的地址，而时间值就储存在传入的地址上；
+	当然也可以传入空指针（0）作为参数，这种情况下，只能通过返回值机制来提供值。
+
+	可以把这个技巧应用于标准的ANSI C函数srand()和rand()中。如果使用这些函数，要在文件中包含stdlib.c
+	实际上，既然明白了srand1()和rand1()如何使用内部链接的静态变量，也可以使用编译器提供的版本。
+
+12.3	掷骰子
+	我们将要模拟一个掷骰子游戏。
+	想要获得1~6的随机数，然而rand()生成的随机数在0~RAND_MAX之间，RAND_MAX被定义在stdlib.h中；
+	其值通常是INT_MAX,因此需要进行一些调整，方法如下：
+	1.把随机数求模6，获得的正数在0~5之间；
+	2.把结果+1，新值在1~6之间；
+	3.为方便后续拓展，把第一步中的数字6替换成骰子面数；
+
+	下面的代码实现了这3个步骤：
+	#include<stdlib.h>
+	int rollem(int sides)
+	{
+		int roll;
+		roll=rand()%sides+1;
+		return roll;
+	}
+	
+	我们还想用一个函数提示用户选择任意面数的骰子，并返回点数总和：
+
+#include<stdio.h>
+#include<stdlib.h>				//提供rand()原型
+#include"diceroll.h"
+int roll_count = 0;				//外部链接
+static int rollem(int sides)			//该函数属于该文件私有
+{
+	int roll;
+	roll = rand() % sides + 1;
+	++roll_count;			//计算函数调用次数
+	return roll;
+}
+int roll_n_dice(int dice, int sides)
+{
+	int d;
+	int total = 0;
+	if (sides < 2)
+	{
+		printf("Need at least 2 sides.\n");
+		return -2;
+	}
+	if (dice < 1)
+	{
+		printf("Need ar least 1 die.\n");
+		return -1;
+	}
+	for (d = 0; d < dice; d++)
+		total += rollem(sides);
+	return total;
+}
+
+	该文件加入了新元素，第一，rollem()函数属于该文件私有，它是roll_n_dice()的辅助函数；
+	第二，为了演示外部链接的特性，该文件声明了一个外部变量roll_count；它统计rollem()函数的调用次数；
+	第三，该文件包含以下预处理指令：#include"diceroll.h"
+	如果使用标准库函数，如rand()，要在当前文件中包含标准头文件，而不是声明该函数。
+	因为头文件中已经包含了正确的函数原型。我们仿效这一做法，把roll_n_dice()函数的原型放在diceroll.h头文件中；
+	把文件名放在双引号中而不是尖括号中，指示编译器在本地查找文件，而不是到编译器存放标准头文件的位置去查找；
+	“本地查找”的含义取决于具体的实现。一些常见的实现把头文件与源代码文件或工程文件放在相同的目录中。
+	下面是decerol.c头文件中的内容：
+
+	extern int roll_count;
+	int roll_n_dice(int dice, int sides);
+	
+	该头文件包含一个函数原型和一个extern声明。由于包含了该头文件，实际上包含了roll_count的两个声明：
+	extern int roll_count;		//头文件中的声明(引用式声明)
+	int roll_count=0;		//源代码文件中的声明(定义式声明)
+	这样做没问题，一个变量只能有一个定义式声明，但是extern式引用式声明，可以有多个引用式声明；
+
+	使用roll_n_dice()函数的程序都要包含diceroll.c头文件；
+	包含该头文件后，程序便可以使用roll_n_dice函数和roll_count变量；如下所示：
+	
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#include"diceroll.h"
+int main(void)
+{
+	int dice, roll;
+	int sides;
+	int status;
+
+	srand((unsigned int)time(0));
+	printf("Enter the number of sides per die,0 to stop.\n");
+	while (scanf_s("%d", &sides) == 1 && sides > 0)
+	{
+		printf("How namy dice?\n");
+		if ((status = scanf_s("%d", &dice)) != 1)//处理非法输入
+		{
+			if (status == EOF)
+				break;
+			else
+			{
+				printf("You should have enterd an integer.");
+				printf(" Let's begin again.\n");
+				while (getchar() != '\n')
+					continue;
+				printf("How many sides? Enter 0 to stop.\n");
+				continue;
+			}
+		}
+		roll = roll_n_dice(dice, sides);
+		printf("You have rolled a %d using %d %d-sided dice.\n", roll, dice, sides);
+		printf("How many sides? Enter 0 to stop.\n");
+	}
+	printf("The rollem() function was called %d times.\n", roll_count);
+	printf("BYE.\n");
+	return 0;
+}
+
+
+
+12.4	分配内存：malloc() 和 free()
+		
+	我们前面讨论的存储类别有一个共同之处：
+	在确定哪种存储类别后，根据已制定好的内存管理规则，自动选择作用域和存储期。
+	然而，还有更灵活的选择，即用库函数分配和管理内存。
+	
+	回顾下内存分配：
+	float x；
+	char place[]="Danceing oxen creek";
+	int plates[100];
+	
+	上面三个声明，分别为一个float类型的值和一个字符串预留了足够的内存，以及显式指定分配一定数量的内存；
+	静态数据在程序载入内存时分配，自动数据在程序执行块时分配，并在程序离开块的时候销毁。
+	
+	C能做的不止这些，可以在程序运行时分配更多的内存。主要工具是malloc()函数。
+	该函数接受一个参数：所需的内存字节数。
+	mallco()函数会找到合适的空闲内存块，这样的内存是匿名的；也就是说，malloc()分配内存，但是不会为其赋名。
+	然而，它确实返回动态分配内存块的首字节地址。
+	因此可以把该地址赋给一个指针变量，并使用指针访问这块内存。
+	因为char表示1字节，malloc()的返回类型通常被定义为指向char的指针。
+	
+	然而从ANSI C标准开始，C使用一个新的类型：指向void的指针。
+	该类型相当于一个“通用指针”
+	malloc()函数可用于返回指向数组的指针、指向结构的指针等，所以通常该函数的返回值会被强制转换为匹配类型；
+	在ANSIC中，应该坚持使用强制转换，提高代码的可读性。
+	然而，把指向void的指针赋给任意类型的指针完全不用考虑类型匹配问题。如果malloc()分配内存失败，返回空指针；
+	
+	我们试着用malloc()创建一个数组，除了用malloc()在程序运行时请求一块内存，还需要一个指针记录该内存位置；
+	例如：
+	double * ptd;
+	ptd=(double *)malloc(30*sizeof(double));
+	以上代码为30个double类型的值请求内存空间，并设置ptd指向该位置。
+	注意：指针ptd被声明为指向一个double类型，而不是指向内含30个double类型值的块。
+	数组名是该数组首元素的地址，因此如果让ptd指向这个块的首元素，便可像使用数组名一样使用它。
+	也就是说可以使用表达式ptd[0]来访问该块的首元素，ptd[1]访问第2个元素，以此类推；
+
+	现在我们有3种创建数组的方法：
+	① 声明数组时，用常量表达式显示数组的维度，用数组名访问数组的元素，可以用镜头内存或自动内存创建；
+	② 声明变长数组时，用变量表达式表示数组的维度，用数组名访问数组的元素，这种数组只能在自动内存中创建；
+	③ 声明一个指针，调用malloc()，将其返回值赋给指针，使用指针访问数组的首元素，该指针可以是静态或自动；
+	使用第2、3种方法可以创建动态数组，这种数组和普通数组不同，可以在程序运行时选择数组大小和分配内存。
+	例如，假设n是一个整型变量，在C99之前不能这么做：
+	double item[n];
+	但是，可以这样做：
+	ptd=(double *)malloc(n*sizeof(double));
+	如你所见，这比变长数组更灵活。
+	
+	通常，malloc()要与free()配套使用。
+	free()函数的参数是之前malloc()返回的地址，该函数释放之前malloc()分配的内存。
+	因此，动态分配内存的存储期从调用malloc()分配内存到调用free()释放内存为止。
+	设想malloc()和free()管理着一个内存池。
+	每次调用malloc()分配内存给程序使用，每次调用free()把内存归还内存池中，这样便可重复使用这些内存。
+	free()的参数应该是一个指针，指向由malloc()分配的一块内存。
+	不能用free()释放通过其他方式（如，声明一个数组）分配的内存。malloc()和free()的原型都在stdlib.h头文件中。
+	
+	使用malloc()，程序可以在运行时才确定数组大小。
+	如下例程序所示，它把内存块的地址赋给指针ptd，然后便可以使用数组名的方式使用ptd。
+	另外，如果内存分配失败，可以调用exit()函数结束程序，其原型在stdlib.h中。
+	EXIT_FAILURE 的值也被定义在stdlib.h中。标准提供了两个返回值以保证在所有操作系统中都能正常工作：			EXIT_SUCCESS（或者，相当于0）表示普通的程序结束，EXIT_FAILURE 表示程序异常中止。
+	一些操作系统（包括UNIX、Linux 和Windows）还接受一些表示其他运行错误的整数值。
+
+#include <stdio.h>
+#include <stdlib.h>
+int main(void)
+{
+	double *ptd;
+	int max;
+	int number;
+	int i = 0;
+	puts("What is the maximum number of type double entries?");
+	if (scanf_s("%d", &max) != 1)
+	{
+		puts("Number not correctly entered--bye.");
+		exit(EXIT_FAILURE);
+	}
+	ptd = (double *)malloc(max * sizeof(double));
+	if (ptd == NULL)
+	{
+		puts("Memory allocation failed.Goodbye.");
+		exit(EXIT_FAILURE);
+	}
+	/*ptd现在指向有max个元素的数组*/
+	puts("Enter the values(q to quit):");
+	while (i < max &&scanf_s("%lf", &ptd[i]) == 1)
+		++i;
+	printf("Here are your %d entries：\n", number = i);
+	for (i = 0; i < number; i++)
+		printf("%7.2f", ptd[i]);
+	if (i % 7 == 6)
+		putchar('\n');
+	if (i % 7 != 0)
+		putchar('\n');
+	puts("Done.");
+	free(ptd);
+	return 0;
+}
+	
+	注意，free()函数位于程序的末尾，它释放了malloc()函数分配的内存。free()函数只释放其参数指向的内存块。
+	一些操作系统在程序结束时会自动释放动态分配的内存，但是有些系统不会。
+	为保险起见，请使用free()，不要依赖操作系统来清理。
+	使用动态数组有什么好处？从本例来看，使用动态数组给程序带来了更多灵活性。
+	假设你已经知道，在大多数情况下程序所用的数组都不会超过100个元素，但是有时程序确实需要10000 个元素。
+	要是按照平时的做法，你不得不为这种情况声明一一个内含10000 个元素的数组。
+	基本上这样做是在浪费内存。如果需要10001个元素，该程序就会出错。
+	这种情况下，可以使用一个动态数组调整程序以适应不同的情况。
+
+12.4.1	free()的重要性
+	静态内存的数量在编译时是固定的，在程序运行期间也不会改变。
+	自动变量使用的内存数量在程序执行期间自动增加或减少。
+	但是动态分配的内存数量只会增加，除非用free（）进行释放。
+	例如，假设有：一个创建数组临时副本的函数，其代码框架如下：
+
+#include<stdio.h>
+#include<stdlib.h>
+
+int main(void)
+{
+	double glad[2000];
+	int i;
+	for (i = 0; i < 1000; i++)
+		gobble(glad, 2000);
+	return 0;
+}
+void gobble(double ar[], int n)
+{
+	double *temp = (double *)malloc(n * sizeof(double));
+	//free(temp); //假设忘记使用free()；
+}
+
+	第1次调用gobble()时，它创建了指针temp，并调用malloc()分配了16000 字节的内存（假设double为8字节）。
+	假设如代码注释所示，遗漏了free().当函数结束时，作为自动变量的指针temp也会消失。
+	但是它所指向的16000 字节的内存却仍然存在。
+	由于temp指针已被销毁，所以无法访问这块内存，它也不能被重复使用，因为代码中没有调用free()释放这块内存。
+
+	第2次调用gobble()时，它又创建了指针temp，并调用malloc()分配了16000字节的内存。
+	第1次分配的16000字节内存已不可用，所以malloc()分配了另外-块16000 字节的内存。
+	当函数结束时，该内存块也无法被再访问和再使用。
+	
+	循环要执行1000 次，所以在循环结束时，内存池中有1600万字节被占用。
+	实际上，也许在循环结束之前就已耗尽所有的内存。这类问题被称为内存泄漏（memory leak）。
+	在函数末尾处调用free()函数可避免这类问题发生。
+
+12.4.2	calloc()函数
+	
+	分配内存还可以使用calloc().典型的用法如下：
+	long*newmem;
+	newmem =(long*)cal1oc(100，sizeof(long));
+	和malloc()类似，在ANSI之前，calloc()也返回指向char的指针：在ANSI之后，返回指向void的指针。
+	如果要储存不同的类型，应使用强制类型转换运算符。
+	calloc()函数接受两个无符号整数作为参数（ANSI规定是size_t类型）。
+	第1个参数是所需的存储单元数量，第2个参数是存储单元的大小（以字节为单位）。
+	在该例中，long为4字节，所以，前面的代码创建了100个4字节的存储单元，总共400字节。
+
+	用sizeof（long）而不是4，提高了代码的可移植性。这样，在其他long不是4字节的系统中也能正常工作。
+	
+	calloc()函数还有一个特性：它把块中的所有位都设置为0
+	（注意，在某些硬件系统中，不是把所有位都设置为0来表示浮点值0）。
+
+	free()函数也可用于释放calloc()分配的内存。
+	动态内存分配是许多高级程序设计技巧的关键。我们将在第17章中详细讲解。
+	有些编译器可能还提供其他内存管理函数，有些可以移植，有些不可以。读者可以抽时间看一下。
+
+12.4.3	动态内存分配和变长数组
+	变长数组(VLA)和调用malloc()在功能上有些重合。例如，两者都可用于创建在运行时确定大小的数组：
+
+	int vlamal()
+	{
+	int n;
+	int*pi;
+	scanf("&d"，&n);
+	pi =(int*)malloc(n*sizeof(int));
+	int ar[n];//变长数组
+	pi[2]= ar[2]=-5;
+	}
+	不同的是，变长数组是自动存储类型。
+	因此，程序在离开变长数组定义所在的块时，变长数组占用的内存空间会被自动释放，不必使用free()。
+	另一方面，用malloc()创建的数组不必局限在一个函数内访问。
+	例如，可以这样做：
+	被调函数创建一个数组并返回指针，供主调函数访问，然后主调函数在末尾调用free()释放内存。
+	另外，free()所用的指针变量可以与malloc()的指针变量不同，但是两个指针必须储存相同的地址。
+	但是，不能释放同一块内存两次。
+
+	对多维数组而言，使用变长数组更方便。当然，也可以用malloc()创建二维数组，但是语法比较繁琐。
+	如果编译器不支持变长数组特性，就只能固定二维数组的维度，如下所示：
+
+	int n=5;
+	int m= 6;
+	int ar2[n][m];			//n*m的变长数组(VLA)
+	int(*p2)[6];				//C99之前的写法
+	int(*p3)[m];			//要求支持变长数组
+	p2 =(int(*)[6])malloc(n*6*sizeof(int));	//nx6数组
+	p3 =(int(*)[m])malloc(n*m*sizeof(int));	//n*m数组(要求支持变长数组)
+	ar2[1][2]= p2[1][2]= 12;
+
+	先复习一下指针声明。由于malloc()函数返回-一个指针，所以p2必须是--个指向合适类型的指针。
+	第1个指针声明：int(*p2)[6];//C99之前的写法
+	表明p2指向一个内含6个int类型值的数组。因此，p2[i]代表一个由6个整数构成的元素，p2[i][j]代表一个整数。
+	第2个指针声明用-一个变量指定p3所指向数组的大小。
+	因此，p3代表--个指向变长数组的指针，这行代码不能在C90标准中运行。
+
+12.4.4	存储类别和动态内存分配
+
+	存储类别和动态内存分配有何联系？
+	我们来看-一个理想化模型。可以认为程序把它可用的内存分为3部分：
+	一部分供具有外部链接、内部链接和无链接的静态变量使用：
+	一部分供自动变量使用：
+	一部分供动态内存分配。
+
+	静态存储类别所用的内存数量在编译时确定，只要程序还在运行，就可访问储存在该部分的数据。
+	该类别的变量在程序开始执行时被创建，在程序结束时被销毁。
+
+	然而，自动存储类别的变量在程序进入变量定义所在块时存在，在程序离开块时消失。
+	因此，随着程序调用函数和函数结束，自动变量所用的内存数量也相应地增加和减少。
+	这部分的内存通常作为栈来处理，这意味着新创建的变量按顺序加入内存，然后以相反的顺序销毁。
+
+	动态分配的内存在调用malloc()或相关函数时存在，在调用free()后释放。
+	这部分的内存由程序员管理，而不是一套规则。所以内存块可以在-一个函数中创建，在另一个函数中销毁。
+	正是因为这样，这部分的内存用于动态内存分配会支离破碎。
+	也就是说，未使用的内存块分散在已使用的内存块之间。另外，使用动态内存通常比使用栈内存慢。
+
+	总而言之，程序把静态对象、自动对象和动态分配的对象储存在不同的区域。下面示例程序：
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+int static_store = 30;			//静态变量，外部链接，文件作用域，静态存储期
+const char *pcg = "String Literal";	//静态变量，外部链接，文件作用域，静态存储期		
+int main(void)
+{
+	int auto_store = 40;		//自动变量，无链接，块作用域，自动存储期
+	char auto_string[] = "Auto char array";	
+	int *pi;
+	char *pcl;
+	pi = (int *)malloc(sizeof(int));	//自动变量，无链接，块作用域，动态内存分配
+	*pi = 35;
+	pcl = (char *)malloc(strlen("Dynamic String") + 1);
+	strcpy_s(pcl,15, "Danamic String");
+
+	printf("static_store:%d at %p\n", static_store, &static_store);
+	printf("  auto_store:%d at %p\n", auto_store, &auto_store);
+	printf("         *pi:%d at %p\n", *pi, pi);
+	printf(" %s at %p\n", pcg, pcg);
+	printf("%s at %p\n", auto_string, auto_string);
+	printf(" %s at %p\n", pcl,pcl);
+	printf("  %s at %p\n", "Quoted string","Quoted string");
+	free(pi);
+	free(pcl);
+	return 0;
+}
+	运行结果：
+	   static_store:30 at 00007FF76EE7C000	//7FF7区域1
+	    auto_store:40 at 0000002114D3F984	//0021区域2
+	                *pi:35 at 00000185EC2F58A0	//0185区域3
+	      String Literal at 00007FF76EE79BB0	//7FF7区域1
+	 Auto char array at 0000002114D3F9A8	//0021区域2
+	 Danamic String at 00000185EC2F4C40	//0185区域3
+	   Quoted string at 00007FF76EE79BC0	//7FF7区域1
+
+
+
+12.5	ANSI C类型限定符
+	我们通常用类型和存储类别来表述一个变量，C90还新增了两个属性，恒常性和易变性。
+	这两个属性可以分别用关键字const和volatile来声明。以这两个关键字创建的类型是限定类型。
+	C99标准新增了第3个限定符：restrict，用于提高编译器优化。C11新增第4个：_Atomic
+	C11提供一个可选库，由stdatomic.h管理，以支持并发程序设计，而且_Atomic是可选支持项。
+	
+	C99为类型限定符增加了一个新属性：它们现在是幂等的。
+	这个属性听起来很强大，其实意思是可以在一条声明中多次使用同一个限定符，多余的限定符将被忽略:
+	const const const int n=6;	//与 const int =6; 相同；
+	
+	有了这个新属性，就可以编写类似下面的代码:
+	typedef const int zip;
+	const zip q=8;
 	
 
+12.5.1	const类型限定符
+
+	以const关键字声明的对象，其值不能通过赋值或递增、递减来修改，所以：
+	const int m;
+	m=12		//不允许
+	编译器便会报错，限定的m值不允许被赋值或递增递减修改；但是可以初始化const变量：
+	const int m=12;	//允许
+	
+	该声明让m称为只读变量，初始化后就不能再改变它的值。
+	可以用const关键字创建不允许修改的数组：
+	const int ar[3]={30,20,15};
+	
+	1.在指针和形参声明中使用const
+	声明普通变量和数组时使用const关键字很简单，指针稍复杂一些，因为要区分是限定指针本身还是限定它的值；
+	const float * pf;		//指针指向限定值，pf指向一个float类型的const值
+	float const * pf;		//同上
+	float * const pt;		//限定指针，pt是一个const指针；指针指向float类型
+	const float * const ptr;	//指针和值都被限定；ptr既不能指向别处，它所指向的值也不能改变；
+	
+	把const放在*左侧任意位置，限定了指针指向的值不能改变；
+	把const放在*右侧，限定了指针本身不能被改变；
+	
+	const 的常见用法是声明为函数形参的指针，例如，假设有个函数要调用display()显示一个数组的内容；
+	要把数组名作为实际参数传递给该函数，但是数组名是一个地址，该函数可能会更改主调函数中的数据，
+	但是下面的原型保证了数据不会被更改：
+	void display(const int ar[],int limit);
+	在函数原型和函数头，形参声明const int ar[]与const int * ar相同，该声明表明不能更改ar所指向的数据；
+	
+	如果一个指针仅用于给函数访问值，应将其声明为一个指向const限定类型的指针；
+	如果要用指针更改主调函数中的数据，就不使用const关键字；例如strcat()原型如下：
+	char *strcat(char * restric s1,const char * restric s2);
+	它在第1个字符串的末尾添加第2个字符串副本，这更改了第1个字符串，但是未更改第2个字符串；
+	
+	2.对全局数据使用const
+	之前说，使用全局变量是一种冒险的方法，因为这样暴露了数据，程序的任何部分都能更改数据；
+	如果把数据设置为const，就可以避免这样的危险；因此用const限定符声明全局数据很合理；
+	可以创建const变量、const数组和const结构(结构是符合数据类型，下一章介绍)；
+	
+	然而，在文件间共享const数据要小心，可以采取两个策略：
+	1.遵循外部变量的常用规则，即在一个文件中使用定义式声明，在其他文件中使用引用式声明；
+	2.把const变量放在一个头文件中，然后再其他文件中包含该头文件；
+		这种方案中，必须在头文件中使用关键字static声明全局变量是const变量。
+		如果去掉static将导致每个文件中都有一个相同标识符的定义式声明，C标准不允许；
+	实际上，这种方案相当于给每个文件提供了一个单独的数据副本，由于每个副本只对该文件可见；
+	所以无法用这些数据和其他文件通信；不过它们都是完全相同的const数据，这不是问题；
+
+	头文件方案的好处是，方便你偷懒，不用惦记着在一个文件中使用定义式声明，在其他文件中使用引用式声明；
+	所有的文件都只需要包含同一个头文件即可；
+	缺点是，数据是重复的，如果const数据包含庞大的数组，就不能视而不见了//怎么处理？
+	
+12.5.2	volatile类型限定符
+	volatile限定符告知计算机，代理(而不是变量所在的程序)可以改变该变量的值。
+	通常它被用于硬件地址以及在其他程序或同时运行的线程中共享数据。
+	例如，一个地址上可能储存着当前的时钟时间，无论程序做什么，地址上的值都随时间的变化而变化；
+	或者一个地址用于接受另一台计算机传入的信息。
+	volatile声明方式跟const一样；
+
+	读者可能认为volatile是个可有可无的概念，为啥ANSI委员把它放入标准？
+	原因是它涉及编译器的优化，例如，假设有下面代码：
+	val1=x;
+	//中间一些不使用到x的代码；
+	val2=x;
+	
+	智能的(进行优化的)编译器会注意到以上代码使用了两次x;但并未改变它的值。
+	于是编译器把x的值临时储存在寄存器中，
+	然后在val2需要使用时，才从寄存器(而不是从原始内存位置上)读取x的值；以节约时间。这个过程被称为高速缓存。
+	高速缓存是个不错的优化方案，但是如果一些其他代理在以上两条语句之间改变了x的值，就不能这样优化了；
+	
+	如果没有volatile关键字，编译器就不知道这种事情是否会发生，因此安全起见，编译器不会进行高速缓存；
+	现在，如果声明中没有volatile关键字，编译器会假定变量的值在使用过程中不变，然后尝试优化代码。
+	
+	可以同时用const和volatile限定一个值，例如，通常用const把硬件时钟设置为程序不能更改变量，
+	但是同时可以通过代理改变，这时用volatile。只能在声明中同时使用这两个限定符，先后顺序不重要。如：
+	volatile const int x;
+	const volatile int * ptr;
+
+12.5.3	restrict类型限定符
+	restrict关键字允许编译器优化某部分代码以更好的支持计算。
+	它只能用于指针，表明该指针是访问数据对象的唯一且初始的方式。为什么这样做有用，先看几个例子：
+	
+	int ar[10];
+	int *restrict restar=(int *)malloc(10*sizeof(int));
+	int *par=ar;
+	
+	这里，指针reatar是访问由malloc()所分配内存的唯一且初始的方式，因此可以用restrict关键字限定它；
+	而指针par既不是访问ar数组中数据的初始方式，也不是唯一方式，所以不用把它设置为restrict；
+
+	下面考虑更复杂的例子，其中n是int类型：
+	
+	for(n=0;n<10;n++)
+	{
+		par[n]+=5;
+		restar[n]+=5;
+		ar[n]*=2;
+		par[n]+=3;
+		reatar[n]+=3;
+	}
+	
+	由于之前声明了restar是访问它所指向的数据块的唯一且初始方式，编译器可以把涉及restar的两条语句替换成：
+	restar[n]+=8;
+	但是，如果把与par相关的两条语句替换成下面的语句将导致计算错误：
+	par[n]+=8;
+	这是因为for循环在par两次访问相同的数据之间，用ar改变了该数据的值。
+
+	在本例中，如果未使用restrict关键字，编译器就必须假设最坏的情况
+	（即在两次使用指针之间，其他标识符可能已经改变了数据）
+	如果使用了restrict关键字，编译器就可以选择捷径优化计算；
+
+	restrict限定符还可用于函数形参中的指针。使编译器可以假定在函数体内其他标识符不会修改该指针指向的数据；
+	而且编译器可以尝试对其优化，使其不做别的用途。例如：
+	void memcpy(void * restrict s1,const void * restrict s2,size_t n);
+	void memmov(void * s1,const void * s2,size_t n);
+	这两个函数都从位置s2把n字节拷贝到位置s1；
+	memcpy()函数要求两个位置不重叠，但是memmov()没有这样的要求；
+	声明s1和s2为restrict说明这两个指针都是访问响应数据的唯一方式，所以它们不能访问相同块的数据；
+	这满足了memcpy()无重叠的要求。
+	memmov()函数允许重叠，它在拷贝数据时不得不更小心，以防在使用数据之前就先覆盖了数据；
+
+	restrict关键字有两个读者。一个是编译器，它告知编译器可以自由假定一些优化方案；
+	另一个读者是用户，它告知用户要使用满足restrict要求的参数。
+	总而言之，编译器不会检查用户是否遵循这一规则，但是无视它后果自负。
+
+12.5.4	_Atomic类型限定符
+	并发程序设计把程序执行分成可以同时执行的多个线程。这给程序设计带来了新的挑战；
+	包括如何管理访问相同数据的不同线程。
+	C11通过包含可选的头文件stdatomic.h和threads.h提供了一些可选的管理方法。
+	值得注意的是，要通过各种宏函数来访问原子类型。
+	当一个线程对一个原子类型的对象执行原子操作时，其他线程不能访问该对象；如下面的代码：
+
+	int hogs;	//普通声明
+	hogs=12;	//普通赋值；
+
+	可以替换成：
+	
+	_Atomic int hogs;		//hogs是一个原子类型的变量；
+	atomic_store(&hogs,12);	//stdatomic.h中的宏；
+
+	这里，在hogs中储存12是一个原子过程，其他线程不能访问hogs。
+	编写这种代码的前提是，编译器要支持这一新特性。
+	
+12.5.5	旧关键字的新位置
+	C99允许把类型限定符和存储类别说明符static放在 函数原型 和 函数头的形式参数的初始方括号中。
+	对于类型限定符而言，这样做为现有功能提供了一个替代语法。下面是旧语法的声明：
+	void ofmouth(int * const a1,int * restirct a2,int n);	//以前的语法风格
+	void ofmouth(int a1[const],int a2[restrict],int n);	//C99允许的风格
+	
+	该声明表明：a1是一个指向int的const指针，不能更改指针本身，可以更改指针指向的数据；
+	另外还表明：a2是一个restrict指针，表明该指针是访问它所指向数据对象唯一且初始的方式；
+	static的情况不同；
+	现在static除了表明静态存储类别变量的作用域或链接外，新的用法告知编译器如何使用形式参数；例如：
+	double stic(double ar[static 20]);
+	static 的这种用法表明，函数调用中的实际参数应该是一个指向数组首元素的指针，且该数组至少有20个元素；
+	这种用法的目的是让编译器使用这些信息优化函数的编码。
+	
+
+12.6	关键概念：
+	C提供多种管理内存的模型；除了熟悉这些模型外，还要学会如何选择不同的类别。
+	大多数情况下，最好选择自动变量，如果要使用其他类别，应有充分的理由。
+	通常，使用自动变量、函数形参和返回值进行函数间的通信比使用全局变量安全。
+	但是保持不变的数据适合用全局变量。
+
+	应该尽量理解静态内存、自动内存和动态分配内存的属性。尤其要注意：
+	静态内存的数量在编译时确定；静态数据在载入程序时被载入内存。
+	程序运行时，自动变量被分配或释放，所以自动变量占用的内存数量随着程序的运行会不断变化；
+	可以把自动内存看作是可重复利用的工作区；
+	动态分配的内存也会增加和减少，但是这个过程由函数调用控制，不是自动进行的。
+
+12.7	本章小结：
+	内存用于存储程序中的对象，由存储期、作用域和链接3个表征。
+	存储期：
+		①静态存储期：程序开始分配内存，程序运行期间一直都存在；
+		②自动存储期：程序进入变量定义所在块时分配，程序离开块时释放内存；
+		③动态分配存储期：调用malloc()或相关函数时分配，调用free()时释放；
+	作用域：
+		①定义在所有函数之外的变量具有文件作用域，对位于该变量声明之后的所有函数可见；
+		②定义在块或作为函数形参内的变量具有块作用域，只对该块以及它所包含的嵌套块可见；
+	链接	
+		①具有块作用域的变量是局部变量，无链接。
+		②具有文件作用域的变量可以是内部链接或外部链接。
+			内部链接意味着只有其定义所在的文件才能使用该变量；
+			外部链接意味着其他文件也可以使用该变量；
+	下面是5种存储类别：
+	
+	自动：	在块中不带存储类别说明符或带auto存储类别说明符的变量，自动存储期、块作用域、无链接；
+		如果未初始化自动变量，它的值是未定义的。
+	寄存器：	在块中带register存储类别说明符变量，自动存储期、块作用域、无链接，且无法获取其地址；
+		动作为请求将其存储到访问速度最快的区域，若未初始化，它的值是未定义的
+	静态、无链接：	在块中带static，静态存储期、块作用域、无链接。
+			编译时初始化一次，若未显式初始化，他的字节都被设置为0；
+	静态、外部链接：	在所有函数外部且无static，静态存储期、文件作用域、外部链接；
+			编译时初始化一次，若未显式初始化，他的字节都被设置为0；
+	静态、内部链接：	在所有文件外部且带static，静态存储期、文件作用域、内部链接；
+			编译时初始化一次，若未显式初始化，他的字节都被设置为0；
+
+	动态分配的内存由malloc()或相关的函数分配，该函数返回一个指向指定字节数内存块的指针；
+	这块内存被free()函数释放后可重复使用；
+	
+	类型限定符const、volatile、restrict和_Atomic
+	const：	限定数据在程序运行时不能改变；对指针时可限定指针本身或其值，看const的位置；
+	volatile：	限定的数据除了被当前程序修改外还可以被其他进程修改，警告编译器不要进行假定的优化；
+	restrict：	限定的指针是访问它所指向的数据的唯一途径；
+
+
+12.8	复习题
+	1.哪些存储类别的变量可以成为它所在函数的局部变量？	//自动；存储器；静态、无链接；
+	2.哪些存储类别的变量在它所在程序的运行期一直存在？	//3种静态存储期变量；
+	3.哪些存储类别的变量可以被多个文件使用？哪些类别的变量仅限于在一个文件中使用？//静态、外部；静态、内部
+	4.块作用域变量具有什么链接属性？//无链接
+	5.extern关键字有什么用于？	//引用式声明
+	6.考虑下面两行代码，就输出的结果而言有何异同：
+	int *p1=(int *)molloc(100*sizeof(int));	//创建100个int类型的数组；
+	int *p1=(int *)calloc(100,sizeof(int));	//创建100个int类型的数组，每个元素被预设置为0；
+
+	7.下面的变量对哪些函数可见？程序是否有误？
+	①
+	int daisy;		//静态外部链接；
+	int main(void)
+	{
+		int lily;	//自动变量
+		......
+	}
+	int petal()
+	{
+		extern int daisy, lily;	//可选声明；lily非法引用声明
+		......
+	}
+	②
+	extern int daisy;	//引用式声明，daisy为①中定义的值；
+	static int lily;	//lily为静态、内部链接，与①中无关；
+	int rose;		//静态、外部链接
+	int stem(void)
+	{
+		int rose;	//自动存储类型；
+	}
+	
+	8.下面程序会打印什么？
+	
+#include<stdio.h>
+char color = 'B';
+void first(void);
+void second(void);
+int main(void)
+{
+	extern char color;
+	printf("color in main()is %c\n", color);	//color in main() is B
+	first();				//color in first() is R
+	printf("color in main()is %c\n", color);	//color in main() is B
+	second();				//color in second() is G
+	printf("color in main()is %c\n", color);	//color in main() is G
+	return 0;
+}
+void first(void)
+{
+	char color;
+	color = 'R';
+	printf("color in first() is %c\n", color);
+}
+void second(void)
+{	
+	color = 'G';
+	printf("color in first() is %c\n", color);
+}
+	
+	9.假设文件的开始处有如下声明：
+	static int plink;
+	int value_ct(const int arr[],int value,int n);
+	
+	①以上声明表明了程序员什么意图？
+	//plink 为本文件私有变量；静态内部链接存储类型，文件作用域；
+	arr[].value,n为函数value_ct私有变量，块作用域，自动存储类型；数组const修饰为只读；
+	②用const int value和const int n分别替换int value和int n，是否对主调程序的值加强保护？
+	//不会，value和n已经是原始数据的备份，所以该函数无法更改主调函数中相应的值，
+	加const声明式防止函数修改value和n的值，例如const限定n后就不能使用递增递减等表达式；
+
+	
+	
+12.9	编程练习
+	1.不使用全局变量，重写12.4程序：
+	#include<stdio.h>
+	int critic(void);
+	int main(void)
+	{
+		int units = 0;
+		printf("How many pounds to a firkin of butter?\n");
+		scanf_s("%d", &units);
+		while (units != 56)
+			units=critic();
+		printf("You must have looked it up!\n");
+		return 0;
+	}
+	int critic(void)
+	{	
+		int n;
+		printf("No luck,my friend.try again.\n");
+		scanf_s("%d", &n);
+		return n;
+	}
+	
+	
+	2.下面是计算油耗的程序，提示用户选择分美制(英里/加仑)或公制(升/100公里)计算模式，然后接收数据计算；
+	
+//pel2-2b.c
+#include<stdio.h>
+#include"pel2-2a.h"
+int main(void)
+{
+	int mode;
+	printf("Enter 0 for metric mode,1 for US mode:");
+	scanf_s("%d", &mode);
+	while (mode >= 0)
+	{
+		set_mode(mode);
+		get_info();
+		show_info();
+		printf("Enter 0 for metric mode,1 for US mode");
+		printf("(-1 to quit):");
+		scanf_s("%d", &mode);
+	}
+	printf("Done.\n");
+	return 0;
+}
+
+下面是一些输出示例：
+Enter 0 for metric mode,1 for US mode: 
+【0】
+Enter distance traveled in kilometers: 
+【600】
+Enter fuel consumed in liters: 
+【78.8】
+Fuel consumption is 13.13 liters per 100 km.
+Enter 0 for metric mode, 1 for US mode (-1 to quit) :
+ 【1】
+Enter distance traveled in miles: 
+【434】
+Enter fuel consumed in gallons: 
+【12.7】
+Fuel consumption is 34.2 miles per gallon. 
+Enter 0 for metric mode,1 for US mode (-1 to quit): 
+【3】
+Invalid mode specified. Mode 1 (US) used. .
+Enter distance traveled in miles: 
+【388】
+Enter fuel consumed in gallons: 
+【15.3】
+Fuel consumption is 25.4 miles per gallon.
+Enter 0 for metric mode,1 for US mode (-1 to quit) :
+ 【-1】
+Done.
+
+	如果用户输入了不正确的模式，程序向用户给出提示并使用上一次输入的正确模式；
+	请提供pel2-2a.h头文件和pel2-2a.c源文件；
+	源代码文件应定义3个具有文件作用域、内部链接的变量：
+	一个表示模式，一个表示距离，一个表示消耗的燃料；
+	get_info()函数根据用户输入的模式提示用户输入相应数据，并将其储存到文件作用域变量中；
+	show_info()函数根据设置的模式计算并显示油耗。可以假设用户输入的都是数值数据。
+
+//pel2-2a.c
+static int mode=0;
+static double distance=0;
+static double fuel=0;
+#include<stdio.h>
+#include<string.h>
+void set_mode(int n)
+{	
+	char *ar = "US";
+	char *pr = "metric";
+	char *ch = " ";
+	if (n < 2)
+		mode = n;
+	else
+	{
+		if (mode == 0)
+			ch = pr;
+		if (mode == 1)
+			ch = ar;
+		printf("Invalid mode specified.Mode %d(%s) used.\n", mode, ch);
+	}
+	return;
+}
+void get_info(void)
+{
+	if (mode == 0)
+	{
+		printf("Enter distance traveled in kilometers:");
+		scanf_s("%lf", &distance);
+		printf("Enter fuel consumed in liters:");
+		scanf_s("%lf", &fuel);
+	}
+	if (mode == 1)
+	{
+		printf("Enter distance traveled in miles:");
+		scanf_s("%lf", &distance);
+		printf("Enter fuel consumed in gallons:");
+		scanf_s("%lf", &fuel);
+	}
+	return;
+}
+void show_info(void)
+{
+	double rep;
+	if (mode == 0)
+	{
+		rep = fuel * 100 / distance;
+		printf("Fuel consumption is %.2f liters per 100 km.\n",rep);
+	}
+	if (mode == 1)
+	{
+		rep = distance / fuel;
+		printf("Fuel consumption is %.1f miles per gallon.\n", rep);
+	}
+	return;
+}
+
+//pel2-2a.h
+void set_mode(int n);
+void get_info(void);
+void show_info(void);
+
+
+	
+	3.重新设计编程练习2，要求只使用自动变量，该程序提供的用户界面不变，但是函数调用要做相应变化；
+	
+//pel2-2b.c
+#include<stdio.h>
+#include"pel2-2a.h"
+int main(void)
+{
+	int mode;
+	int temp=0;
+	int k;
+	double m;
+	printf("Enter 0 for metric mode,1 for US mode:");
+	scanf_s("%d", &mode);	
+	while (mode >= 0)
+	{
+		k=set_mode(mode,temp);
+		m=get_info(k);
+		show_info(k,m);
+		printf("Enter 0 for metric mode,1 for US mode");
+		printf("(-1 to quit):");
+		temp = mode;
+		scanf_s("%d", &mode);
+	}
+	printf("Done.\n");
+	return 0;
+}
+
+//pel2-2a.c
+#include<stdio.h>
+#include<string.h>
+int set_mode(int n,int t)
+{	
+	int k=0;
+	char *ar = "US";
+	char *pr = "metric";
+	char *ch = " ";	
+	if (n < 2)
+		k = n;
+	else
+	{
+		if (t == 0)
+		{
+			k = t;
+			ch = pr;
+		}
+		if (t == 1)
+		{
+			k = t;
+			ch = ar;
+		}
+		printf("Invalid mode specified.Mode %d(%s) used.\n", k, ch);
+	}
+	return k;
+}
+double get_info(int k)
+{
+	double distance;
+	double fuel;
+	double rep;	
+	if (k == 0)
+	{
+		printf("Enter distance traveled in kilometers:");
+		scanf_s("%lf", &distance);
+		printf("Enter fuel consumed in liters:");
+		scanf_s("%lf", &fuel);
+		rep = fuel * 100 / distance;		
+	}
+	if (k == 1)
+	{
+		printf("Enter distance traveled in miles:");
+		scanf_s("%lf", &distance);
+		printf("Enter fuel consumed in gallons:");
+		scanf_s("%lf", &fuel);
+		rep = distance / fuel;		
+	}
+	return rep;
+}
+void show_info(int k,double m)
+{		
+	if (k == 0)		
+		printf("Fuel consumption is %.2f liters per 100 km.\n",m);	
+	if (k == 1)		
+		printf("Fuel consumption is %.1f miles per gallon.\n", m);	
+	return;
+}
+
+//pel2-2a.h
+int set_mode(int n,int t);
+double get_info(int k);
+void show_info(int k,double m);
+
+	4.在一个循环中编写并测试一个函数，该函数返回它被调用的次数；
+
+#include<stdio.h>
+void showtimes(void);
+static int count=0;
+int main(void)
+{
+	int k;	
+	for (k = 0; k < 10; k++)
+	{
+		showtimes();
+	}
+	printf("used times:%d\n", count);
+}
+void showtimes(void)
+{	
+	count++;
+}
+
+	5.编写一个程序，生成100个1~10范围内的随机数，并以降序排列；
+	(可以把11章的排序算法稍加改动，就可用于整数排序，这里仅对整数排序)；
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+int rollnum(int n);
+int main(void)
+{
+	int i,k;
+	int ar[100];
+	int temp[2];
+	srand((unsigned int)time(0));
+	for (i = 0; i < 100; i++)	
+		ar[i] = rollnum(10);
+	for(i=1;i<100;i++)
+		for (k = 0; k < 99; k++)
+		{
+			if (ar[i] > ar[k])
+			{
+				temp[1] = ar[i];
+				ar[i] = ar[k];
+				ar[k] = temp[1];
+			}
+		}
+	for (i = 0; i < 100; i++)
+		printf("%d--%d\n", i + 1, ar[i]);
+		
+	return 0;
+}
+int rollnum(int n)
+{
+	int roll;
+	roll = rand() % n+1;
+	return roll;
+}
+	
+	6.编写一个程序，生成1000个1~10范围内的随机数，不用保存或打印这些数字，仅打印每个数出现的次数；
+	用10个不同的种子值运行，生成的数字出现的次数是否相同？//不同；
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+int rollnum(int n);
+int main(void)
+{	
+	int i;
+	int k1=0, k2=0, k3=0, k4=0, k5=0, k6=0, k7=0, k8=0, k9=0, k10=0;
+	int ar[1000];	
+	srand((unsigned int)time(0));
+	for (i = 0; i < 1000; i++)
+	{
+		ar[i] = rollnum(10);
+		if (ar[i] == 1)
+			k1++;
+		if (ar[i] == 2)
+			k2++;
+		if (ar[i] == 3)
+			k3++;
+		if (ar[i] == 4)
+			k4++;
+		if (ar[i] == 5)
+			k5++;
+		if (ar[i] == 6)
+			k6++;
+		if (ar[i] == 7)
+			k7++;
+		if (ar[i] == 8)
+			k8++;
+		if (ar[i] == 9)
+			k9++;
+		if (ar[i] == 10)
+			k10++;			   		 
+	}
+	printf("k1 =%3d\n", k1);
+	printf("k2 =%3d\n", k2);
+	printf("k3 =%3d\n", k3);
+	printf("k4 =%3d\n", k4);
+	printf("k5 =%3d\n", k5);
+	printf("k6 =%3d\n", k6);
+	printf("k7 =%3d\n", k7);
+	printf("k8 =%3d\n", k8);
+	printf("k9 =%3d\n", k9);
+	printf("k10=%3d\n", k10);	
+	return 0;
+}
+int rollnum(int n)
+{
+	int roll;
+	roll = rand() % n+1;
+	return roll;
+}
+
+//优化后：
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+int rollnum(int n);
+int main(void)
+{
+	int i;
+	int k[11] = { 0 };
+	int ar[1000];
+	srand((unsigned int)time(0));
+	for (i = 0; i < 1000; i++)
+	{
+		ar[i] = rollnum(10);
+		k[ar[i]]++;			
+	}
+	for (int i = 1; i < 11; i++)
+		printf("k%d =%3d\n", i, k[i]);
+	return 0;
+}
+int rollnum(int n)
+{
+	int roll;
+	roll = rand() % n + 1;
+	return roll;
+}
+
+	7.编写一个程序，按照程序清单12.13输出示例后面讨论的内容，修改该程序，使其输出类似：
+	Enter the number of sets; enter q to stop : 18
+	How many sides and how many dice? 6 3
+	Here are 18 sets of 3 6-sided throws.
+	12 10 6 9 8 14 8 15 9 14 12 17 11 7 10
+	13 8 14
+	How many sets? Enter q to stop: q
+
+//
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+int main(void)
+{
+	int i, k, m, set, sides, dice, total;
+	
+	srand((unsigned int)time(0));
+	printf("Enter the number of sets;enter q to quit:");
+	while (scanf_s("%d", &set) == 1 && set > 0)
+	{
+		printf("How many sides and how many dice?");
+		if (scanf_s("%d", &sides) == 1 && scanf_s("%d", &dice) == 1 && sides > 2 && dice > 0)
+		{
+			printf("Here are %d sets of %d %d-sided throws.\n", set, dice, sides);
+			for (i = 1; i <= set; i++)
+			{
+				total = 0;
+				for (k = 0; k < dice; k++)
+				{
+					m = rand() % sides + 1;
+					total += m;
+				}
+				printf("%d ", total);
+				if (i % 15 == 0)
+					putchar('\n');
+			}
+		}
+		else if (sides < 2 || dice < 1)
+			printf("Need at least 2 sides & at least 1 dice.try agian.");
+		else		
+			printf("Please enter right number.try again.\n");
+		while (getchar() != '\n')
+			continue;		
+		printf("\nHow many sets? Enter q to quit:");		
+	}
+	return 0;
+}
+
+
+	8.下面是程序的一部分：
+
+//pel2-8.c
+#include<stdio.h>
+int * make_array(int elem, int val);
+void show_array(const int ar[], int n);
+int main(void)
+{
+	int * pa;
+	int size;
+	int value;
+	printf("Enter the number of elements:");
+	while (scanf_s("%d", &size) == 1 && size > 0)
+	{
+		printf("Enter the initialization value:");
+		scanf_s("%d", &value);
+		pa = make_array(size, value);
+		if (pa)
+		{
+			show_array(pa, size);
+			free(pa);
+		}
+		printf("Enter the number of elements(0 to quit):");
+	}
+	printf("Done.\n");
+	return 0;
+}
+	提供make_array()和show_array()函数的定义，完成该程序。
+	make_array()函数接受两个参数，1是int类型数组元素个数，2是要赋给每个元素的值；
+	该函数调用malloc()创建一个大小合适的数组，将其每个元素设置为指定的值，并返回一个指向该数组的指针；
+	show_array()函数显示数组的内容，一行显示8个数。
+
+#include<stdio.h>
+#include<stdlib.h>
+int * make_array(int elem, int val);
+void show_array(const int ar[], int n);
+int main(void)
+{
+	int * pa;
+	int size;
+	int value;
+	printf("Enter the number of elements:");
+	while (scanf_s("%d", &size) == 1 && size > 0)
+	{
+		printf("Enter the initialization value:");
+		scanf_s("%d", &value);
+		pa = make_array(size, value);
+		if (pa)
+		{
+			show_array(pa, size);
+			free(pa);
+		}
+		printf("\nEnter the number of elements(0 to quit):");
+	}
+	printf("Done.\n");
+	return 0;
+}
+int * make_array(int elem, int val)
+{
+	int *ar;
+	ar =(int *) malloc(elem * sizeof(int));
+	for (int i = 0; i < elem; i++)
+	{		
+		*(ar + i) = val;
+		val++;
+	}
+	return ar;
+}
+void show_array(const int ar[], int n)
+{
+	for (int i = 1; i <= n; i++)
+	{
+		printf("%3d ", *(ar + i-1));
+		if (i % 8 == 0)
+			putchar('\n');
+	}
+	return;
+}
+
+
+	9.编写一个符合以下描述的函数：
+	首先，询问用户需要输入多少个单词；
+	然后接收用户输入的单词，并显示出来；
+	使用mallc()并回答第一个问题(即需要输入多少个单词)，创建一个动态数组；
+	该数组内含相应的指向char的指针；
+	在读取字符串时，该程序应该把单词读入一个临时的char数组，使用malloc()分配足够的空间来存储单词；
+	并把地址存入该指针数组；
+	然后，从临时数组中把单词拷贝到动态分配的存储空间中。因此每个指针都指向一个对象；
+	该对象的大小正好能容纳被储存的特定单词。
+	下面是该程序的一个运行示例：
+	How many words do you wish to enter? 5
+	Enter 5 words now:
+	I enjoyed doing this exerise
+	Here are your words:
+	I
+	enjoyed
+	doing
+	this
+	exerise
+	
+//有限实现：
+#include<stdio.h>
+#define LIM 20
+#define SIZE 50
+int main(void)
+{
+	char exp[LIM][SIZE];
+	int i=0,k=0,num;
+	char ch;	
+	printf("How many words do you wish to enter?");
+	scanf_s("%d", &num);
+	getchar();
+	printf("Enter %d words now:\n",num);
+	while ((ch=getchar()) != '\n')
+	{
+		if (ch == ' ' || ch == '\t')
+		{
+			exp[i][k] = '\0';
+			i++;
+			k = 0;
+		}
+		else
+		{
+			exp[i][k] = ch;
+			exp[i][k + 1] = '\0';
+			k++;
+		}		
+	}
+	printf("Here are your words:\n");
+	for (int k = 0; k <= i; k++)
+		puts(exp[k]);
+	return 0;
+}
+
+
+
+//malloc()方法
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define SIZE 50
+char **getwords(int n);
+int main(void)
+{
+	int num;
+	char **str;
+	printf("How many words do you wish to enter?");
+	scanf_s("%d", &num);
+	getchar();//处理掉回车
+	printf("Enter %d words now:\n",num);
+	str = getwords(num);
+	printf("Here are your words:\n");
+	for (int i = 0; i < num; i++)
+	{
+		puts(str[i]);
+		free(str[i]);//释放malloc()创建的ptr[i]内存
+	}
+	free(str);//释放被调函数中创建的动态数组内存空间，也就是释放ptr
+	return 0;
+}
+char **getwords(int n)
+{
+	char **ptr;//动态数组
+	char *temp;//临时数组
+	int len;
+	ptr = (char **)malloc(n * sizeof(char *));//给n个指针分配动态内存空间，返回指针的指针
+	temp = (char *)malloc(SIZE * sizeof(char));//给临时数组分配动态内存空间，返回指针
+	for (int i = 0; i < n; i++)
+	{
+		scanf_s("%s",temp,SIZE);//读取输入流的一个单词，存入临时数组
+		len = strlen(temp);//测量单词字符数，用来分配大小刚好的空间
+		ptr[i] = (char *)malloc((len + 1) * sizeof(char));//给这个指针指向的地址分配刚好够用的内存空间
+		strcpy_s(ptr[i],len+1, temp);//从临时数组拷贝单词到该地址上
+	}
+	while (getchar() != '\n')
+		continue;
+	free(temp);//释放临时数组的内存空间
+	return ptr;
+}
+
+
+第十三章	文件输入/输出
+	
+	函数：	fopen()、getc()、putc()、exit()、fclose()
+		fprintf()、fscanf()、fgets()、fputs()
+		rewind()、fseek()、ftell()、fflush()
+		fgetpos()、fsetpos()、feof()、ferror()
+		ungetc()、setvbuf()、fread()、fwrite()
+	如何使用C标准I/O系列的函数处理文件
+	文件模式和二进制模式、文本和二进制格式、缓冲和无缓冲I/O
+	使用既可以顺序访问也可以随机访问文件的函数
+	
+13.1	与文件进行通信
+	有时，需要程序从文件中读取信息或把信息写入文件。这种程序与文件交互的形式就是文件重定向。
+	这种方法很简单，但是有一定限制。
+	例如假设要编写一个交互程序，询问用户书名并把完整的书名列表保存在文件中，如果重定向，类似于：
+	books>bklist
+	用户的输入被重定向到bklist中，这样做不仅会把不符合要求的文本写入bklist，而且用户也看不到要回答什么问题；
+	C提供了更强大的文件通信方法，可以在程序中打开文件，然后使用特殊的I/O函数读取文件中的信息或写入
+
+13.1.1	文件是什么
+	文件通常是在磁盘或固态硬盘上的一段已命名的存储区。
+	C把文件看作是一系列连续的字节，每个字节都能被单独读取。C提供两种文件模式：文本模式和二进制模式。
+	
+13.1.2	文本模式和二进制模式
+	首先要区分文本内容和二进制内容、文本文件格式和二进制文件格式，以及文件的文本模式和二进制模式。
+	所有文件的内容都以二进制形式(0或1)存储.
+	但是，如果文件最初使用二进制编码的字符(ASCII或Unicode)表示文本，该文件就是文本文件，其中包含文本内容。
+	如果文件中的二进制值代表机器语言代码或数值数据或图片或音乐编码，该文件就是二进制文件，包含二进制内容。
+	为了规范文本文件的处理，C提供两种访问文件的途径：二进制模式和文本模式。
+	在二进制模式中，程序可以访问文件的每个字节，
+	而在文本模式中，程序所见的内容和文件的实际内容不同；
+	程序以文本模式读取文件时，把本地环境表示的行末尾或文件末尾映射为C模式。
+
+13.1.3	I/O的级别
+	除了选择文件的模式，大多数情况下，还可以选择I/O的两个级别(处理文件访问的两个级别)。
+	底层I/O使用操作系统提供的基本I/O服务；
+	标准高级I/O使用C库的标准包和stdio.h头文件定义。
+	因为无法保证所有的操作系统都使用相同的底层I/O模型，C标准只支持标准I/O包。
+	有些实现会提供底层库，但是C标准建立了可移植的I/O模型，我们主要讨论这些I/O。
+	
+13.1.4	标准文件
+	C程序会自动打开3个文件，它们被称为标准输入、标准输出、标准错误输出
+	在默认情况下，标准输入是系统的普通输入设备，通常为键盘；
+	标准输出和标准错误输出是系统的普通输出设备，通常为显示屏；
+	
+	通常，标准输入为程序提供输入，它是getchar()和scanf()使用的文件。
+	程序通常输出到标准输出，它是putchar()、puts()和printf()使用的方案。
+	重定向把其他文件视为标准输入或标准输出；
+	标准错误输出提供了一个逻辑上不同的地方来发送错误信息；
+	例如，如果使用重定向把输出发送给文件而不是屏幕，那么发送至标准错误输出的内容仍然会被发送到屏幕上；
+	这样很好，因为如果把错误消息发送至文件，就只有打开文件才能看到。
+	
+13.2	标准I/O
+	与底层I/O相比，标准I/O包除了可移植外，还有2个好处：
+	1、标准I/O有许多专门的函数简化了处理不同I/O的问题；
+	2、输入和输出都是缓冲的。一次转移一大块信息而不是一字节信息。(通常至少512字节)；
+	下面示例程序演示了如何用标准I/O读取文件和统计文件中的字符数：
+
+	#include<stdio.h>
+	#include<stdlib.h>	//提供exit()的原型
+	int main(int argc, char *argv[])
+	{
+		int ch;	//读取文件时，储存每个字符的地方
+		FILE *fp;	//文件指针
+		unsigned long count = 0;
+		if (argc != 2)
+		{
+			printf("Usage:%s filename\n", argv[0]);
+			exit(EXIT_FAILURE);
+		}
+		if ((fp = fopen(argv[1], "r")) == NULL)
+		{
+			printf("Can't open %s\n", argv[1]);
+			exit(EXIT_FAILURE);
+		}
+		while ((ch = getc(fp)) != EOF)
+		{
+			putc(ch, stdout);
+			count++;
+		}
+		fclose(fp);
+		printf("File %s has %lu characters\n", argv[1], count);
+		return 0;
+	}
+
+	fopen用法: fp = fopen(filename,"w")。
+	fopen_s用法:，须定义另外一个变量errno_t err，然后err = fopen_s(&fp,filename,"w")。
+	返回值：	fopen打开文件成功，返回文件指针（赋值给fp），打开失败则返回NULL值；
+                	fopen_s打开文件成功返回0，失败返回非0。
+
+	分析程序：
+	
+13.2.1	检查命令行参数
+	首先，检查argc的值，查看是否有命令行参数。argc为参数个数，第1个参数为 argv[0]为程序名；
+	if (argc != 2)//表示argc只有1个参数，意味着没有命令行参数，只输入了程序名；
+	此时程序将打印一条消息并退出程序；
+	字符串argv[0]是该程序名称，显式使用argv[0]，错误消息的描述会随可执行文件名的改变而自动改变；
+	
+	exit()函数关闭所有打开的文件并结束程序。惯例是，正常结束的程序传递0，异常结束的程序传递非零值。
+	C标准要求 0或宏EXIT_SUCCESS用于表明成功结束程序；EXIT_FAILURE用于表明程序结束失败；
+	
+	ANSI C规定，在最初调用的main()中使用return与调用exit()效果相同；也就是说：
+	return 0；//等效于exit(0);
+	如果main()在一个递归程序中，exit()仍然会终止程序，但是return只会把控制权交给上一级递归，直至最后一级；
+	然后return结束程序。
+	return和exit()另一个区别是：即使在其他函数中(除main()以外)调用exit()也能结束整个程序；
+	
+13.2.2	fopen()函数
+	程序使用fopen()函数打开文件，
+	它的第1个参数是待打开文件的名称，更确切地说是一个包含该文件名的字符串地址；(要打开的文件和路径)
+	第2个参数是一个字符串，指定待打开文件的模式，下面是C库提供的一些模式：
+
+	"r"	以只读模式打开文件，该文件必须存在。
+	"w"	打开只写文件，把现有文件长度截为0，如果文件不存在，创建该文件
+	"a"	以附加模式打开只写文件，在现有文件末尾添加内容(保留EOF)，如果文件不在，创建该文件
+	"r+"	以可读写方式打开文件，该文件必须存在
+	"w+"	打开可读写文件，若文件存在则文件长度截为0，如果文件不存在，创建该文件
+	"a+"	以附加模式打开可读写文件，在现有文件末尾添加内容(不保留EOF)，如果文件不在，创建该文件
+	"rb"/"wb"/"ab"//"rb+"或"r+b"/"wb+"或"w+b"/"ab+"或"a+b"	同上，以二进制模式打开带字母b
+	"wx""wbx""w+x""wb+x""w+bx"	x模式，若文件存在或以独占模式打开文件，会打开失败。
+	警告：	如果使用任何一种"w"模式打开一个现有文件，文件内容会被删除，以便程序在一个空白文件中开始操作；
+		然而如果使用带x字母的任何一种模式，将无法打开一个现有文件。
+
+	程序成功打开文件后，fopen()将返回文件指针，其他I/O函数可以使用这个指针指定该文件；
+	文件指针的类型是指向FILE的指针，FILE是一个定义在stdio.h中的派生类型。
+	文件指针fp并不指向实际的文件，它指向一个包含文件信息的对象，其中包括操作文件的I/O函数所用的缓冲区信息
+	因为标准库中的I/O函数使用缓冲区，
+	所有它们不仅要知道缓冲区的位置，还要知道缓冲区被填充的程度以及操作哪一个文件；
+	
+	标准I/O函数根据这些信息在必要时决定再次填充或清空缓冲区；fp指向的数据对象包含了这些信息；
+
+12.2.3	getc()和putc()函数
+	getc()、putc() 和 getchar()、putchar()函数类似，getc()、putc()需要告知使用哪个文件；
+
+	ch=getchar();	//从标准输入中获取一个字符
+	ch=getc(fp)；	//从fp指定的文件中获取一个字符
+	putchar(ch);	//把字符ch输出到标准输出中
+	putc(ch,fpout);	//把字符ch输出到fpout指定的文件中；putc(ch,stdout)等效于putchar(ch);
+	
+	putc()函数参数列表中，第1个参数是待输出的字符，第2个参数是文件指针；
+	
+12.2.4	文件结尾
+	从文件中读取数据的程序在读到文件结尾时要停止。
+	如何告诉程序已经都到结尾？如果getc()函数在读取一个字符时发现是文件结尾，它将返回一个特殊值EOF；
+	所以C程序只有在读到超过文件末尾时才会发现文件的结尾；
+	为了避免读到空文件，应该使用入口条件循环(不是do while循环)进行文件输入；
+	鉴于getc()的设计，程序应该在进入循环之前先尝试读取；
+	ch=getc(fp);
+	while(ch!=EOF){}
+	简化后：while ((ch = getc(fp)) != EOF){}
+	由于ch = getc(fp)是while循环的测试条件的一部分，所以程序在进入循环体之前就读取了文件；不要设计成：
+	while(ch!=EOF){ch=getc(fp)...}
+	第1个问题是ch首次与EOF比较时，其值尚未确定；
+	第2个问题是，如果getc()返回EOF，该循环会把EOF作为一个有效字符处理；
+
+13.2.5	fclose()函数
+	fclose(fp)函数关闭fp指定的文件，必要时刷新缓冲区。
+	对于较正式的程序，应该检查是否成功关闭文件，如果成功关闭，fclose()返回0，否则返回EOF；
+	if(fclose(fp)!=0)
+		printf("Error in closeing file %s\n",argv[1]);
+	如果磁盘已满、移动硬盘被移除或出现I/O错误，都会导致调用fclose()函数失败；
+
+13.2.6	指向标准文件的指针
+	stdio.h头文件把3个文件指针与3个标准文件相关联,C程序会自动打开这3个标准文件；
+	标准文件		文件指针		通常使用的设备
+	标准输入		stdin		键盘
+	标准输出		stdout		显示器
+	标准错误		stderr		显示器
+	
+	这些文件指针都是指向FILE的指针 所以它们可以用作标准I/O函数的参数；
+
+13.3	一个简单的文件压缩程序
+	下面的示例程序，把一个文件中选定的数据拷贝到另一个文件中；
+	该程序同时打开了2个文件，以"r"模式打开第一个，以"w"模式打开另一个；
+	该程序以保留每3个字符中的第1个字符的方式压缩第1个文件的内容，最后把压缩后的文件存入第2个文件；
+	第2个文件名是第1个文件名加上.red后缀(reduced);
+	使用命令行参数，同时打开多个文件，以及在源文件名后加上后缀，都是相当有用的技巧。
+	这种压缩方式有限，但是也有它的用途；
+	
+#include<stdio.h>
+#include<stdlib.h>//提供exit()原型
+#include<string.h>//提供strncpy()、strcat()原型
+#define LEN 40
+int main(int argc,char *argv[])
+{
+	FILE *in, *out;//声明2个指向文件的指针
+	int ch;
+	char name[LEN];//储存输出文件名
+	int count = 0;
+	if (argc < 2)//检查命令行参数
+	{
+		fprintf(stderr, "Usage:%s filename\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
+	if (fopen_s(&in,argv[1], "r") !=0)//设置输入文件打开方式为只读
+	{
+		fprintf(stderr, "I couldn't open the file\"%s\"\n", argv[1]);
+		exit(EXIT_FAILURE);
+	}
+	strncpy_s(name, sizeof(name),argv[1], LEN - 5);//拷贝文件名
+	name[LEN - 5] = '\0';
+	strcat_s(name,sizeof(name), ".red");//在文件名后添加尾缀
+	if ((fopen_s(&out, name, "w")) != 0)//以只写模式打开文件
+	{
+		fprintf(stderr, "Can't creat output file.\n");
+		exit(3);
+	}
+	while ((ch = getc(in)) != EOF)//拷贝数据到输出文件
+		if (count++ % 3 == 0)//输出设置为字符3抽1
+			putc(ch, out);
+	if (fclose(in) != 0 || fclose(out) != 0)//收尾工作
+		fprintf(stderr, "Error in closing files.\n");
+	return 0;
+}
+	
+	该程序演示了几个编程技巧我们来仔细研究下：
+	fprintf()和printf()类似，第1个参数必须是一个文件指针，程序中使用stderr指针把错误消息发至标准错误；
+	为了构建新的输出文件名，该程序使用strncpy()把名称eddy拷贝到数组name中；
+	参数LEN-5为,red后缀和末尾的空字符预留了空间；
+	如果argv[2]字符串比LEN-5长，就拷贝不了空字符；出现这种情况时，程序会添加空字符；
+	调用strncpy()后，name中的第一个空字符在调用strcat()函数时被.red的.覆盖了；//windows表示？？？
+	
+	程序同时打开了两个文件，所以我们要声明两个FILE指针。
+	注意：程序都是单独打开和关闭每个文件，同时打开的文件数量是有限的，这个限制取决于系统和实现；
+	范围一般是10~20.相同的文件指针可以处理不同的文件，前提是这些文件不需要同时打开。
+	
+13.4	文件I/O:fprintf()、fscanf()、fgets()和fputs()
+	前面章节介绍的I/O函数都类似于文件I/O函数，主要区别是，文件I/O需要用FILE 指针指定待处理的文件；
+	
+13.4.1	fprintf和fscanf()函数
+	示例程序：
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define MAX 41
+int main(void)
+{
+	FILE *fp;
+	char words[MAX];
+	if ((fopen_s(&fp, "wordy", "a+")) != 0)
+	{
+		fprintf(stdout, "Can't open \"wordy\"file.\n");
+		exit(EXIT_FAILURE);
+	}
+	puts("Enter words to add to the file;press the #");
+	puts("key at the begining of a line to terminate.");
+	while ((fscanf_s(stdin, "%40s", words,MAX) == 1) && (words[0] != '#'))
+		fprintf(fp, "%s\n", words);
+	puts("File contents:");
+	rewind(fp);	//返回文件开始处；
+	while (fscanf_s(fp, "%s", words,MAX) == 1)
+		puts(words);
+	puts("Done!");
+	if (fclose(fp) != 0)
+		fprintf(stderr, "Error closing file\n");
+	return 0;
+}
+
+13.4.2	fgets()和fputs()
+
+	fgets()函数：
+	第1个参数：表示储存输入位置的地址 char * 类型
+	第2个参数：表述待输入字符串的大小；
+	第3个参数：文件指针，指定待读取的文件；
+	fgets(ch,STLEN,fp);
+	fgets()函数读取输入直到第1个换行符的后面，或读取到文件结尾，或者读取STLEN-1个字符；
+	然后，fgets()在末尾添加一个空字符使之称为一个字符串；
+	字符串大小是其字符数字加上一个空字符；	
+	如果fgets()在读到字符上限之前已读完一整行，它会把表示结尾的换行符放在空字符前面。
+	fgets()函数遇到EOF时将返回NULL值，可以利用这一机制检查是否到达文件结尾；
+	如果未遇到EOF则返回之前传给它的地址。
+
+	fputs()函数接受两个参数，第1个是字符串地址，第2个是文件指针；
+	该函数根据传入地址
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 
