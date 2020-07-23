@@ -16808,7 +16808,6 @@ int main(void)
 	char name1[LEN], name2[LEN],str1[MAX],str2[MAX];
 	int temp1,temp2;
 	FILE *fp1, *fp2;		
-	
 	puts("Enter the filename of first:");
 	scanf_s("%s", name1, LEN);
 	if ((fopen_s(&fp1, name1, "r")) != 0)
@@ -16825,10 +16824,10 @@ int main(void)
 	}	
 	while (1)
 	{
-		if (temp1 = fgets(str1, MAX, fp1) != NULL)
-			fputs(str1, stdout);			
-		if(temp2=fgets(str2,MAX,fp2)!=NULL)
-			fputs(str2, stdout);
+		if (temp1 = fgets(str1, MAX, fp1) != 0)
+			fputs(str1, stdout);		
+		if (temp2 = fgets(str2, MAX, fp2) != 0)
+			fputs(str2, stdout);		
 		if (temp1 == 0 && temp2 == 0)
 			break;
 	}	
@@ -16838,6 +16837,956 @@ int main(void)
 }
 
 	
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define LEN 80
+#define MAX 256
+int main(void)
+{
+	char name1[LEN], name2[LEN], str1[MAX], str2[MAX];
+	int i, temp1, temp2;
+	FILE *fp1, *fp2;
+	puts("Enter the filename of first:");
+	scanf_s("%s", name1, LEN);
+	if ((fopen_s(&fp1, name1, "r")) != 0)
+	{
+		fprintf(stderr, "Can't open %s\n", name1);
+		exit(EXIT_FAILURE);
+	}
+	puts("Enter the filename of last:");
+	scanf_s("%s", name2, LEN);
+	if ((fopen_s(&fp2, name2, "r")) != 0)
+	{
+		fprintf(stderr, "Can't open %s\n", name2);
+		exit(EXIT_FAILURE);
+	}
+	while (1)
+	{
+		if ((temp1 = fgets(str1, MAX, fp1) != 0) && (temp2 = fgets(str2, MAX, fp2) != 0))
+		{
+			strcat_s(str1, MAX, str2);
+			for (i = 0; i < MAX; i++)			
+				if (str1[i] == '\n')
+					str1[i] = ' ';			
+			puts(str1);
+		}
+		else if (temp1 == 0 && (temp2 = fgets(str2, MAX, fp2)!=0))
+			fputs(str2,stdout);
+		else if ((temp1 = fgets(str1, MAX, fp1) != 0) && temp2 == 0)
+			fputs(str1,stdout);
+		else if (temp1 == 0 && temp2 == 0)
+			break;
+	}
+	fclose(fp1);
+	fclose(fp2);
+	return 0;
+}
+
+
+	8.编写一个程序，以一个字符和任意文件名作为命令行参数。如果字符后面没有参数，该程序读取标准输入；
+	否则，程序依次打开每个文件并报告每个文件中该字符出现的次数；文件名和字符本身也要一同报告。
+	程序应包含错误检查，以确定参数数量是否正确和是否能打开文件；如无法打开文件，报告并继续处理下一个；
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+int main(int argc, char *argv[])
+{
+	char ch;
+	int i,count=0;
+	FILE * fp;	
+	if (argc < 2)
+	{
+		fprintf(stderr,"No commamd.\n");
+		exit(EXIT_FAILURE);
+	}		
+	else if(argc>2)			
+		for (i = 2; i < argc; i++)
+		{
+			count = 0;
+			if (fopen_s(&fp, argv[i], "r") != 0)
+			{
+				fprintf(stderr, "Can't open %s.\n", argv[i]);
+				continue;
+			}
+			while ((ch = fgetc(fp)) != EOF)
+				if (ch == argv[1][0])
+					count++;
+			printf("There are %d the character %c in %s.\n", count, argv[1][0], argv[i]);
+		}	
+	else if (argc == 2)
+	{
+		while ((ch = getchar()) != EOF)
+			if (ch == argv[1][0])
+				count++;
+		printf("There are %d the character %c by typein.\n", count, argv[1][0]);
+	}
+	return 0;
+}
+
+
+	9.修改程序清单13.3中的程序，从1开始，根据加入列表的顺序为每个单词编号；
+	当程序下次运行时，确保新的单词编号接着上次的编号开始。
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define MAX 41
+int main(void)
+{
+	FILE *fp, *fp1;
+	int count=1;
+	fopen_s(&fp1, "count", "a+");	
+	fscanf_s(fp1, "%d", &count);
+	fclose(fp1);	
+	char words[MAX];	
+	if ((fopen_s(&fp, "wordy", "a+")) != 0)
+	{
+		fprintf(stdout, "Can't open \"wordy\"file.\n");
+		exit(EXIT_FAILURE);
+	}
+	puts("Enter words to add to the file;press the #");
+	puts("key at the begining of a line to terminate.");
+	while ((fscanf_s(stdin, "%40s", words, MAX) == 1) && (words[0] != '#'))
+	{
+		fprintf(fp, "%d--%s\n", count, words);
+		count++;
+	}
+	puts("File contents:");
+	rewind(fp);	
+	while (fscanf_s(fp, "%s", words, MAX) == 1)
+		puts(words);
+	if (fopen_s(&fp1, "count", "w") != 0)
+	{
+		fprintf(stdout, "Can't open \"count\"file.\n");
+		exit(EXIT_FAILURE);
+	}
+	fprintf(fp1, "%d", count);	
+	if (fclose(fp) != 0)
+		fprintf(stderr, "Error closing file\n");
+	if (fclose(fp1) != 0)
+		fprintf(stderr, "Error closing file\n");
+	puts("Done!");
+	return 0;
+}
+
+	10.编写一个程序打开一个文本文件，通过交互方式获得文件名。通过一个循环，提示用户输入一个文件位置。
+	然后该程序打印从该位置开始到下一个换行符之前的内容。用户输入负数或非数值字符退出循环。
+
+#include<stdio.h>
+#include<stdlib.h>
+#define LEN 41
+int main(void)
+{
+	char name[LEN],ch;
+	FILE * fp;
+	long k;
+	puts("Enter the filename.");
+	scanf_s("%40s",name, LEN);
+	if (fopen_s(&fp, name, "r") != 0)
+	{
+		fprintf(stderr, "Can't open %s\n", name);
+		exit(EXIT_FAILURE);
+	}
+	while ((scanf_s("%ld", &k)) == 1 && k >= 0)
+	{
+		rewind(fp);
+		fseek(fp, k, SEEK_SET);
+		while ((ch = fgetc(fp))&&ch!= '\n')
+			fputc(ch, stdout);
+	}
+	fclose(fp);
+	return 0;
+}
+
+	11.编写一个程序，接受两个命令行参数。第1个参数是字符串，第2个参数是文件名。
+	然后该程序查找文件，打印文件中包含该字符串的所有行。使用fgets()和strstr()，假设每行不超过255字符；
+	
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define LEN 255
+int main(int argc, char * argv[])
+{
+	FILE *fp;
+	char ar[LEN];
+	if(argc!=3)
+	{
+		fprintf(stderr, "Need more or less command:program-string-filename.\n");
+		exit(EXIT_FAILURE);
+	}
+	if (fopen_s(&fp, argv[2], "r") != 0)
+	{
+		fprintf(stderr, "Can't open %s\n", argv[2]);
+		exit(EXIT_FAILURE);
+	}
+	while (fgets(ar,LEN,fp))		//读取一行字符串
+		if (strstr(ar, argv[1]))	//比较字符串
+			fputs(ar, stdout);	
+	return 0;
+}
+
+	12.创建一个文本文件，内含20行，每行30个整数。这些数都在0-9之间，用空格分开。
+	该文件是用数字表示一张图片，0-9表示逐渐增加的灰度。
+	编写一个程序，把文件中的内容读入一个20*30的int数组中。
+	一种把这些数字转换为图片的粗略方法是：
+	该程序使用数组中的值初始化一个20*31的字符数组，用值0对应空格字符，1对应点字符，以此类推；
+	数字越大表示字符所占的空间越大；例如用#表示9.
+	每行的最后一个字符(第31个)是空字符，这样该数组就包含了20个字符串。
+	最后程序显示最终的图片(即，打印所有的字符串)，并将结果储存在文本文件中。
+	例如下面是开始的数据：
+	009000000000589985200000000000
+	000090000000589985520000000000
+	000000000000581985452000000000
+	000090000000589985045200000000
+	009000000000589985004520000000
+	000000000000589185000452000000
+	000000000000589985000045200000
+	555555555555589985555555555555
+	888888888888589985888888888888
+	999909999999999999999939999999
+	888888888888589985888888888888
+	555555555555589985555555555555
+	000000000000589985000000000000
+	000000000000589985000066000000
+	000022000000589985005600650000
+	000033000000589985056111165000
+	000044000000589985005600650000
+	000055000000589985000066000000
+	000000000000589985000000000000
+	000000000000589985000000000000
+
+	显示结果：
+
+	  #         *%##%*`           
+	    #       *%##%**`          
+	            *%.#%*!*`         
+	    #       *%##%* !*`        
+	  #         *%##%*  !*`       
+	            *%#.%*   !*`      
+	            *%##%*    !*`     
+	*************%##%*************
+	%%%%%%%%%%%%*%##%*%%%%%%%%%%%%
+	#### #################^#######
+	%%%%%%%%%%%%*%##%*%%%%%%%%%%%%
+	*************%##%*************
+	            *%##%*            
+	            *%##%*    ==      
+	    ``      *%##%*  *=  =*    
+	    ^^      *%##%* *=....=*   
+	    !!      *%##%*  *=  =*    
+	    **      *%##%*    ==      
+	            *%##%*            
+	            *%##%*            
+	(txt格式改字体为宋体可对齐看效果)
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#define LIM 20
+#define SIZE 31
+int main(void)
+{
+	FILE *fp,*fp1;
+	int i,k=0;
+	char ar[LIM][SIZE];
+	if (fopen_s(&fp, "num.txt", "r") != 0)
+	{
+		fprintf(stderr, "Can't open \"num\".\n");
+		exit(EXIT_FAILURE);
+	}
+	for (i = 0; i < LIM; i++)
+	{
+		fscanf_s(fp, "%s", ar[i],SIZE);		
+		ar[i][SIZE-1] = '\0';		
+	}	
+	fclose(fp);	
+	if (fopen_s(&fp1, "pic.txt", "w") != 0)
+	{
+		fprintf(stderr, "Can't open \"pic\".\n");
+		exit(EXIT_FAILURE);
+	}
+	for (i = 0; i < LIM; i++)
+	{
+		for (k = 0; k < SIZE - 1; k++)
+		{
+			if (ar[i][k] == 48)			
+				fputc(' ', fp1);				
+			if (ar[i][k] == 49)			
+				fputc('.', fp1);				
+			if (ar[i][k] == 50)			
+				fputc('`', fp1);				
+			if (ar[i][k] == 51)			
+				fputc('^', fp1);				
+			if (ar[i][k] == 52)			
+				fputc('!', fp1);				
+			if (ar[i][k] == 53)			
+				fputc('*', fp1);				
+			if (ar[i][k] == 54)
+				fputc('=', fp1);
+			if (ar[i][k] == 55)
+				fputc('-', fp1);
+			if (ar[i][k] == 56)
+				fputc('%', fp1);
+			if (ar[i][k] == 57)
+				fputc('#', fp1);
+		}
+		fputc('\n', fp1);		
+	}
+	fclose(fp1);
+	return 0;
+}
+
+
+	13.数字图像，尤其是从宇宙飞船发回的数字图像，可能会包含一些失真。为练习12添加消除失真的函数；
+	该函数把每个值与它上下左右相邻的值作比较；若与周围的值差都大于1，则用相邻值的平均值代替该值；
+	注意，与边界上的点相邻的点都少于4个，所以做特殊处理；
+	
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#define LIM 20
+#define SIZE 31
+static char ar[LIM][SIZE], ptr[LIM][SIZE];
+char opt(int i,int k);
+int main(void)
+{
+	FILE *fp,*fp1;
+	int i,k=0;	
+	if (fopen_s(&fp, "num.txt", "r") != 0)
+	{
+		fprintf(stderr, "Can't open \"num\".\n");
+		exit(EXIT_FAILURE);
+	}
+	for (i = 0; i < LIM; i++)
+	{
+		fscanf_s(fp, "%s", ar[i],SIZE);		
+		ar[i][SIZE-1] = '\0';		
+	}	
+	fclose(fp);	
+	for (i = 0; i < LIM; i++)
+	{
+		for (k = 0; k < SIZE - 1; k++)
+			ptr[i][k] = opt(i,k);
+		ptr[i][SIZE - 1] = '\0';
+	}
+	
+	if (fopen_s(&fp1, "pic.txt", "w") != 0)
+	{
+		fprintf(stderr, "Can't open \"pic\".\n");
+		exit(EXIT_FAILURE);
+	}
+	for (i = 0; i < LIM; i++)
+	{
+		for (k = 0; k < SIZE - 1; k++)
+		{
+			if (ptr[i][k] == 48)			
+				fputc(' ', fp1);				
+			if (ptr[i][k] == 49)			
+				fputc('.', fp1);				
+			if (ptr[i][k] == 50)			
+				fputc('`', fp1);				
+			if (ptr[i][k] == 51)			
+				fputc('^', fp1);				
+			if (ptr[i][k] == 52)			
+				fputc('!', fp1);				
+			if (ptr[i][k] == 53)			
+				fputc('*', fp1);				
+			if (ptr[i][k] == 54)
+				fputc('=', fp1);
+			if (ptr[i][k] == 55)
+				fputc('-', fp1);
+			if (ptr[i][k] == 56)
+				fputc('%', fp1);
+			if (ptr[i][k] == 57)
+				fputc('#', fp1);
+		}
+		fputc('\n', fp1);		
+	}
+	fclose(fp1);
+	return 0;
+}
+char opt(int i,int k)
+{
+	int sum;
+	if (i == 0 && k == 0)//左上
+	{
+		if (ar[i][k] - ar[i][k + 1] > 1 
+			&&	ar[i][k] - ar[i + 1][k] > 1)
+		{
+			sum = (ar[i][k + 1] + ar[i + 1][k]) / 2;
+			return sum;
+		}
+	}
+	else if (i == 0 && k == SIZE - 2)//右上
+	{
+		if (ar[i][k] - ar[i][k - 1] > 1 
+			&& ar[i][k] - ar[i + 1][k] > 1)
+		{
+			sum = (ar[i][k - 1] + ar[i + 1][k]) / 2;
+			return sum;
+		}
+	}
+	else if (i == LIM - 1 && k == 0)//左下
+	{
+		if (ar[i][k] - ar[i - 1][k] > 1 
+			&& ar[i][k] - ar[i][k + 1] > 1)
+		{
+			sum = (ar[i - 1][k] + ar[i][k + 1]) / 2;
+			return sum;
+		}
+	}
+	else if (i == LIM - 1 && k == SIZE - 2)//右下
+	{
+		if (ar[i][k] - ar[i][k - 1] > 1 
+			&& ar[i][k] - ar[i - 1][k] > 1)
+		{
+			sum = (ar[i][k - 1] + ar[i - 1][k]) / 2;
+			return sum;
+		}
+	}
+	else if (i == 0 && k > 0 && k < SIZE - 2)//上一排
+	{
+		if (ar[i][k] - ar[i][k - 1] > 1 
+			&& ar[i][k] - ar[i][k + 1] > 1 
+			&& ar[i][k] - ar[i + 1][k] > 1)
+		{
+			sum = (ar[i][k - 1] + ar[i][k + 1] + ar[i + 1][k]) / 3;
+			return sum;
+		}
+	}
+	else if (k == 0 && i > 0 && i < LIM-1)//左一排
+	{
+		if (ar[i][k] - ar[i][k+1] > 1
+			&& ar[i][k] - ar[i+1][k] > 1
+			&& ar[i][k] - ar[i-1][k] > 1)
+		{
+			sum = (ar[i-1][k] + ar[i][k + 1] + ar[i + 1][k]) / 3;
+			return sum;
+		}
+	}
+	else if (i == 0 && k > 0 && k < SIZE - 2)//右一排
+	{
+		if (ar[i][k] - ar[i][k - 1] > 1
+			&& ar[i][k] - ar[i-1][k] > 1
+			&& ar[i][k] - ar[i + 1][k] > 1)
+		{
+			sum = (ar[i][k - 1] + ar[i-1][k] + ar[i + 1][k]) / 3;
+			return sum;
+		}
+	}
+	else if (i == 0 && k > 0 && k < SIZE - 2)//下一排
+	{
+		if (ar[i][k] - ar[i][k - 1] > 1
+			&& ar[i][k] - ar[i][k + 1] > 1
+			&& ar[i][k] - ar[i-1][k] > 1)
+		{
+			sum = (ar[i][k - 1] + ar[i][k + 1] + ar[i - 1][k]) / 3;
+			return sum;
+		}
+	}
+	else
+	{
+		if (ar[i][k] - ar[i + 1][k] > 1
+			&& ar[i][k] - ar[i - 1][k] > 1
+			&& ar[i][k] - ar[i][k + 1] > 1
+			&& ar[i][k] - ar[i][k - 1] > 1)
+		{
+			sum = (ar[i + 1][k] + ar[i - 1][k] + ar[i][k + 1] + ar[i][k - 1]) / 4;
+			return sum;
+		}
+	}
+	return ar[i][k];
+}
+
+
+	
+第十四章	结构和其他数据形式
+	
+	关键字 	struct、union、typedef
+	运算符	.    ->
+	什么是C结构，如何创建结构模板和结构变量
+	如何访问结构的成员，如何编写处理结构的函数
+	联合和指向函数的指针
+	
+	设计程序时，最重要的步骤之一是选择表示数据的方法。许多情况下，简单的变量甚至是数组还不够；
+	为此，C提供了结构变量提高表示数据的能力，它能让你创造新的形式；
+
+14.1	示例问题：创建图书目录
+	需要打印一份图书目录，想要打印每本书的各种信息：书名、作者、出版社、版权日期、页数、册数和价格；
+	其中的一些项目(如书名)可以储存在字符数组中，其他项目需要一个int数组或float数组。
+	用7个不同的数组分别记录每一项比较繁琐；
+	尤其是如果还想创建多份列表：一份按书名排序、一份按作者排序、一份按价格排序等等；
+	如果能把图书目录的信息都包含在一个数组里更好，其中每个元素包含一本书的相关信息；
+
+	因此，我们需要一种既能包含字符串又能包含数字的数据形式，而且还要保持各信息的独立；
+	C结构就满足这种情况下的需求。
+	我们通过一个示例演示如何创建和使用数组。示例进行了一些限制：
+	该程序演示书目只包含书名、作者和价格，只有一本书的数目。后面可扩展该程序；
+
+#include<stdio.h>
+#include<string.h>
+char * s_gets(char *str, int n);
+#define MAXTITL 41			//书名的最大长度+1
+#define MAXAUTL 31		//书名作者的最大长度+1
+struct book			//结构模板:标记是book
+{
+	char title[MAXTITL];		//书名
+	char author[MAXAUTL];	//作者
+	float value;		//价格
+};
+int main(void)
+{
+	struct book library;		//把 library 声明为一个book类型的变量
+	printf("Please enter the book title.\n");
+	s_gets(library.title, MAXTITL);
+	printf("Now enter the author.\n");
+	s_gets(library.author, MAXAUTL);
+	printf("Now enter the value.\n");
+	scanf_s("%f", &library.value);
+	printf("%s by %s:$%.2f\n", library.title, library.author, library.value);
+	printf("%s:\"%s\"($%.2f)\n", library.author, library.title, library.value);
+	printf("Done.\n");
+	return 0;
+}
+char *s_gets(char *str, int n)
+{
+	char * ret_val;
+	char *find;
+	ret_val = fgets(str, n, stdin);
+	if (ret_val)
+	{
+		find = strchr(str, '\n');
+		if (find)
+			*find = '\0';
+		else
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
+
+
+	运行结果：
+
+	Please enter the book title.
+	C primer plus
+	Now enter the author.
+	pandaren
+	Now enter the value.
+	12.50
+	C primer plus by pandaren:$12.50
+	pandaren:"C primer plus"($12.50)
+	Done.
+	
+	示例程序中创建的结构有3部分，每个部分都称为成员或字段；分别储存书名、作者名、价格；
+	下面是必须掌握的3个技巧：
+	1.为结构建立一个格式或样式；
+	2.声明一个合适该样式的变量；
+	3.访问结构变量的各个部分；
+
+14.2	创建结构声明
+	结构声明描述了一个结构的组织布局；声明类似下面这样：
+	struct book		
+	{
+		char title[MAXTITL];	
+		char author[MAXAUTL];	
+		float value;			
+	};
+	该声明描述了一个由2个字符数组和一个float类型变量构成的结构；
+	该声明并未创建实际的数据对象，只描述了该对象由什么组成(它勾勒出结构是如何储存数据的)；
+	关键字struct，它表明跟在其后的是一个结构，后面是一个可选的标记，稍后程序中可以使用该标记引用该结构；
+	所以，我们后续的程序中可以这样声明：
+	struct book library；
+	这把library声明为一个使用book结构布局的结构变量；
+	在结构声明中，用一对花括号括起来的是成员结构列表。每个成员都用自己的声明来描述。
+	例如,title部分是一个内含MAXTITL个元素的char类型数组。
+	成员可以是任意一种C的数据类型，甚至可以是其他结构。
+	花括号后面的分号是声明所必须的，表示结构布局定义结束。
+	可以把这个声明放在所有函数的外部，也可以放在一个函数定义的内部。
+	如果把结构声明放置于一个函数的内部，它的标记就只限于该函数内部使用；
+	如果把结构声明放置于函数的外部，那么该声明之后的所有函数都能使用它的标记。
+	例如，在程序的另一个函数中，可以这样声明：
+	struct book dickens;
+	这样，该函数便创建了一个结构变量dickens，该变量的结构布局是book。
+	
+	结构的标记名是可选的，但是以程序示例中的方式建立结构时(在一处定义结构布局，在另一处定义实际的结构变量)，
+	必须使用标记。我们学完如何定义结构变量后再来看这一点。
+
+14.3	定义结构变量
+	结构有两层含义，一层含义是“结构布局”，它告诉编译器如何表示数据，但它并未让编译器为数据分配空间；
+	下一步就是创建一个结构变量，即是结构的另一层含义。程序中创建结构变量的一行是：
+	struct book library;
+	编译器执行这行代码便创建了一个结构变量library。
+	编译器使用book模板为该变量分配空间：
+	1个MAXTITL个元素的char数组，一个MAXAUTL个元素的char数组，和一个float类型的变量。
+	这些存储空间都与一个名称library结合在一起。
+	在结构变量的声明中，struct book所起的作用相当于一般声明中的int或float；
+	例如可以定义两个struct book类型的变量，或者甚至是struct book类型的结构的指针：
+	struct book doyle,panshin,*ptbook;
+	结构变量doyle和panshin中都包含title、author和value部分，
+	指针ptbook可以指向doyle、panshin或者任何其他book类型的结构变量。
+	从本质上看，book结构声明创建了一个名为struct book的新类型。
+	就计算机而言，下面的声明：
+	struct book library；
+	是下面声明的简化：
+	struct book		
+	{
+		char title[MAXTITL];	
+		char author[MAXAUTL];	
+		float value;			
+	}library;
+	
+	换言之，声明结构的过程和定义结构变量的过程可以组合成一个步骤，
+	如下所示，组合后的结构声明和结构变量定义不需要使用结构标记：
+	struct		
+	{
+		char title[MAXTITL];	
+		char author[MAXAUTL];	
+		float value;			
+	}library;
+	然而，如果打算多次使用结构模板，就需要使用带标记的形式；或者，使用本章后面介绍的typedef；
+	这是定义结构变量的一个方面，在这个例子中，并未初始化结构变量。
+
+14.3.1	初始化结构
+	初始化变量和数组如下：
+	int count =0;
+	int ptr[6]={0,1,2,3,4,5};
+	结构变量也能初始化，与初始化数组的语法类似：
+	struct book library=
+	{
+		"C primer plus",
+		"Prata",
+		1.95
+	};
+	
+	简而言之，我们使用在一对花括号中括起来的初始化列表进行初始化，各初始化项用逗号分隔。
+	为了让初始化项与结构中的各成员关联更明显，让每个字段的初始化项独占一行，提高代码可读性；
+	
+14.3.2	访问结构成员
+	结构类似于一个超级数组，可以通过结构运算符 . 访问结构中的字段。如library.value，就能访问value部分；
+	可以像使用任何float类型变量那样使用library.value；其余同；
+	
+	本质上，.title  .author    .value相当于book结构的下标；
+
+	示例程序演示了2种不同的格式打印了library结构变量中的内容，这说明可以自行决定如何使用结构成员；
+
+14.3.3	结构的初始化器
+	C99和C11为结构提供了指定初始化器，其语法与数组的指定初始化器类似；
+	但是结构的指定初始化器使用点运算符和成员名标识特定的元素；例如，只初始化book结构的value成员：
+	struct book surprise={.value=10.25};
+	可以按照任意顺序使用指定初始化器：
+	struct book gift = { 	. value = 25.99,
+			. author = "James Broadfool",
+			. title = "Rue for the Toad"} ;
+	与数组类似，在指定初始化器后面的普通初始化器，为指定成员后面的成员提供初始值，
+	另外，对特定成员的最后一次赋值才是它实际获得的值；例如：
+	struct book gift= {	. value = 18. 90,
+			.author = "Philionna Pestle",
+			0.25 } ;
+	赋给value的值是0.25，因为它在结构声明中紧跟在author成员之后。新值0.25取代了之前的18.90；
+
+
+14.4	结构数组
+	接下来，我们要把示例程序扩展成可以处理多本书；
+	显然，每本书的基本信息都可以用一个book类型的结构变量来表示；
+	为描述两本书，就需要使用两个变量，以此类推；
+	可以使用这一类型的结构数组来处理多本书。示例程序如下：
+
+#include<stdio.h>
+#include<string.h>
+char *s_gets(char *str, int n);
+#define MAXTITL 40
+#define MAXAUTL 40
+#define MAXBKS 100
+struct book
+{
+	char title[MAXTITL];
+	char author[MAXAUTL];
+	float value;
+};
+int main(void)
+{
+	struct book library[MAXBKS];
+	int count = 0;
+	int index;
+	printf("Please enter the book title.\n");
+	printf("Press [enter] at the start of a line to stop.\n");
+	while (count < MAXBKS
+		&&s_gets(library[count].title, MAXTITL) != NULL 
+		&& library[count].title[0] != '\0')
+	{
+		printf("Now enter the author.\n");
+		s_gets(library[count].author, MAXAUTL);
+		printf("Now enter the value.\n");
+		scanf_s("%f", &library[count++].value);
+		while (getchar() != '\n')
+			continue;
+		if (count < MAXBKS)
+			printf("Enter the next title.\n");
+	}
+	if (count > 0)
+	{
+		printf("Here is the list of your books:\n");
+		for (index = 0; index < count; index++)		
+			printf("%s by %s:$%.2f\n", 	library[index].title, 
+				library[index].author, library[index].value);		
+	}
+	else
+		printf("No books.\n");
+	return 0;
+}
+char *s_gets(char *str, int n)
+{
+	char * ret_val;
+	char *find;
+	ret_val = fgets(str, n, stdin);
+	if (ret_val)
+	{
+		find = strchr(str, '\n');
+		if (find)
+			*find = '\0';
+		else
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
+
+	
+	示例程序创建了一个内含100个结构变量的数组，由于该数组是自动存储类别的对象，信息被储存在栈中；
+	如此大的数组需要很大的一块内存，这可能会导致一些问题；
+	如果运行时出现错误，可能是栈溢出，编译器可能使用了一个默认大小的栈；解决方法：
+	1.修改编译器的栈内存大小，分配大一些的内存供编译器使用；
+	2.创建静态或外部数组；这样编译器就不会把数组放在栈中；
+
+
+14.4.1	声明结构数组
+	声明方式与其他类型的数组类似；如：
+	struct book library[n];
+	以上代码把library声明为一个内含n个元素的数组；数组的每个元素都是一个book类型的数据结构；
+	因此，library[0]是第1个book类型的结构变量，library[1]是第2个book类型的结构变量，以此类推；
+	library本身不是结构名，它是一个数组名，带上下标后就是一个结构变量名。
+	
+14.4.2	标识结构数组的成员
+	为了标识结构数组中的成员，可以采用访问单独结构的规则：在结构名后面加点运算符，再后面加字段名；
+	library[0].value	//第1个数组元素与value相关联
+	library[4].title	//第5个数组元素与title相关联
+	注意，数组下标紧跟在library后面，而不是字段后面；
+	
+	library[2].title[4]
+	该表达式表示library数组第3个结构变量（library[2]），书名中的第5个字符（title[4]）
+
+	最后，总结下：
+	library		//一个book结构的数组
+	library[2]		//一个数组元素，该元素是book结构
+	library[2].title	//一个char数组，library[2]的其中一个成员(字段)：title，表示书名
+	library[2].title[4]	//一个char字符，library[2]的其中一个成员title的第5个字符；表示书名的第5个字符；
+
+14.4.3	程序讨论
+	示例程序较前一个程序主要改动之处是，插入一个while循环来读取多个book结构；
+	while (count < MAXBKS&&s_gets(library[count].title, MAXTITL) != NULL&& library[count].title[0] != '\0')
+	①表达式s_gets(library[count].title, MAXTITL)读取一个字符串作为书名，如果s_gets()尝试读到文件结尾后面；
+	则该表达式返回NULL；
+	②表达式library[count].title[0] != '\0'判断输入的字符串中首字符是否是空字符(即判断字符串是否是空)；
+	如果输入书名的时候用户输入回车，相当于输入了一个空字符，循环退出；
+	③count < MAXBKS检查输入书名的数量，如果超出了就退出循环；
+	④弥补scanf()函数遇到空格和换行符就结束读取，防止数据遗留在输入流
+	while (getchar() != '\n')
+		continue;
+	
+14.5	嵌套结构
+	有时候，在一个结构中包含另一个结构(嵌套结构)很方便；例如，创建通讯录；
+	结构中需要一个成员表示朋友的姓名，然而名字可以分开为姓和名两个成员；
+	下面是一个简单的示例：
+
+#include<stdio.h>
+#define LEN 20
+const char *msg[5] = {
+	"    Thank you for the wonderful evening,",
+	"You certainly prove that a",
+	"is a special kind of guy.We must get together",
+	"over a delicious ",
+	"and have a few laughs"
+};
+struct names
+{
+	char first[LEN];
+	char last[LEN];
+};
+struct guy
+{
+	struct names handle;
+	char favfood[LEN];
+	char job[LEN];
+	float incom;
+};
+int main(void)
+{
+	struct guy fellow =
+	{
+		{"Peter","Pan"},
+		"grilled salmon",
+		"personality coach",
+		12000
+	};
+	printf("Dear %s,\n\n", fellow.handle.first);
+	printf("%s%s.\n", msg[0], fellow.handle.first);
+	printf("%s%s\n", msg[1], fellow.job);
+	printf("%s\n", msg[2]);
+	printf("%s%s%s", msg[3], fellow.favfood, msg[4]);
+	if (fellow.incom > 10000.0)
+		puts("!!");
+	else if (fellow.incom > 7500.0)
+		puts("!");
+	else
+		puts(".");
+	printf("\n%40s%s\n", " ", "See you soon,");
+	printf("%40s%s\n", " ", "Shalala");
+	return 0;
+}
+
+
+	首先，注意如何在结构中创建嵌套结构。和声明int类型变量一样，进行简单的声明：
+	struct names handle;
+	该声明表明handle是一个struct names 类型的变量名，当然文件中也包含结构names的声明；
+	其次，注意如何访问嵌套结构的成员，这需要使用2次点运算符；
+	printf("Hello,%s!",fellow.handle.first);
+	从左往右解释 fellow.handle.first:
+	(fellow.handle).first
+	也就是说，找到fellow，然后找到成员handle，再找到成员first
+
+
+14.6	指向结构的指针
+	使用指向结构的指针的优点：
+	1.指向数组的指针比数组本身更容易操控(如排序)，指向结构的指针也通常比结构本身更容易操控；
+	2.早期的C实现中，结构不能作为参数传递，但是指针可以传递；
+	3.即使能传递一个结构，传递指针通常更有效率；
+	4.一些用于表示数据的结构中包含指向其他结构的指针；
+
+	下面示例程序演示了如何定义指向结构的指针和如何用它访问结构的成员；
+	
+#include<stdio.h>
+#define LEN 20
+struct names 
+{
+	char first[LEN];
+	char last[LEN];
+};
+struct guy
+{
+	struct names handle;
+	char favfood[LEN];
+	char job[LEN];
+	float income;
+};
+int main(void)
+{
+	struct guy fellow[2]=
+	{ 
+		{
+			{"Ewen","Villard"},
+			"qrilled salmon",
+			"personality coach",
+			68112.00
+		}, 
+		{
+			{"Rodney","Swillbelly"},
+			"tripe",
+			"tabloid editor",
+			432400.00
+		}
+	};
+	struct guy *him;
+	printf("address #1:%p	#2:%p\n", &fellow[0], &fellow[1]);
+	him = &fellow[0];
+	printf("pointer #1:%p	#2:%p\n", him, him + 1);
+	printf("him->income is $%.2f:(*him).incoms is $%.2f\n", him->income, (*him).income);
+	him++;
+	printf("him->favfood is %s: him->handle.last is %s\n", him->favfood, him->handle.last);
+	return 0;
+}
+
+	运行结果：
+	address #1:0000005162CFFA50     #2:0000005162CFFAA4
+	pointer #1:0000005162CFFA50     #2:0000005162CFFAA4
+	him->income is $68112.00:(*him).incoms is $68112.00
+	him->favfood is tripe: him->handle.last is Swillbelly
+
+1234567890ABCDEF
+
+14.6.1	声明和初始化结构指针
+	声明结构指针很简单：
+	struct guy *him;
+	首先是关键字struct，其次是结构标记guy，然后是一个星号*其后跟着指针名；
+	该声明并未创建一个新的结构，但是指针him可以指向任意现有的guy类型的结构；
+	例如，如果barney是一个guy类型的结构，可以这样写：
+	him=&barney;
+	和数组不同的是，结构名并不是结构的地址，因此要加上寻址符&;
+	本例中，fellow是一个结构数组，这意味着fellow[0]是一个结构，所以要让him指向fellow[0]：
+	him=&fellow[0];
+	
+	输出的前两行说明赋值成功，him指向fellow[0]，him+1指向fellow[1];
+	注意，him+1相当于him指向的地址加84(即一个结构的字长)；FAA4-FA50=54(16进制)=84(10进制)；
+	因为每个guy结构都占用84字节的内存:
+	name.first占用LEN(20)字节，name.last占用20，favfood占用20字节，job占用20字节，income占用4字节(float)；
+	在有些系统中，一个结构的大小可能大于它各成员大小之和。这是因为对数据进行校准的过程产生了一些缝隙；
+	例如，有些系统必须把每个成员都放在偶数地址上，或4的倍数地址上，在系统中，结构的内部就存在未使用的内存；
+
+14.6.2	用指针访问成员(字段访问)
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
