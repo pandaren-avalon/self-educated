@@ -17735,24 +17735,591 @@ int main(void)
 	例如，有些系统必须把每个成员都放在偶数地址上，或4的倍数地址上，在系统中，结构的内部就存在未使用的内存；
 
 14.6.2	用指针访问成员(字段访问)
+	指针him指向结构变量fellow[0]，如何通过him获得fellow[0]的成员的值，2种方式：
 	
+	1.使用->运算符
+	him==&barney;him->income就是barney.income;
+	him==&fellow[0],him->income就是fellow[0].income;
+	him是一个指针，但是him->income是该指针指所指向结构的一个成员，在该例中him->income是一个float变量；
+	
+	2.逆运算符
+	him==&fellow[0];*him==fellow[0],
+	fellow[0].income==(*him).income
+	必须使用圆括号是因为.运算符比*运算符的优先级高；
+	
+	总之，如果him是指向guy类型结构barney的指针，下面的关系式恒成立：
+	barney.income==(*him).income==him->income;	//前提him==&barney
+	[结构名].[成员名]==[指针解引用].[成员名]==[指针]->[成员名]
 
 
+14.7	向函数传递结构的信息
+	函数的参数把值传递给函数，每个值都是一个数字——可能是int类型，float类型，可能是ASCII字符码或者地址；
+	然而一个结构比一个单独的值复杂；以前的C不允许传递结构参数，限制ANSIC允许把结构作为参数使用；
+	所以程序员可以选择是传递结构本身，还是传递指向结构的指针；
+	如果你只关心结构中的某一部分，甚至可以把结构的成员作为参数；下面分析这3种传递方式；
+
+14.7.1	传递结构成员
+	只要结构成员是一个具有单个值的数据类型(即，int及其相关类型、char、float、double或指针)；
+	就可以将它作为参数传递给接受该特定类型的函数；演示程序：将客户的银行账户添加到他的储蓄和贷款账户中：
+
+#include<stdio.h>
+#define LEN 50
+struct funds
+{
+	char bank[LEN];
+	double bankfund;
+	char save[LEN];
+	double savefund;
+};
+double sum(double, double);
+int main(void)
+{
+	struct funds stan =
+	{
+		"Garlic-Melon Bank",
+		4032.27,
+		"Lucky's Savings and Loan",
+		8543.94
+	};
+	printf("Stan has a total of $%.2f.\n", sum(stan.bankfund, stan.savefund));
+	return 0;
+}
+double sum(double x, double y)
+{
+	return (x + y);
+}
+
+	运行结果：
+	stan has a total of $12576.21.
+	
+	sum()函数不知道也不关心实际的参数是否是结构的成员，它只要求传入的数据是double类型；
+	如果需要在被调函数中修改主调函数中成员的值，就需要传递成员的地址，如：
+	modify(&stan.banfund);
+	把结构的信息告诉函数的第2个方法是，让被调函数知道自己正在处理一个结构：
+
+14.7.2	传递结构的地址
+	继续解决前面的问题，这次把结构的地址作为参数；由于函数要处理funds结构，所以必须声明funds结构：
+
+#include<stdio.h>
+#define LEN 50
+struct funds
+{
+	char bank[LEN];
+	double bankfund;
+	char save[LEN];
+	double savefund;
+};
+double sum(const struct funds *);//参数是一个指针
+int main(void)
+{
+	struct funds stan =
+	{
+		"Garlic-Melon Bank",
+		4032.27,
+		"Lucky's Savings and Loan",
+		8543.94
+	};
+	printf("Stan has a total of $%.2f.\n", sum(&stan));
+	return 0;
+}
+double sum(const struct funds * money)
+{
+	return (money->bankfund+money->savefund);
+}
 
 
+	sum()使用指向funds结构的指针(money)作为它的参数，把地址&stan传递给该函数，使指针money指向结构stan
+	然后通过->运算符获取stan.bankfund和stan.savefund的值；
+	由于该函数不能改变指针所指向的内容，所以把money声明为一个指向const的指针；
+	
+	虽然该函数并未使用其他成员，但是也可以访问它们。注意，必须使用&运算符来获取结构的地址；
+	和数组名不同，结构名只是其地址的别名，而不是一个地址。
+
+14.7.3	传递结构
+
+#include<stdio.h>
+#define LEN 50
+struct funds
+{
+	char bank[LEN];
+	double bankfund;
+	char save[LEN];
+	double savefund;
+};
+double sum(struct funds moolah);//moolah 结构作为参数
+int main(void)
+{
+	struct funds stan =
+	{
+		"Garlic-Melon Bank",
+		4032.27,
+		"Lucky's Savings and Loan",
+		8543.94
+	};
+	printf("Stan has a total of $%.2f.\n", sum(stan));
+	return 0;
+}
+double sum(struct funds moolah)
+{
+	return (moolah.bankfund+moolah.savefund);
+}
+	
+	该程序把上一例中的指向struct funds 类型的指针money，替换成struct funds类型的结构变量moolah；
+	调用sum()时，编译器根据funds模板创建了一个名为moolah的自动结构变量；
+	然后该结构的成员被初始化为stan结构变量相应成员的值的副本；
+	因此，程序使用原来的结构的副本进行计算；由于moolah是一个结构，所以程序用moolah.bankfund表示成员
+	而不是指针用法money->bankfund；
+	
+14.7.4	其他结构特性
+	现在的C允许把一个结构赋值给另一个结构，但是数组不能这样做；例如ndata和odata都是相同类型的结构：
+	odata=ndata；	//把一个结构赋值给另一个结构；
+	
+	这条语句把ndata的每个成员的值都赋给odata的相应的成员。即使成员是数组，也能完成赋值；
+	另外，还可以把一个结构初始化为相同类型的另一个结构：
+	struct names rightfiled={"Ruthie","George"};
+	struct names captain=rightfiled;	//把一个结构初始化为另一个结构；
+	
+	现在的C不仅能把结构作为参数传递，还能把结构作为返回值。
+	把结构作为参数可以把结构的信息传递给函数，把结构作为返回值能把结构信息从被调函数传回主调函数；
+	结构指针也允许这种双向通信，因此可以选择任一种方法来解决编程问题。
+	我们通过另一组程序示例来演示这两种方法；
+	为了对比这两种方法，我们先编写一个程序，以传递指针的方式处理结构，然后以传递结构和返回结构的方式重写
+	//源程序：使用指向结构的指针方式
+
+#include<stdio.h>
+#include<string.h>
+#define LEN 30
+struct namect
+{
+	char fname[LEN];
+	char lname[LEN];
+	int letters;
+};
+void getinfo(struct namect *);
+void makeinfo(struct namect *);
+void showinfo(const struct namect *);
+char *s_gets(char *str, int n);
+int main(void)
+{
+	struct namect person;
+	getinfo(&person);
+	makeinfo(&person);
+	showinfo(&person);
+	return 0;
+}
+void getinfo(struct namect * pst)
+{
+	printf("Please enter your first name.\n");
+	s_gets(pst->fname, LEN);
+	printf("Please enter your last name.\n");
+	s_gets(pst->lname, LEN);
+	return;
+}
+void makeinfo(struct namect * pst)
+{
+	pst->letters = strlen(pst->fname) + strlen(pst->lname);
+}
+void showinfo(const struct namect *pst)
+{
+	printf("%s %s,your name contains %d letters.\n", pst->fname, pst->lname, pst->letters);
+}
+char *s_gets(char *str, int n)
+{
+	char * ret_val;
+	char *find;
+	ret_val = fgets(str, n, stdin);
+	if (ret_val)
+	{
+		find = strchr(str, '\n');
+		if (find)
+			*find = '\0';
+		else
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
+
+	该程序把任务分配给3个函数来完成，都在main()中调用，每调用一个函数就把person结构的地址传递给它；
+	getinfo()函数把结构的信息从自身传递给main()，通过交互获得姓名并通过pst指针定位，将其放入person结构中；
+	虽然getinfo()给main()函数提供了信息，但是它并未使用返回机制，所以返回类型为void；
+	makeinfo()函数使用双向传输方式传送信息。通过指针定位了储存在该结构中的姓和名，再用strlen()函数分别计算
+	最后使用person的地址储存两数之和。
+	showinfo()函数使用一个指针定位待打印的信息，因为该函数不改变结构的内容，所以声明为const；
+
+	所有这些操作中，只有一个结构变量person，每个函数都使用该结构变量的地址来访问它。
+	一个函数把信息从自身传回，一个函数把信息从主调函数传给自身，一个函数通过双向传输来传递信息；
+
+	现在我们来看如何使用结构参数和返回值来完成相同任务：
+	//传递和返回结构方式：
+
+#include<stdio.h>
+#include<string.h>
+#define LEN 30
+struct namect
+{
+	char fname[LEN];
+	char lname[LEN];
+	int letters;
+};
+struct namect getinfo(void);
+struct namect makeinfo(struct namect);
+void showinfo(struct namect);
+char *s_gets(char *str, int n);
+int main(void)
+{
+	struct namect person;
+	person = getinfo();
+	person = makeinfo(person);
+	showinfo(person);
+	return 0;
+}
+struct namect getinfo(void)
+{
+	struct namect temp;
+	printf("Please enter your first name.\n");
+	s_gets(temp.fname, LEN);
+	printf("Please enter your last name.\n");
+	s_gets(temp.lname, LEN);
+	return temp;
+}
+struct namect makeinfo(struct namect info)
+{
+	info.letters = strlen(info.fname) + strlen(info.lname);
+	return info;
+}
+void showinfo(struct namect info)
+{
+	printf("%s %s,your name contains %d letters.\n", info.fname, info.lname, info.letters);
+}
+char *s_gets(char *str, int n)
+{
+	char * ret_val;
+	char *find;
+	ret_val = fgets(str, n, stdin);
+	if (ret_val)
+	{
+		find = strchr(str, '\n');
+		if (find)
+			*find = '\0';
+		else
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
+
+	struct namect makeinfo(struct namect info)
+	为了传递结构本身，函数的参数必须是person，那么相应的形式参数应声明为struct namect；
+	比如要传递int类型参数的函数，参数声明里就应该声明为int；
+	返回值是int类型，声明里类型也应该是int；返回结构类型同理；声明struct namect 类型；
+	
+	该程序的每个函数都创建了自己的person备份，所以它使用了4个不同的结构，不像用指针时只用了1个；
+	例如，makeinfo()函数；
+	在第1个程序中，传递的是person的地址，该函数实际上处理的是person的值；
+	在第2个程序中，创建了新的结构info，储存在person中的值被拷贝到info，函数处理的是这个副本。
+	因此，统计完字母个数后，计算结果储存在info中，而不是person中；
+	然而返回机制弥补了这一点，
+	return info;
+	与main()中
+	person=makeinfo(person)；
+	把储存在info中的值拷贝到person中，注意，必须把makeinfo()声明为struct namect类型，该函数返回一个结构；
 
 
+14.7.5	结构和结构指针的选择
+	两者各有优缺点：
+	
+	指针模式：
+	优点2个：①兼容以前的C实现；②来执行起来快，只需要传递一个地址；
+	缺点：无法保护数据，被调函数中的某些操作可能会意外影响原来结构中的数据；可用const解决；
+	
+	结构作为参数模式：
+	优点：函数处理的是原始数据的副本，保护了原始数据；另外代码风格也更清楚；比如：
+		假设定义了下面的结构类型：
+		struct vector {double x;double y;};
+		如果用verctor类型的结构ans储存相同类型结构a和b的和，就要把结构作为参数和返回值：
+		struct vector ans,a,b;
+		struct vecyor sum(struct verctor,struct vertor);
+		ans=sum(a,b);
+		对程序员而言，上面版本比指针传递的版本更自然，可读性更好；指针版本如下：
+		struct vector ans,a,b;
+		void sum(const struct vector *,const struct vector *,struct verctor *);
+		sum(&a,&b,&ans);
+		另外，如果使用指针版本，程序员必须记住总和的地址应该是第1个参数还是第2个参数的地址
+	缺点2个：①可能无法兼容老版本C；②传递结构浪费时间和存储空间，尤其是把大型结构传递给函数；
+		尤其是它只使用结构中的一两个成员时特别浪费；这种情况下传递指针或只传递函数所需成员更好；
+
+	通常，为了追求效率会使用结构指针作为函数参数，如需防止原始数据被修改可用加const限定符；
+	按值传递结构是处理小型结构最常用的方法；
+
+14.7.6	结构中的字符数组和字符指针
+	到目前为止，我们在结构中都使用字符数组来储存字符串，是否可以使用指向char的指针来代替数组？
+	#define LEN 20;
+	struct names
+	{
+		char first[LEN];
+		char last[LEN];
+	};
+	其中的结构声明是否可以这样写：
+	struct pnames
+	{
+		char * first;
+		char * last;
+	};
+	当然可以，但是如果不理解这样做的含义，可能会有麻烦；考虑下面代码：
+	struct names veep={"Talia","Summers"};
+	struct pnames teras={"Brad","Fallingjaw"};
+	printf("%s and %s\n",veep.first,tears.first);
+	
+	以上代码都没问题，也能正常运行，但是思考一下字符串被储存在何处；
+	对于struct names类型的结构变量 veep，以上字符串都储存在结构内部，结构总共分配40字节储存姓名；
+	然而struct pnames类型的结构变量tears，以上字符串储存在编译器储存常量的地方，结构本身只储存了2个地址；
+	在我们系统中共占16字节。尤其是，struct pnames结构不用为字符串分配任何储存空间，
+	它使用储存在别处的字符串(如字符串常量或数组中的字符串)；
+	简而言之，在pnames结构变量中的指针应该只用来在程序中管理那些已经分配和在别处分配的字符串；
+	
+	我们看看这种限制在什么情况下出问题，考虑下面代码：
+	struct names acc;
+	struct pnamse att;
+	puts("Enter the last name of your acc:");
+	scanf("%s",acc.last);	//scanf_s("%s",acc.last,LEN);
+	puts("Enter the last name of your att:");
+	scanf("%s",att.last);	//scanf_s("%s",att.last,?); //潜在危险；
+
+	就语法而言，这段代码没问题，但是，用户的输入储存到哪里去了？
+	对于acc，它的名储存在acc结构变量的last成员中，该结构中有一个储存字符串的数组last[LEN];
+	对于att，scanf()把字符串放到att.last表示的地址上。由于这是未初始化的变量，地址可以是任何值；
+	因此程序可以把它放在任何随机地方，如果走运的话程序暂时无问题，否则这一操作会导致程序崩溃；
+	实际上，如果程序能正常运行并不是好事，这意味着一个未被察觉的危险潜伏在程序中。
+
+	因此，如果要用结构储存字符串，用字符数组作为成员比较简单，用指向char的指针也行，但是误用存在风险；
+
+14.7.7	结构、指针和malloc()
+	如果使用malloc()分配内存并使用指针储存该地址，那么在结构中使用指针处理字符串就比较合理；
+	这种方法的优点是，可以请求malloc()为字符串分配合适的存储空间。可以要求使用4字节储存"joe"；
+	也可以用18字节储存"Rosolofomasoandro";
+	用这种方法改写示例程序并不费劲，主要是更改结构声明(用指针代替数组)，和提供一个新版的getinfo()函数；
+	新的结构声明如下：
+	struct namect
+	{
+		char *fname;
+		char *lname;
+		int letters;
+	};
+	新的getinfo()把用户的输入读入临时数组中，调用malloc()函数分配存储空间，并拷贝字符串到其中；
+	void getinfo(struct namect *pst)
+	{
+		char temp[LEN];
+		printf("Please enter your first name.\n");
+		s_gets(temp,LEN);
+		pst->fname=(char *)malloc(strlen(temp)+1);	//分配内存储存fname
+		strcpy(pst->fname,temp);			//拷贝fname到已分配内存	
+		printf("Please enter your last name.\n");
+		s_gets(temp,LEN);
+		pst->lname=malloc(strlen(temp)+1);
+		strcpy(pst->lname,temp);
+	}
+	
+	要理解，这两个字符串都未储存在结构中，它们储存在malloc()动态分配的内存块中；
+	然而，结构中储存着这两个字符串的地址，处理字符串的函数通常都要使用字符串的地址，因此不用修改其余函数；
+	对malloc()分配的内存，需要free()来释放内存区域，因此程序中需要添加一个新的函数cleanup()；
+	
+	完整程序如下：
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define LEN 30
+struct namect
+{
+	char *fname;
+	char *lname;
+	int letters;
+};
+void getinfo(struct namect *);//分配内存
+void makeinfo(struct namect *);
+void showinfo(const struct namect *);
+void cleanup(struct namect *);//释放内存
+char *s_gets(char *str, int n);
+int main(void)
+{
+	struct namect person;
+	getinfo(&person);
+	makeinfo(&person);
+	showinfo(&person);
+	cleanup(&person);
+	return 0;
+}
+void getinfo(struct namect *pst)
+{
+	char temp[LEN];
+	printf("Please enter your first name.\n");
+	s_gets(temp, LEN);
+	pst->fname = (char *)malloc(strlen(temp) + 1);	//分配内存储存fname
+	strcpy_s(pst->fname,strlen(temp)+1, temp);	//拷贝fname到已分配内存	
+	printf("Please enter your last name.\n");
+	s_gets(temp, LEN);
+	pst->lname = malloc(strlen(temp) + 1);
+	strcpy_s(pst->lname, strlen(temp) + 1, temp);
+}
+void makeinfo(struct namect * pst)
+{
+	pst->letters = strlen(pst->fname) + strlen(pst->lname);
+}
+void showinfo(const struct namect *pst)
+{
+	printf("%s %s,your name contains %d letters.\n", pst->fname, pst->lname, pst->letters);
+}
+void cleanup(struct namect * pst)
+{
+	free(pst->fname);
+	free(pst->lname);
+}
+char *s_gets(char *str, int n)
+{
+	char * ret_val;
+	char *find;
+	ret_val = fgets(str, n, stdin);
+	if (ret_val)
+	{
+		find = strchr(str, '\n');
+		if (find)
+			*find = '\0';
+		else
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
 
 
+14.7.8	复合字面量和结构(C99)
+	复合字面量特性可用于结构和数组，如果只需要临时结构值，复合字面量很好用；
+	例如，可以使用它创建一个数组作为函数的参数或赋给另一个结构；
+	语法是把类型名放在圆括号中，后面紧跟一个花括号起来的初始化列表；如struct book类型的：
+	(struct book){"The Idiot","Fyodor",6.99}
+	示例程序:
 
+#include<stdio.h>
+#define MAXTITL 41
+#define MAXAUTL 31
+struct book
+{
+	char title[MAXTITL];
+	char author[MAXAUTL];
+	float value;
+};
+int main(void)
+{
+	struct book readfirst;
+	int score;
+	printf("Enter test score: ");
+	scanf_s("%d", &score);
+	if (score >= 84)
+		readfirst = (struct book) { "Crime and punishment", "Fyodor", 11.25 };
+	else
+		readfirst = (struct book) { "Mr.Bouncy's nice hat", "Fred", 5.99 };
+	printf("Your assigned reading:\n");
+	printf("%s by %s:$%.2f\n", readfirst.title, readfirst.author, readfirst.value);
+	return 0;
+}
 
+	还可以把复合字面量作为函数参数，如果函数接受一个结构，可以把复合字面量作为实际参数传递：
+	struct rect {double x;double y;};
+	double rect_area(struct rect r){return r.x*r.y}	//rect_area()函数定义
+	double area;
+	area=rect_area((struct rect){10.5,20.0});		//(struct rect){10.5,20.0}复合字面量
+	值210被赋给area；
+	
+	如果函数接受一个地址，可以传递复合字面量的地址：
+	struct rect { double x; double y;};
+	double rect_areap(struct rect *rp){return rp->x*rp->y;}
+	double area;
+	area=rect_areap(&(struct rect){10.5,20.0});
+	值210被赋给area；
 
+	复合字面量在所有函数的外部，具有静态存储期；如果在块中，具有自动存储期；与普通初始化列表的语法规则相同；
+	这意味着，可以在复合字面量中使用指定初始化器；
 
+14.7.9	伸缩型数组成员(C99)
+	C99新增了一个特性：伸缩型数组成员；利用这项特性声明的结构，其最后一个数组成员具有一些特性；
+	1.该数组不会立即存在；
+	2.使用这个数组成员可以编写合适的代码，就好像它确实存在并具有所需数目的元素一样；
+	规则：
+	①伸缩型数组成员必须是结构的最后一个成员；
+	②结构中必须至少有一个成员；
+	③伸缩数组的声明类似于普通数组，只是它的方括号中是空的。
+	示例：
+	struct flex
+	{
+		int count;
+		double average;
+		double scores[];	//伸缩型数组成员
+	};
+	
+	声明一个struct flex类型的结构变量时，不能用scores做任何事，因为没有给这个数组预留存储空间；
+	实际上，C99的意图并不是让你声明struct flex类型的变量，而是希望你声明一个指向struct flex类型的指针；
+	然后用malloc()来分配足够的空间，以储存struct flex类型结构的常规内容和伸缩型数组成员所需的额外空间；
+	例如，假设用scores表示一个内含5个double类型的数组，可以这样做：
+	struct flex *pf;
+	pf=malloc(sizeof(struct flex)+5*sizeof(double));
+	现在有足够的空间储存count、average和一个内含5个double类型值的数组；可以用指针fp访问这些成员：
+	pf->count=5;	//设置count成员
+	pf->scores[2]=18.5	//访问数组成员的一个元素；
+	
+	下面示例程序，让伸缩型数组成员在第1种情况下表示5个值，在第2种情况下代表9个值；
+	该程序也演示了如何编写一个【函数处理带伸缩型数组元素的】结构。
+	
+#include<stdio.h>
+#include<stdlib.h>
+struct flex
+{
+	size_t count;
+	double average;
+	double scores[];
+};
+void showflex(const struct flex *p);
+int main(void)
+{
+	struct flex *fp1, *fp2;
+	int n = 5;
+	int i;
+	double total = 0;
 
+	fp1 = malloc(sizeof(struct flex) + n * sizeof(double));
+	fp1->count = n;
+	for (i = 0; i < n; i++)
+	{
+		fp1->scores[i] = 20.0 - i;
+		total += fp1->scores[i];
+	}
+	fp1->average = total / n;
+	showflex(fp1);
 
+	n = 9;
+	total = 0;
+	fp2= malloc(sizeof(struct flex) + n * sizeof(double));
+	fp2->count = n;
+	for (i = 0; i < n; i++)
+	{
+		fp2->scores[i] = 20.0 - i / 2.0;
+		total += fp2->scores[i];
+	}
+	fp2->average = total / n;
+	showflex(fp2);
+	free(fp1);
+	free(fp2);
+	return 0;
+}
+void showflex(const struct flex *p)
+{
+	int i;
+	printf("Scores: ");
+	for (i = 0; i < p->count; i++)
+		printf("%g ", p->scores[i]);
+	printf("\nAverage:%g\n", p->average);
+}
 
-
-
+		
 
 
 
