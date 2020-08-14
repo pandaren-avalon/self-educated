@@ -18319,56 +18319,420 @@ void showflex(const struct flex *p)
 	printf("\nAverage:%g\n", p->average);
 }
 
+	运行结果：
+	Scores: 20 19 18 17 16
+	Average:18
+	Scores: 20 19.5 19 18.5 18 17.5 17 16.5 16
+	Average:18		
+	
+	带伸缩型数组成员的结构有一些特殊的处理要求：
+	①不能用结构进行赋值或拷贝：
+	struct flex *fp1,*fp2;
+	*fp2=*fp1		//不要这么做；
+	
+	这样做只能拷贝除伸缩型数组成员以外的其他成员；确实要进行拷贝，应使用memcpy()函数(见16章)
+
+	②不要以按值方式把这种结构传递给结构；原因相同，按值传递一个参数与赋值类似，要把结构地址传递给函数；
+	③不要使用带伸缩型数组成员的结构作为数组成员或另一个结构的成员。
+	这种类似于在结构中最后一个成员是伸缩型数组的情况，称为struct hack；
+	除了伸缩型数组成员在声明时用空的方括号外，struct hack特指大小为0的数组；
+	
+14.7.10	匿名结构(C11)
+	匿名结构是一个没有名称的结构成员。
+	
+	为了解它的工作原理，我们先考虑如何创建嵌套结构：	
+	struct names
+	{
+		char first[20];
+		char last[20];
+	};
+	struct person
+	{
+		int id;
+		struct names name;//嵌套结构成员
+	};
+	struct person ted = { 8483,{"Ted","Grass"} };	//初始化
+
+	这里，name成员是一个嵌套结构，可以通过类似ted.name.first的表达式访问"Ted":
+	puts(ted.name.first);
+
+	在C11中，可以使用嵌套的匿名成员结构定义person:
+	struct person
+	{
+		int id;
+		struct{char first[20];  char last[20];};	//匿名结构
+	};
+	struct person ted = { 8483,{"Ted","Grass"} };	//初始化ted的方式相同
+	但是访问ted时简化了步骤，只需把first看作是person的成员那样使用它:
+	puts(ted.first);
+
+	当然也可以把first和last直接作为person的成员，删除嵌套循环，匿名特性在嵌套联合中更加有用，后面介绍；
+
+14.7.11	使用结构数组的函数
+	假设一个函数要处理一个结构数组，由于数组名就是该函数的地址，所以可以把它传递给函数。
+	另外，该函数还需要访问结构模板，为了理解该函数的工作原理，改写示范程序：
+	
+#include<stdio.h>
+#define LEN 50
+#define N 2
+
+struct funds
+{
+	char bank[LEN];
+	double bankfund;
+	char save[LEN];
+	double savefund;
+};
+double sum(const struct funds money[], int n);
+
+int main(void)
+{
+	struct funds jones[N] =
+	{
+		{
+			"Garlic-Menlon Bank",
+			4032.27,
+			"Lucky's Savings and Loan",
+			8543.94
+		},
+		{
+			"Honest Jack's Bank",
+			3620.88,
+			"Party Time Savings",
+			3802.91
+		}
+	};
+	printf("The Joneses have a total of $ %.2f.\n", sum(jones, N));
+	return 0;
+}
+
+double sum(const struct funds money[], int n)
+{
+	double total;
+	int i;
+	for (i = 0, total = 0; i < n; i++)
+		total += money[i].bankfund + money[i].savefund;
+	return total;
+}
+
+	数组名jones是该数组的地址，即该数组首元素jones[0]的地址，因此指针money的初始值相当于
+	money=&jones[0];
+	因为money指向jones数组的首元素，所以money[0]是该数组的另一个名称，类似的money[1]是第2个元素；
+	每个元素都是一个funds类型的结构，所以都可以用点运算符来访问funds类型结构的成员；
+	
+	下面是几个要点：
+	①可以把数组名作为数组中第一个结构的地址传递给函数；
+	②然后可以用数组表示法访问数组中的其他结构；注意下面的函数调用与使用数组名效果相同:
+		sum(&jones[0],N)
+	   因为jones和jones[0]的地址相同，使用数组名是传递结构地址的一种间接方法；
+	③由于sum()函数不能改变原始数据，所以使用了const限定符；
+	
+	
+14.8	把结构内容保存到文件中
+	由于结构可以储存不同类型的信息，所以它是构建数据库的重要工具；
+	例如可以用一个结构储存雇员或汽车零件的相关信息；最终，我们要把这些信息储存在文件中并能再次检索；
+	数据库文件可以包含任意数量的此类数据对象；
+	储存在一个结构中的整套信息被称为记录，单独的项被称为字段；
+
+	或许储存记录最没效率的方法是用fprintf()；例如
+	#define MAXTITL 40
+	#define MAXAUTL 40
+	struct book
+	{
+		char title[MAXTITL];
+		char author[MAXAUTL];
+		float value;
+	};
+	如果pbook标识一个文件流，那么通过下面这条语句可以把信息储存在struct book类型的结构变量primer中：
+	fprintf(pbook,"%s %s %.2f\n",primer.title,primer.author,primer.value);
+	对于一些结构(如多个成员)，这个方法用起来很不方便，另外检索时还存在问题；
+	因为程序要知道一个字段结束和一个字段开始的位置。虽然用固定的字段宽度或许可以解决，但是仍很笨拙；
+
+	更好的方案是使用fread()和fwrite()函数读写结构大小的单元；这两个函数使用与程序相同的二进制表示法；
+	如：
+	fwrite(&primer,sizeof(struct book),1,pbooks);
+	定位到primer结构变量开始的位置，并把结构中所有的字节都拷贝到与pbooks相关的文件中；
+	sizeof(struct book)告诉函数待拷贝的第一块数据的大小，1表明一次拷贝一块数据；
+	带相同参数的fread()函数从文件中拷贝一块结构大小的数据到&primer指向的位置；
+	简而言之，这两个函数一次读写整个记录，而不是一个字段；
+
+	以二进制表示法储存数据的缺点是，不同的系统可能使用不同的二进制表示法，所以数据文件可能不具移植性；
+	甚至同一个系统，不同编译器设置也可能导致不同的二进制布局；
+
+14.8.1	保存结构的程序示例
+	为了演示如何在程序中使用这些函数，示范一个程序把书名保存在book.dat文件中；
+	如果该文件已存在，程序将显示它当前的内容，然后允许在文件中添加内容；
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define LEN 40
+#define MAXBKS 10
+
+char *s_gets(char *str, int n);
+struct book
+{
+	char title[LEN];
+	char author[LEN];
+	float value;
+};
+
+int main(void)
+{
+	struct book library[MAXBKS];
+	int count = 0;
+	int index, filecount;
+	FILE * pbooks;
+	int size = sizeof(struct book);
+	if (fopen_s(&pbooks, "book.dat", "a+b") != 0)
+	{
+		fputs("Can't open book.dat file\n", stderr);
+		exit(1);
+	}
+
+	rewind(pbooks);
+	while (count < MAXBKS&&fread(&library[count], size, 1, pbooks) == 1)
+	{
+		if (count == 0)
+			puts("Current contents of book.dat:");
+		printf("%s by %s: $ %.2f\n", library[count].title,
+			library[count].author, library[count].value);
+		count++;
+	}
+	filecount = count;
+	if (count == MAXBKS)
+	{
+		fputs("The book.dat file is full.", stderr);
+		exit(2);
+	}
+	puts("\nPlease add new book titles.");
+	puts("Press [enter] at the start of a line to stop.");
+	while (count < MAXBKS&&s_gets(library[count].title, LEN) != NULL && library[count].title[0] != '\0')
+	{
+		puts("Now enter the author.");
+		s_gets(library[count].author, LEN);
+		puts("Now enter the value.");
+		scanf_s("%f", &library[count].value);
+		count++;
+		while (getchar() != '\n')
+			continue;
+		if (count < MAXBKS)
+			puts("Enter the next title.");
+	}
+	if (count > 0)
+	{
+		puts("Here is the list of your books:");
+		for (index = 0; index < count; index++)
+			printf("%s by %s:$ %.2f\n", library[index].title,
+				library[index].author, library[index].value);
+		fwrite(&library[filecount], size, count - filecount, pbooks);
+	}
+	else
+		puts("No books? Too bad.\n");
+	puts("Bye.\n");
+	fclose(pbooks);
+	return 0;
+}
+char *s_gets(char *str, int n)
+{
+	char * ret_val;
+	char *find;
+	ret_val = fgets(str, n, stdin);
+	if (ret_val)
+	{
+		find = strchr(str, '\n');
+		if (find)
+			*find = '\0';
+		else
+			while (getchar() != '\n')
+				continue;
+	}
+	return ret_val;
+}
+
+
+14.8.2	程序要点
+	
+	"a+b"的打开方式，允许程序读取整个文件并在文件的末尾添加内容；
+	选择二进制模式是因为fread()和fwrite()函数要使用二进制文件，虽然结构中的有些内容是文本，
+	但是value成员不是文本，如果使用文本编辑器查看book.dat，该结构文本部分显示正常，数值部分不可读，导致乱码；
+	rewind()函数确保文件指针位于文件开始处，为读文件做好准备。
+	
+	第1个while循环把一个结构读取到数组中，当数组已满或读完文件时停止；变量filecount统计已读结构的数量；
+	第2个while循环提示用户进行输入并接受输入；当数组已满或一行起始处回车结束循环；
+	注意，该循环开始时count变量的值是第1个循环结束后的值，该循环把新输入项添加到数组末尾；
+	然后for循环打印文件和用户输入的数据，因为该文件是以附加模式打开，所以新写入的内容添加到文件现有末尾；
+
+	我们本可以用一个循环在文件末尾一次添加一个结构，但是还是决定用fwrite()一次写入一块数据；
+	对表达式count-filecount求值得新添加的书籍数量，然后调用fwrite()把结构大小的块写入文件；
+	由于表达式&library[filecount]是数组中第1个新结构的地址，所以拷贝就从这里开始；
+	
+	也行该案例是把结构写入文件和检索它们的最简单的方法，
+	但是这种方法浪费存储空间，因为这还保存了结构中未使用的部分。
+	该结构的大小是2*40*sizeof(char)+sizeof(float),实际上不是每个输入都需要这么多空间；
+	但是让每个输入块的大小相同，在检索数据时很方便。
+
+	另一个方法是使用可变大小的记录。为了方便读取文件中的这种记录，每个记录以数值字段规定记录的大小。
+	这比上一种方法复杂。通常使用这种方法及接下来要介绍的链式结构和第16章的动态内存分配。
+
+
+14.9	链式结构
+	在结束讨论结构之前，我们简单介绍下结构的多种用途之一：创建新的数据形式。
+	计算机用户已经开发出的一些数据形式比我们提到的数组和简单结构更有效地解决特定的问题。
+	这些形式包括队列、二叉树、堆、哈希表和图表。许多这样的形式都由链式结构组成。	
+
+	通常，每个结构都包含一两个数据项和一两个指向其他同类型结构的指针。
+	这些指针把一个结构和另一个结构链接起来，并提供一种路径能遍历整个彼此链接的结构。
+	例如一个二叉树结构，每个单独的结构(或节点)都和它下面的两个结构(或节点)相连。
+
+	第一层		        000				       000
+		        ___________________________		         ___________________________
+	第二层	        000		        000		        000		        000
+		_______________	_______________	_______________	_______________
+	第三层	000	000	000	000	000	000	000	000
+
+	上图显示的分级或树状的结构是否比数组高效？考虑一个有10级节点的树的情况。
+	它有2^10-1（或1023）个节点，可以储存1023个单词。
+	如果这些单词以某种规则排列，那么可以从最顶层开始，逐级向下，最多只需移动9次便可找到任意单词；
+	如果把这些单词都放在一个数组中，最多要查找1023个元素才能找出所需的单词。
+	
+	使用C结构可以创建和使用那些书本中介绍的各种数据形式，另外17章也介绍了一些高级数据形式。
+	
+
+14.10	联合简介
+	联合是一种数据类型，它能在同一个内存空间中储存不同的数据类型(不是同时存储)。
+	其典型的用法是，设计一种表以储存既无规律、事先也不知道顺序的混合类型。
+	使用联合类型的数组，其中的联合都大小相等，每个联合可以储存各种数据类型。
+	
+	创建联合和创建结构的方式相同，需要一个联合模板和联合变量。
+	可以用一个步骤定义联合，也可以用联合标记分两步定义。下面是一个带标记的联合模板：
+	union hold
+	{
+		int digit;
+		double bigfl;
+		char letter;
+	};
+	根据以上形式声明的结构可以储存一个int类型、一个double类型和char类型的值。
+	然而，声明的联合只能储存一个int类型的值或一个double类型的值或一个char类型的值。
+	
+	下面定义了3个与hold类型相关的变量：
+	union hold fit;		//hold类型的联合变量
+	union hold save[10];		//内含10个联合变量的数组
+	union hold *pu;		//指向hold类型联合变量的指针
+
+	第1个声明创建了一个单独的联合变量fit。编译器分配足够的空间以便它能储存联合声明中占用最大字节的类型；
+	(在本例中，占用空间最大的是double类型的数据，在我们系统中double占64位，即8字节；)	
+	第2个声明创建了一个数组save，内含10个元素，每个元素都是8字节；
+	第3个声明创建了一个指针，该指针储存hold类型联合变量的地址；
+	
+	可以初始化联合。需要注意的是，联合只能储存一个值。这与结构不同。
+	有3种初始化的方法：		
 		
+	union hold valA;
+	valA.letter='R';
+	union hold valB=valA;		//初始化为另一个同类型的联合；
+	union hold valC={88};		//初始化联合的第1个元素；
+	union hold calD={.bigfl=118.2};		//使用指定初始化器：
 
+14.10.1	使用联合
+	下面是联合的一些用法：
+	fit.digit=23;	//把23储存在fit；占2字节
+	fit.bigfl=2.0;	//清除23，储存2.0；占用8字节
+	fit.letter='h';	//清除2.0，储存h；占用1字节
 
+	点运算符表示正在使用哪种数据类型。在联合中，一次只能储存一个值。
+	即使有足够的空间，也不能同时储存一个char类型值和一个int类型值；
+	编写代码时要注意当前储存在联合中的数据类型。
 
+	和用指针访问结构使用->运算一样，用指针访问联合时也要使用->运算符：
+	pu=&fit;
+	x=pu->digit;	//相当于x=fit.digit;
 
+	不要像下面的语句序列这样使用联合：
+	fit.letter='A';
+	flnum=3.02*fit.bigfl;	//错误用法
+	因为在fit中储存的是char类型，但是下一行却假定fit中的内容是double类型；
 
+	不过，用一个成员把值储存在一个联合中，然后用另一个成员查看内容，这种做法有时很有用。
+	下面是一个示例程序，在结构中储存与其成员有从属关系的信息。
+	例如，假设用一个结构表示一辆汽车，如果汽车属于驾驶者，就要用一个结构成员来描述这个所有者；
+	如果汽车被租赁，那么需要一个成员来描述其租赁公司，下面是代码：
+	
+	struct owner
+	{
+		char socsecurity[12];
+	};
+	struct leasecompany
+	{
+		char name[40];
+		char headquarters[40]
+	};
+	union data
+	{
+		struct owner owncar;
+		struct leasecompany leasecar;
+	};
+	struct car_data
+	{
+		char make[15];
+		int status;		//私有为0，租赁为1；
+		union data ownerinfo;
+	};
 
+	假设flits是car_data类型的结构变量，如果flits.status为0，程序将使用flits.ownerinfo.owncar.socsecurity,
+	如果flits.status为1，则程序使用flits.ownerinfo.leasecar.name
 
+	
+14.10.2	匿名联合(C11)
+	匿名联合和匿名结构的工作原理相同，即匿名联合是一个结构或联合的无名联合成员，例如我们重新定义car_data:
 
+	struct owner
+	{
+		char socsecurity[12];
+	};
+	struct leasecompany
+	{
+		char name[40];
+		char headquarters[40]
+	};	
+	struct car_data
+	{
+		char make[15];
+		int status;		//私有为0，租赁为1；
+		union 
+		{
+			struct owner owncar;
+			struct leasecompany leasecar;
+		};
+	};
 
+	现在，如果flits是car_data类型的结构变量，可以用flits.ownercar.socsecurity代替flits.ownerinfo.owncar.socsecurity
 
+	总结：结构和联合运算符
+	①成员运算符：.
+		该运算符与结构或联合名一起使用，指定结构或联合的一个成员；
+	②间接成员运算符：->
+		该运算符和指向结构或联合的指针一起使用，标识结构或联合的一个成员；
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+14.11	枚举类型
+	可以用枚举类型生命符号来表示整型常量，使用enum关键字，可以创建一个新"类型"并指定它可具有的值。
+	(实际上，enum常量是int类型，因此只要能使用int类型的地方就可以使用枚举类型)
+	枚举类型的目的是提高程序的可读性。它的语法与结构的语法相同，例如：
+	enum spectrum{red, orange, yellow, green, bule, violet};
+	enum spectrum color;
+	第1个声明创建了spetrum作为标记名，允许把enum spetrum作为一个类型名使用；
+	第2个声明使color作为该类型的变量；
+	第1个声明中花括号内的标识符枚举了spetrum变量可能有的值。
+	因此，color可能是red、orange、yellow等，这些符号常量被称为枚举符；然后就可以这样用：
+	int c;
+	color=blue;
+	if(color==yellow)......;
+	for(color=red;color<=violet;color++)......;
+	
+	虽然枚举符(如red和blue等)是int类型，但是枚举变量可以是任意整数类型，前提是该整数类型可以储存枚举常量；
+	例如，spectrum的枚举范围是0-5，所以编译器可以使用unsigned char 来表示color变量；
+	
+	
 
 
 
